@@ -2,13 +2,7 @@
 trigger: always_on
 ---
 
----
-alwaysApply: true
----
 
----
-applyTo: '**'
----
 ## CODE RULES:
 - Code harus sneak case
 - Code harus rapih

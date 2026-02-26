@@ -3,26 +3,45 @@
 const __bypass_api_key = process.env.BYPASS_API_KEY || ""
 const __bypass_api_url = process.env.BYPASS_API_URL || ""
 
-// - PERFORMANCE OPTIMIZATION - \\
-const __bypass_timeout        = 20000
-const __bypass_global_timeout = 45000
-const __bypass_max_retry      = 3
-const __bypass_retry_delay_ms = 2000
+// - PERFORMANCE OPTIMIZATION - \
+const __bypass_timeout = 20000
+const __bypass_global_timeout = 60000 // Increased from 45000 to allow more retries
+const __bypass_max_retry = 4     // Increased from 3
+const __bypass_retry_delay_ms = 3000  // Increased from 2000
+
+// - GLOBAL RATE LIMIT QUEUE - \
+let __bypass_queue: Promise<void> = Promise.resolve()
+async function __enqueue_bypass<T>(task: () => Promise<T>): Promise<T> {
+  const current = __bypass_queue
+  let resolve_next!: () => void
+  __bypass_queue = new Promise(resolve => {
+    resolve_next = resolve
+  })
+
+  await current
+  try {
+    return await task()
+  } finally {
+    // Wait an additional 2.5 seconds after each request to avoid hitting IP rate limits
+    setTimeout(resolve_next, 2500)
+  }
+}
 
 interface BypassResponse {
-  success  : boolean
-  result?  : string
-  error?   : string
-  time?    : number
+  success: boolean
+  result?: string
+  error?: string
+  time?: number
   attempts?: number
   is_client_error?: boolean
+  retry_after?: number
 }
 
 interface SupportedService {
-  name    : string
-  type    : string
-  status  : string
-  domains : string[]
+  name: string
+  type: string
+  status: string
+  domains: string[]
 }
 
 /**
@@ -35,52 +54,62 @@ async function bypass_link_once(url: string, attempt: number): Promise<BypassRes
 
   try {
     const start_time = Date.now()
-    const params     = new URLSearchParams({ url: trimmed_url })
+    const params = new URLSearchParams({ url: trimmed_url })
 
-    const controller = new AbortController()
-    const timeout_id = setTimeout(() => controller.abort(), __bypass_timeout)
+    const response = await __enqueue_bypass(async () => {
+      const controller = new AbortController()
+      const timeout_id = setTimeout(() => controller.abort(), __bypass_timeout)
 
-    const response = await fetch(`${__bypass_api_url}?${params}`, {
-      method  : "GET",
-      headers : {
-        "x-api-key"       : __bypass_api_key,
-        "Accept-Encoding" : "gzip, deflate, br",
-        "Connection"      : "keep-alive",
-      },
-      signal : controller.signal,
+      try {
+        return await fetch(`${__bypass_api_url}?${params}`, {
+          method: "GET",
+          headers: {
+            "x-api-key": __bypass_api_key,
+            "Accept-Encoding": "gzip, deflate, br",
+            "Connection": "keep-alive",
+          },
+          signal: controller.signal,
+        })
+      } finally {
+        clearTimeout(timeout_id)
+      }
     })
-
-    clearTimeout(timeout_id)
 
     if (!response.ok) {
       const error_data: any = await response.json().catch(() => ({}))
       const err = new Error(error_data.message || `HTTP ${response.status}`)
-      ;(err as any).status = response.status
+        ; (err as any).status = response.status
+
+      const retry_after = response.headers.get("retry-after") || response.headers.get("Retry-After")
+      if (retry_after) {
+        ; (err as any).retry_after = parseInt(retry_after, 10)
+      }
+
       throw err
     }
 
-    const data: any    = await response.json()
+    const data: any = await response.json()
     const process_time = ((Date.now() - start_time) / 1000).toFixed(2)
 
     if (data && data.result) {
       console.log(`[ - BYPASS - ] Success on attempt ${attempt} in ${process_time}s`)
       return {
-        success  : true,
-        result   : data.result,
-        time     : parseFloat(process_time),
-        attempts : attempt,
+        success: true,
+        result: data.result,
+        time: parseFloat(process_time),
+        attempts: attempt,
       }
     }
 
     return {
-      success  : false,
-      error    : data?.message || "No result found in response",
-      attempts : attempt,
+      success: false,
+      error: data?.message || "No result found in response",
+      attempts: attempt,
     }
 
   } catch (error: any) {
     const message = typeof error?.message === "string" ? error.message : ""
-    const name    = typeof error?.name === "string" ? error.name : ""
+    const name = typeof error?.name === "string" ? error.name : ""
 
     // - LOG AS WARN FOR EXPECTED API ERRORS TO REDUCE NOISE - \\
     if (message.includes("HTTP 5")) {
@@ -109,10 +138,11 @@ async function bypass_link_once(url: string, attempt: number): Promise<BypassRes
     const is_client_error = status >= 400 && status < 500 && status !== 429
 
     return {
-      success  : false,
-      error    : error_message,
-      attempts : attempt,
+      success: false,
+      error: error_message,
+      attempts: attempt,
       is_client_error,
+      retry_after: error?.retry_after
     }
   }
 }
@@ -154,7 +184,12 @@ async function _run_bypass_link(
     if (is_unsupported || last_result.is_client_error) return last_result
 
     if (attempt < __bypass_max_retry) {
-      console.log(`[ - BYPASS - ] Attempt ${attempt} failed, retrying in ${__bypass_retry_delay_ms}ms...`)
+      let delay = __bypass_retry_delay_ms
+      if (last_result.retry_after && !isNaN(last_result.retry_after)) {
+        delay = Math.max(delay, last_result.retry_after * 1000)
+      }
+
+      console.log(`[ - BYPASS - ] Attempt ${attempt} failed, retrying in ${delay}ms...`)
       if (on_retry) {
         try {
           await on_retry(attempt + 1)
@@ -162,7 +197,7 @@ async function _run_bypass_link(
           console.warn(`[ - BYPASS - ] Failed to execute on_retry callback:`, retry_err)
         }
       }
-      await new Promise(resolve => setTimeout(resolve, __bypass_retry_delay_ms))
+      await new Promise(resolve => setTimeout(resolve, delay))
     }
   }
 
@@ -176,20 +211,24 @@ async function _run_bypass_link(
  */
 export async function get_supported_services(): Promise<SupportedService[]> {
   try {
-    const controller = new AbortController()
-    const timeout_id = setTimeout(() => controller.abort(), 5000)
+    const response = await __enqueue_bypass(async () => {
+      const controller = new AbortController()
+      const timeout_id = setTimeout(() => controller.abort(), 5000)
 
-    const response = await fetch(`${__bypass_api_url.replace('/bypass', '/supported')}`, {
-      method  : "GET",
-      headers : {
-        "x-api-key"       : __bypass_api_key,
-        "Accept-Encoding" : "gzip, deflate, br",
-        "Connection"      : "keep-alive",
-      },
-      signal: controller.signal,
+      try {
+        return await fetch(`${__bypass_api_url.replace('/bypass', '/supported')}`, {
+          method: "GET",
+          headers: {
+            "x-api-key": __bypass_api_key,
+            "Accept-Encoding": "gzip, deflate, br",
+            "Connection": "keep-alive",
+          },
+          signal: controller.signal,
+        })
+      } finally {
+        clearTimeout(timeout_id)
+      }
     })
-
-    clearTimeout(timeout_id)
 
     if (!response.ok) throw new Error(`HTTP ${response.status}`)
 
