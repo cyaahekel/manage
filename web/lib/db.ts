@@ -4,6 +4,55 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 })
 
+// - ENSURE BYPASS_STATS TABLE EXISTS WITH INITIAL COUNT OF 87000 - \\
+async function ensure_bypass_stats_table(client: any): Promise<void> {
+  await client.query(`
+    CREATE TABLE IF NOT EXISTS bypass_stats (
+      id          SERIAL PRIMARY KEY,
+      total_count BIGINT NOT NULL DEFAULT 87000,
+      updated_at  TIMESTAMPTZ DEFAULT NOW()
+    )
+  `)
+  await client.query(`
+    INSERT INTO bypass_stats (total_count)
+    SELECT 87000 WHERE NOT EXISTS (SELECT 1 FROM bypass_stats)
+  `)
+}
+
+/**
+ * Returns total bypassed link count.
+ * @returns Total count as number
+ */
+export async function get_bypass_count(): Promise<number> {
+  const client = await pool.connect()
+  try {
+    await ensure_bypass_stats_table(client)
+    const result = await client.query('SELECT total_count FROM bypass_stats LIMIT 1')
+    return Number(result.rows[0]?.total_count ?? 87000)
+  } finally {
+    client.release()
+  }
+}
+
+/**
+ * Increments total bypassed link count by 1.
+ * @returns Updated total count
+ */
+export async function increment_bypass_count(): Promise<number> {
+  const client = await pool.connect()
+  try {
+    await ensure_bypass_stats_table(client)
+    const result = await client.query(`
+      UPDATE bypass_stats
+      SET total_count = total_count + 1, updated_at = NOW()
+      RETURNING total_count
+    `)
+    return Number(result.rows[0]?.total_count ?? 87000)
+  } finally {
+    client.release()
+  }
+}
+
 export async function get_transcript(transcript_id: string) {
   const client = await pool.connect()
   try {

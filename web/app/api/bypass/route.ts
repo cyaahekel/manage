@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse }    from 'next/server'
+import { increment_bypass_count }       from '@/lib/db'
 
 const __bypass_api_key = process.env.BYPASS_API_KEY    || ""
 const __bypass_api_url = process.env.BYPASS_API_URL    || ""
@@ -147,6 +148,9 @@ export async function POST(req: NextRequest) {
     }
 
     console.log(`[ - BYPASS API - ] Success for: ${url}`)
+    increment_bypass_count().catch(err =>
+      console.error('[ - BYPASS STATS - ] Failed to increment count:', err)
+    )
     return NextResponse.json({ success: true, result: data.result })
 
   } catch (error) {
