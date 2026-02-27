@@ -228,12 +228,14 @@ export async function handle_auto_bypass(message: Message): Promise<boolean> {
         console.error(`[ - AUTO BYPASS - ] Failed to edit success message:`, err)
       }
 
-      // - SEND TO DM - \\
-      try {
-        await message.author.send(success_message)
-        console.warn(`[ - AUTO BYPASS - ] Sent result to ${message.author.tag}'s DM`)
-      } catch (dm_error) {
-        console.warn(`[ - AUTO BYPASS - ] Could not send DM to ${message.author.tag}`)
+      // - SEND TO DM (IF NOT IN DM ALREADY) - \\
+      if (!is_dm) {
+        try {
+          await message.author.send(success_message)
+          console.warn(`[ - AUTO BYPASS - ] Sent result to ${message.author.tag}'s DM`)
+        } catch (dm_error) {
+          console.warn(`[ - AUTO BYPASS - ] Could not send DM to ${message.author.tag}`)
+        }
       }
     } else {
       const error_message = component.build_message({

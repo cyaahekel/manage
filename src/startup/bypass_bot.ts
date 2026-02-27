@@ -1,4 +1,4 @@
-import { Client, Collection, GatewayIntentBits, ActivityType, REST, Routes, Message } from "discord.js"
+import { Client, Collection, GatewayIntentBits, ActivityType, REST, Routes, Message, Partials } from "discord.js"
 import { config }                                                                    from "dotenv"
 import { Command }                                                                   from "@shared/types/command"
 import { log_error }                                                                 from "@shared/utils/error_logger"
@@ -31,6 +31,12 @@ const client = new Client({
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.DirectMessages,
     GatewayIntentBits.MessageContent,
+  ],
+  partials: [
+    Partials.Channel,
+    Partials.Message,
+    Partials.User,
+    Partials.GuildMember,
   ],
   presence: {
     status    : "dnd",
