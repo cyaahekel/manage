@@ -202,6 +202,9 @@ export async function handle_auto_bypass(message: Message): Promise<boolean> {
       }
     })
 
+    // - INCREMENT COUNT PER ATTEMPT - \\
+    db.increment_bypass_count().catch(err => console.error(`[ - AUTO BYPASS - ] Failed to increment bypass count:`, err))
+
     if (result.success && result.result) {
       // - STORE IN DATABASE - \\
       const cache_key = `bypass_result_${message.id}`
@@ -217,9 +220,6 @@ export async function handle_auto_bypass(message: Message): Promise<boolean> {
       } catch (db_error) {
         console.error(`[ - AUTO BYPASS - ] Failed to store in database:`, db_error)
       }
-
-      // - INCREMENT GLOBAL BYPASS COUNTER - \\
-      db.increment_bypass_count().catch(err => console.error(`[ - AUTO BYPASS - ] Failed to increment bypass count:`, err))
 
       const success_message = component.build_message({
         components: [

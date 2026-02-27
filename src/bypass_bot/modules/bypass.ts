@@ -202,6 +202,9 @@ const bypass_command: Command = {
 
       console.warn(`[ - BYPASS COMMAND - ] Bypass result (attempts: ${result.attempts}):`, JSON.stringify(result))
 
+      // - INCREMENT COUNT PER ATTEMPT - \\
+      db.increment_bypass_count().catch(err => console.error(`[ - BYPASS - ] Failed to increment bypass count:`, err))
+
       if (!result.success || !result.result) {
         const log_text = [
           `[ BYPASS ] - Bypassing Link`,
@@ -266,9 +269,6 @@ const bypass_command: Command = {
       } catch (db_error) {
         console.error(`[ - BYPASS - ] Failed to store in database:`, db_error)
       }
-
-      // - INCREMENT GLOBAL BYPASS COUNTER - \\
-      db.increment_bypass_count().catch(err => console.error(`[ - BYPASS - ] Failed to increment bypass count:`, err))
 
       const success_message = component.build_message({
         components: [
