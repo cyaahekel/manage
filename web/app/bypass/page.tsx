@@ -5,7 +5,7 @@ import { Button as StatefulButton } from '@/components/ui/stateful-button'
 import { cn }                       from '@/lib/utils'
 import { BypassTopbar }  from '@/components/bypass-topbar'
 import ShinyText          from '@/components/ShinyText'
-import Aurora             from '@/components/Aurora'
+import DarkVeil          from '@/components/DarkVeil'
 import { FlipWords }      from '@/components/ui/flip-words'
 import {
   Link2,
@@ -114,13 +114,15 @@ export default function BypassPage() {
 
   return (
     <div className="min-h-screen relative">
-      {/* - AURORA BACKGROUND - \\ */}
+      {/* - DARKVEIL BACKGROUND - \ */}
       <div className="fixed inset-0 z-0 pointer-events-none">
-        <Aurora
-          colorStops={['#7cff67', '#B19EEF', '#5227FF']}
-          blend={0.5}
-          amplitude={1.0}
-          speed={1}
+        <DarkVeil
+          hueShift={0}
+          noiseIntensity={0}
+          scanlineIntensity={0}
+          speed={0.9}
+          scanlineFrequency={0}
+          warpAmount={0}
         />
       </div>
 
