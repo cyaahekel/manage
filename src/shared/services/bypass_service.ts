@@ -12,6 +12,34 @@ const __bypass_base_retry_ms   = 5000   // - Base delay for exponential backoff 
 const __bypass_max_retry_ms    = 60000  // - Cap exponential backoff at 60s - \\
 const __bypass_default_backoff = 30     // - Default backoff seconds on 429 - \\
 
+// - SLIDING WINDOW REQUEST TRACKER - \\
+const __request_timestamps: number[] = []
+const __track_window_ms = 10_000
+
+function __record_request(): void {
+  const now = Date.now()
+  __request_timestamps.push(now)
+  // - PRUNE ENTRIES OUTSIDE THE WINDOW - \\
+  const cutoff = now - __track_window_ms
+  while (__request_timestamps.length > 0 && __request_timestamps[0] < cutoff) {
+    __request_timestamps.shift()
+  }
+}
+
+/**
+ * Returns current API request rate stats for the last 10 seconds.
+ * @returns Object with count in window and timestamps array copy
+ */
+export function get_request_stats(): { requests_last_10s: number; timestamps: number[] } {
+  const now    = Date.now()
+  const cutoff = now - __track_window_ms
+  const recent = __request_timestamps.filter(t => t >= cutoff)
+  return {
+    requests_last_10s : recent.length,
+    timestamps        : [...recent],
+  }
+}
+
 // - GLOBAL BACKOFF: pause entire queue when rate limited - \\
 let __backoff_until: number = 0
 
@@ -19,7 +47,8 @@ function __set_global_backoff(seconds: number): void {
   const until = Date.now() + seconds * 1000
   if (until > __backoff_until) {
     __backoff_until = until
-    console.warn(`[ - BYPASS - ] Global backoff set for ${seconds}s until ${new Date(until).toISOString()}`)
+    const { requests_last_10s } = get_request_stats()
+    console.warn(`[ - BYPASS - ] Global backoff set for ${seconds}s until ${new Date(until).toISOString()} (requests last 10s: ${requests_last_10s})`)
   }
 }
 
@@ -47,6 +76,7 @@ async function __enqueue_bypass<T>(task: () => Promise<T>): Promise<T> {
   }
 
   try {
+    __record_request()
     return await task()
   } finally {
     setTimeout(resolve_next, __bypass_queue_delay_ms)
