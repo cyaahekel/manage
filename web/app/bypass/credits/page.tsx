@@ -1,8 +1,8 @@
 ﻿'use client'
 
-import { useState, useEffect }                         from 'react'
+import { useState, useEffect, useCallback }              from 'react'
 import Image                                           from 'next/image'
-import { IconBrandGithub, IconBrandDiscord, IconCode } from '@tabler/icons-react'
+import { IconBrandGithub, IconBrandDiscord, IconCode, IconX, IconCalendar, IconShield, IconCrown } from '@tabler/icons-react'
 import { Tabs }                                        from '@/components/ui/tabs'
 import { BypassTopbar }                                from '@/components/bypass-topbar'
 import DarkVeil                                        from '@/components/DarkVeil'
@@ -105,6 +105,194 @@ function SmallAvatar({ avatar_url, username }: { avatar_url: string; username: s
   )
 }
 
+// - - - MEMBER DETAIL PANEL - - - \\
+
+interface discord_role {
+  id      : string
+  name    : string
+  color   : string
+  icon    : string | null
+  position: number
+}
+
+interface member_detail {
+  id           : string
+  username     : string
+  display_name : string
+  nickname     : string | null
+  avatar       : string
+  banner       : string | null
+  roles        : discord_role[]
+  joined_at    : number | null
+  created_at   : number | null
+  premium_since: number | null
+}
+
+function fmt_date(ts: number | null): string {
+  if (!ts) return '—'
+  return new Date(ts).toLocaleDateString('en-US', {
+    year: 'numeric', month: 'short', day: 'numeric',
+  })
+}
+
+function MemberDetailPanel({
+  member_id,
+  on_close,
+}: {
+  member_id : string
+  on_close  : () => void
+}) {
+  const [data,    set_data]    = useState<member_detail | null>(null)
+  const [loading, set_loading] = useState(true)
+  const [error,   set_error]   = useState(false)
+
+  useEffect(() => {
+    set_data(null)
+    set_loading(true)
+    set_error(false)
+
+    fetch(`/api/discord-member/${member_id}`)
+      .then((r) => {
+        if (!r.ok) throw new Error(`${r.status}`)
+        return r.json()
+      })
+      .then((d) => { set_data(d); set_loading(false) })
+      .catch(() => { set_error(true); set_loading(false) })
+  }, [member_id])
+
+  return (
+    <>
+      {/* - BACKDROP - \\ */}
+      <div
+        className = "fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
+        onClick   = {on_close}
+      />
+
+      {/* - PANEL - \\ */}
+      <div className="fixed inset-y-0 right-0 z-50 flex w-full max-w-sm flex-col border-l border-border bg-background shadow-2xl">
+
+        {/* - HEADER - \\ */}
+        <div className="flex items-center justify-between border-b border-border px-5 py-4">
+          <p className="text-sm font-semibold text-foreground">Member Info</p>
+          <button
+            onClick   = {on_close}
+            className = "rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          >
+            <IconX size={16} />
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto">
+          {loading && (
+            <div className="space-y-4 p-5">
+              <div className="h-24 w-full animate-pulse rounded-xl bg-muted" />
+              <div className="flex items-end gap-3">
+                <div className="h-16 w-16 animate-pulse rounded-xl bg-muted" />
+                <div className="space-y-2">
+                  <div className="h-3.5 w-32 animate-pulse rounded bg-muted" />
+                  <div className="h-2.5 w-20 animate-pulse rounded bg-muted" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="h-2.5 w-full animate-pulse rounded bg-muted" />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {error && (
+            <div className="flex h-40 items-center justify-center">
+              <p className="text-sm text-muted-foreground">Failed to load member.</p>
+            </div>
+          )}
+
+          {data && !loading && (
+            <div>
+              {/* - BANNER - \\ */}
+              <div className="relative h-24 w-full bg-muted">
+                {data.banner
+                  ? <Image src={data.banner} alt="banner" fill className="object-cover" unoptimized />
+                  : <div className="h-full w-full bg-gradient-to-br from-muted to-muted/50" />
+                }
+              </div>
+
+              <div className="px-5">
+                {/* - AVATAR OVERLAPPING BANNER - \\ */}
+                <div className="-mt-8 mb-3">
+                  <Image
+                    src       = {data.avatar}
+                    alt       = {data.display_name}
+                    width     = {64}
+                    height    = {64}
+                    className = "h-16 w-16 rounded-xl border-4 border-background object-cover"
+                    unoptimized
+                  />
+                </div>
+
+                {/* - NAME - \\ */}
+                <div className="mb-5">
+                  <p className="text-base font-bold text-foreground">{data.display_name}</p>
+                  <p className="text-xs text-muted-foreground">@{data.username}</p>
+                  {data.nickname && data.nickname !== data.display_name && (
+                    <p className="mt-0.5 text-xs text-muted-foreground/70">aka {data.nickname}</p>
+                  )}
+                </div>
+
+                {/* - DATES - \\ */}
+                <div className="mb-5 space-y-2">
+                  {data.joined_at && (
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <IconCalendar size={13} />
+                      <span>Joined server <span className="text-foreground">{fmt_date(data.joined_at)}</span></span>
+                    </div>
+                  )}
+                  {data.created_at && (
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <IconCalendar size={13} />
+                      <span>Account created <span className="text-foreground">{fmt_date(data.created_at)}</span></span>
+                    </div>
+                  )}
+                  {data.premium_since && (
+                    <div className="flex items-center gap-2 text-xs text-yellow-400">
+                      <IconCrown size={13} />
+                      <span>Boosting since {fmt_date(data.premium_since)}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* - ROLES - \\ */}
+                {data.roles.length > 0 && (
+                  <div className="mb-5">
+                    <div className="mb-2 flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
+                      <IconShield size={11} />
+                      Roles
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {data.roles.map((r) => (
+                        <span
+                          key       = {r.id}
+                          className = "inline-flex items-center gap-1 rounded-md border border-border bg-muted/60 px-2 py-0.5 text-xs font-medium text-foreground"
+                          style     = {{ borderLeftColor: r.color !== '#000000' ? r.color : undefined, borderLeftWidth: r.color !== '#000000' ? 2 : undefined }}
+                        >
+                          {r.icon && (
+                            <Image src={r.icon} alt="" width={12} height={12} className="h-3 w-3 rounded-sm" unoptimized />
+                          )}
+                          {r.name}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  )
+}
+
 // - DEV TAB CONTENT - \\
 function DeveloperTab({ avatar_map }: { avatar_map: Record<string, string | null> }) {
   return (
@@ -161,7 +349,7 @@ function DeveloperTab({ avatar_map }: { avatar_map: Record<string, string | null
 }
 
 // - MEMBER GRID TAB CONTENT - \\
-function MemberGrid({ members, loading }: { members: role_member[]; loading: boolean }) {
+function MemberGrid({ members, loading, on_click }: { members: role_member[]; loading: boolean; on_click: (id: string) => void }) {
   if (loading) {
     return (
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
@@ -184,28 +372,30 @@ function MemberGrid({ members, loading }: { members: role_member[]; loading: boo
   return (
     <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
       {members.map((m) => (
-        <a
+        <button
           key       = {m.id}
-          href      = {`https://discord.com/users/${m.id}`}
-          target    = "_blank"
-          rel       = "noreferrer"
-          className = "flex items-center gap-3 rounded-xl border border-border bg-card/60 backdrop-blur-sm p-3 transition-colors hover:bg-card/80"
+          onClick   = {() => on_click(m.id)}
+          className = "flex items-center gap-3 rounded-xl border border-border bg-card/60 backdrop-blur-sm p-3 text-left transition-colors hover:bg-card/80 hover:border-border/80"
         >
           <SmallAvatar avatar_url={m.avatar_url} username={m.username} />
           <p className="truncate text-xs font-medium text-foreground">{m.username}</p>
-        </a>
+        </button>
       ))}
     </div>
   )
 }
 
 export default function CreditsPage() {
-  const [active_tab,      set_active_tab]      = useState('developer')
-  const [avatar_map,      set_avatar_map]      = useState<Record<string, string | null>>({})
-  const [supporters,      set_supporters]      = useState<role_member[]>([])
-  const [staff,           set_staff]           = useState<role_member[]>([])
-  const [members_loading, set_members_loading] = useState(false)
-  const [members_fetched, set_members_fetched] = useState(false)
+  const [active_tab,       set_active_tab]       = useState('developer')
+  const [avatar_map,       set_avatar_map]       = useState<Record<string, string | null>>({})
+  const [supporters,       set_supporters]       = useState<role_member[]>([])
+  const [staff,            set_staff]            = useState<role_member[]>([])
+  const [members_loading,  set_members_loading]  = useState(false)
+  const [members_fetched,  set_members_fetched]  = useState(false)
+  const [selected_member,  set_selected_member]  = useState<string | null>(null)
+
+  const open_member  = useCallback((id: string) => set_selected_member(id), [])
+  const close_member = useCallback(() => set_selected_member(null), [])
 
   // - FETCH DEV AVATARS ON MOUNT - \\
   useEffect(() => {
@@ -273,8 +463,8 @@ export default function CreditsPage() {
 
         {/* - TAB CONTENT - \\ */}
         {active_tab === 'developer' && <DeveloperTab avatar_map={avatar_map} />}
-        {active_tab === 'supporter' && <MemberGrid members={supporters} loading={members_loading} />}
-        {active_tab === 'staff'     && <MemberGrid members={staff}      loading={members_loading} />}
+        {active_tab === 'supporter' && <MemberGrid members={supporters} loading={members_loading} on_click={open_member} />}
+        {active_tab === 'staff'     && <MemberGrid members={staff}      loading={members_loading} on_click={open_member} />}
 
         <div className="mt-10">
           <p className="text-center text-[11px] text-muted-foreground/50">
@@ -286,6 +476,11 @@ export default function CreditsPage() {
       </div>
 
       <BypassTopbar />
+
+      {/* - MEMBER DETAIL PANEL - \\ */}
+      {selected_member && (
+        <MemberDetailPanel member_id={selected_member} on_close={close_member} />
+      )}
     </main>
   )
 }
