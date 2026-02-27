@@ -327,12 +327,14 @@ const bypass_command: Command = {
       
       console.warn(`[ - BYPASS COMMAND - ] Success message sent!`)
 
-      // - DM USER IF THEY AUTHORIZED VIA OAUTH 'DM when Done' BUTTON - \\
-      try {
-        await interaction.user.send(success_message)
-        console.warn(`[ - BYPASS COMMAND - ] DM sent to ${interaction.user.tag}`)
-      } catch {
-        // - USER HAS NOT AUTHORIZED OR HAS DMs DISABLED, SKIP SILENTLY - \\
+      // - DM USER ONLY WHEN USED IN GUILD (SLASH COMMAND IS GUILD-ONLY BUT GUARD ANYWAY) - \\
+      if (interaction.guildId) {
+        try {
+          await interaction.user.send(success_message)
+          console.warn(`[ - BYPASS COMMAND - ] DM sent to ${interaction.user.tag}`)
+        } catch {
+          // - USER HAS NOT AUTHORIZED OR HAS DMs DISABLED, SKIP SILENTLY - \\
+        }
       }
 
     } catch (error: any) {

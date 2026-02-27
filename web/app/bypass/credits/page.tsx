@@ -1,11 +1,14 @@
 ﻿'use client'
 
 import { useState, useEffect, useCallback }              from 'react'
-import Image                                           from 'next/image'
+import Image                                             from 'next/image'
+import dynamic                                           from 'next/dynamic'
 import { IconBrandGithub, IconBrandDiscord, IconCode, IconX, IconCalendar, IconShield, IconCrown } from '@tabler/icons-react'
-import { Tabs }                                        from '@/components/ui/tabs'
-import { BypassTopbar }                                from '@/components/bypass-topbar'
-import DarkVeil                                        from '@/components/DarkVeil'
+import { Tabs }                                          from '@/components/ui/tabs'
+import { BypassTopbar }                                  from '@/components/bypass-topbar'
+
+// - LAZY LOAD LIGHTRAYS TO AVOID SSR ISSUES (USES WebGL) - \\
+const LightRays = dynamic(() => import('@/components/LightRays'), { ssr: false })
 
 // - DEVELOPER CREDITS DATA - \\
 const __credits = [
@@ -89,19 +92,6 @@ function UserAvatar({ initials, avatar_url }: { initials: string; avatar_url: st
     <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-border bg-muted text-sm font-semibold text-foreground">
       {initials}
     </div>
-  )
-}
-
-function SmallAvatar({ avatar_url, username }: { avatar_url: string; username: string }) {
-  return (
-    <Image
-      src       = {avatar_url}
-      alt       = {username}
-      width     = {36}
-      height    = {36}
-      className = "h-9 w-9 shrink-0 rounded-lg border border-border object-cover"
-      unoptimized
-    />
   )
 }
 
@@ -209,27 +199,30 @@ function MemberDetailPanel({
 
           {data && !loading && (
             <div>
-              {/* - BANNER - \\ */}
-              <div className="relative h-24 w-full bg-muted">
-                {data.banner
-                  ? <Image src={data.banner} alt="banner" fill className="object-cover" unoptimized />
-                  : <div className="h-full w-full bg-gradient-to-br from-muted to-muted/50" />
-                }
-              </div>
+              {/* - BANNER & AVATAR CONTAINER - \\ */}
+              <div className="relative mb-12">
+                {/* - BANNER - \\ */}
+                <div className="h-24 w-full bg-muted">
+                  {data.banner
+                    ? <Image src={data.banner} alt="banner" fill className="object-cover" unoptimized />
+                    : <div className="h-full w-full bg-gradient-to-br from-muted to-muted/50" />
+                  }
+                </div>
 
-              <div className="px-5">
                 {/* - AVATAR OVERLAPPING BANNER - \\ */}
-                <div className="relative z-10 -mt-8 mb-3">
+                <div className="absolute -bottom-8 left-5">
                   <Image
                     src       = {data.avatar}
                     alt       = {data.display_name}
                     width     = {64}
                     height    = {64}
-                    className = "h-16 w-16 rounded-xl border-4 border-background object-cover"
+                    className = "h-16 w-16 rounded-xl border-4 border-background object-cover shadow-sm"
                     unoptimized
                   />
                 </div>
+              </div>
 
+              <div className="px-5">
                 {/* - NAME - \\ */}
                 <div className="mb-5">
                   <p className="text-base font-bold text-foreground">{data.display_name}</p>
@@ -354,11 +347,9 @@ function MemberGrid({ members, loading, on_click }: { members: role_member[]; lo
     return (
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
         {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="flex items-center gap-3 rounded-xl border border-border bg-card/60 p-3 animate-pulse">
+          <div key={i} className="flex items-center gap-3 rounded-xl border border-border bg-card/40 p-3 animate-pulse">
             <div className="h-9 w-9 shrink-0 rounded-lg bg-muted" />
-            <div className="space-y-1.5 flex-1">
-              <div className="h-2.5 w-3/4 rounded bg-muted" />
-            </div>
+            <div className="h-2.5 w-3/4 rounded bg-muted" />
           </div>
         ))}
       </div>
@@ -375,9 +366,16 @@ function MemberGrid({ members, loading, on_click }: { members: role_member[]; lo
         <button
           key       = {m.id}
           onClick   = {() => on_click(m.id)}
-          className = "flex items-center gap-3 rounded-xl border border-border bg-card/60 p-3 text-left transition-colors hover:bg-card/80"
+          className = "flex items-center gap-3 rounded-xl border border-border bg-card/40 p-3 text-left hover:bg-card/70 transition-colors"
         >
-          <SmallAvatar avatar_url={m.avatar_url} username={m.username} />
+          <Image
+            src       = {m.avatar_url}
+            alt       = {m.username}
+            width     = {36}
+            height    = {36}
+            className = "h-9 w-9 shrink-0 rounded-lg border border-border/50 object-cover"
+            unoptimized
+          />
           <p className="truncate text-xs font-medium text-foreground">{m.username}</p>
         </button>
       ))}
@@ -447,23 +445,32 @@ export default function CreditsPage() {
   return (
     <main className="relative min-h-screen bg-background overflow-hidden">
 
-      {/* - DARKVEIL BACKGROUND - \\ */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        <DarkVeil
-          hueShift          = {0}
-          noiseIntensity    = {0}
-          scanlineIntensity = {0}
-          speed             = {0.9}
-          scanlineFrequency = {0}
-          warpAmount        = {0}
+      {/* - LIGHT RAYS BACKGROUND - \\ */}
+      <div className="fixed inset-0 z-0 pointer-events-none opacity-30">
+        <LightRays
+          raysOrigin    = "top-center"
+          raysColor     = "#ffffff"
+          raysSpeed     = {0.6}
+          lightSpread   = {0.4}
+          rayLength     = {2.5}
+          followMouse   = {false}
+          mouseInfluence= {0}
+          noiseAmount   = {0.05}
+          distortion    = {0}
+          pulsating     = {false}
+          fadeDistance  = {0.8}
+          saturation    = {0}
         />
       </div>
+
+      {/* - SUBTLE TOP GLOW - \\ */}
+      <div className="fixed inset-x-0 top-0 z-0 h-64 pointer-events-none bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(255,255,255,0.04),transparent)]" />
 
       <div className="relative z-10 mx-auto max-w-lg px-4 py-20">
 
         {/* - HEADER - \\ */}
-        <div className="mb-8 space-y-2">
-          <p className="text-[11px] font-medium uppercase tracking-[0.15em] text-muted-foreground">
+        <div className="mb-8 space-y-1.5">
+          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground/60">
             Atomic Bypass
           </p>
           <h1 className="text-3xl font-bold tracking-tight text-foreground">Credits</h1>
@@ -483,8 +490,8 @@ export default function CreditsPage() {
         {active_tab === 'supporter' && <MemberGrid members={supporters} loading={members_loading} on_click={open_member} />}
         {active_tab === 'staff'     && <MemberGrid members={staff}      loading={members_loading} on_click={open_member} />}
 
-        <div className="mt-10">
-          <p className="text-center text-[11px] text-muted-foreground/50">
+        <div className="mt-12 border-t border-border/40 pt-6">
+          <p className="text-center text-[11px] text-muted-foreground/40">
             Made with care. No warranty, just vibes.
           </p>
         </div>

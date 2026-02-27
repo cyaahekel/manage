@@ -246,12 +246,14 @@ export async function handle_auto_bypass(message: Message): Promise<boolean> {
         console.error(`[ - AUTO BYPASS - ] Failed to edit success message:`, err)
       }
 
-      // - DM USER IF THEY AUTHORIZED VIA OAUTH 'DM when Done' BUTTON - \\
-      try {
-        await message.author.send(success_message)
-        console.warn(`[ - AUTO BYPASS - ] DM sent to ${message.author.tag}`)
-      } catch {
-        // - USER HAS NOT AUTHORIZED OR HAS DMs DISABLED, SKIP SILENTLY - \\
+      // - DM USER ONLY IF REQUEST CAME FROM GUILD (AVOID DOUBLE DM IN DM CONTEXT) - \\
+      if (!is_dm) {
+        try {
+          await message.author.send(success_message)
+          console.warn(`[ - AUTO BYPASS - ] DM sent to ${message.author.tag}`)
+        } catch {
+          // - USER HAS NOT AUTHORIZED OR HAS DMs DISABLED, SKIP SILENTLY - \\
+        }
       }
     } else {
       const log_text = [

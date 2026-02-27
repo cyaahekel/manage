@@ -273,47 +273,92 @@ export function start_webhook_server(client: Client): void {
   // - GET SUPPORTERS AND STAFF IN ONE FAST FETCH - \\
   /**
    * @route GET /api/credits-members
-   * @description Fetches guild members and filters by role.
+   * @description Serves from DB cache (2hr TTL). Refreshes via REST pagination
+   *              to avoid WebSocket Opcode 8 rate limits from guild.members.fetch().
    * @returns JSON { supporters: member[], staff: member[] }
    */
   app.get("/api/credits-members", async (req: Request, res: Response) => {
+    const role_supporter = "1357767950421065981"
+    const role_staff     = "1264915024707588208"
+    const force_refresh  = req.query.refresh === "1"
+
+    // - ALWAYS CHECK DB CACHE FIRST - \\
     try {
-      if (!discord_client?.isReady()) {
-        return res.status(503).json({ error: "Bot not ready" })
-      }
-
-      const role_supporter = "1357767950421065981"
-      const role_staff     = "1264915024707588208"
-      const guild          = discord_client.guilds.cache.get(main_guild_id)
-
-      if (!guild) {
-        return res.status(404).json({ error: "Guild not found" })
-      }
-
-      // - FETCH MEMBERS FAST WITH PRESENCES DISABLED - \\
-      const fetch_timeout = new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error("members.fetch timeout")), 15000)
+      const cached = await database.find_one<{ supporters: any[]; staff: any[]; updated_at: number }>(
+        "credits_members",
+        { id: "cache" }
       )
-      
-      const fetched = await Promise.race([
-        guild.members.fetch({ withPresences: false }),
-        fetch_timeout,
-      ])
 
-      await guild.roles.fetch()
+      const two_hours = 2 * 60 * 60 * 1000
+      const is_fresh  = cached?.updated_at && (Date.now() - cached.updated_at) < two_hours
 
-      const members = [...fetched.values()]
-      
-      const to_member = (m: any) => ({
-        id         : m.id,
-        username   : m.displayName ?? m.user.globalName ?? m.user.username,
-        avatar_url : m.displayAvatarURL({ size: 64 }),
+      if (!force_refresh && cached && is_fresh && cached.supporters?.length > 0) {
+        console.info(`[ - API CREDITS MEMBERS - ] Cache HIT: ${cached.supporters.length} supporters, ${cached.staff.length} staff`)
+        return res.status(200).json({ supporters: cached.supporters, staff: cached.staff })
+      }
+    } catch (cache_err) {
+      console.warn("[ - API CREDITS MEMBERS - ] DB cache read failed, continuing:", cache_err)
+    }
+
+    if (!discord_client?.isReady()) {
+      return res.status(503).json({ error: "Bot not ready" })
+    }
+
+    // - PAGINATE VIA REST API — NO WEBSOCKET OPCODE 8, NO RATE LIMIT - \\
+    try {
+      type raw_member = {
+        user  : { id: string; username: string; global_name?: string; avatar?: string }
+        nick ?: string
+        avatar?: string
+        roles  : string[]
+      }
+
+      const cdn = "https://cdn.discordapp.com"
+
+      const get_avatar = (m: raw_member): string => {
+        if (m.avatar) {
+          const ext = m.avatar.startsWith("a_") ? "gif" : "png"
+          return `${cdn}/guilds/${main_guild_id}/users/${m.user.id}/avatars/${m.avatar}.${ext}?size=64`
+        }
+        if (m.user.avatar) {
+          const ext = m.user.avatar.startsWith("a_") ? "gif" : "png"
+          return `${cdn}/avatars/${m.user.id}/${m.user.avatar}.${ext}?size=64`
+        }
+        return `${cdn}/embed/avatars/${Number(BigInt(m.user.id) >> BigInt(22)) % 6}.png`
+      }
+
+      const all: raw_member[] = []
+      let   after             = ""
+
+      while (true) {
+        const query = after ? `?limit=1000&after=${after}` : "?limit=1000"
+        const page  = await discord_client.rest.get(`/guilds/${main_guild_id}/members${query}`) as raw_member[]
+
+        all.push(...page)
+        if (page.length < 1000) break
+        after = page[page.length - 1]!.user.id
+      }
+
+      const to_member = (m: raw_member) => ({
+        id         : m.user.id,
+        username   : m.nick ?? m.user.global_name ?? m.user.username,
+        avatar_url : get_avatar(m),
       })
 
-      const supporters = members.filter(m => m.roles.cache.has(role_supporter)).map(to_member)
-      const staff      = members.filter(m => m.roles.cache.has(role_staff)).map(to_member)
+      const supporters = all.filter(m => m.roles.includes(role_supporter)).map(to_member)
+      const staff      = all.filter(m => m.roles.includes(role_staff)).map(to_member)
 
-      console.info(`[ - API CREDITS MEMBERS - ] Supporters: ${supporters.length} | Staff: ${staff.length}`)
+      console.info(`[ - API CREDITS MEMBERS - ] REST fetch: ${all.length} total | ${supporters.length} supporters | ${staff.length} staff`)
+
+      // - PERSIST TO DB CACHE ON SUCCESS - \\
+      if (supporters.length > 0 || staff.length > 0) {
+        database.update_one(
+          "credits_members",
+          { id: "cache" },
+          { id: "cache", supporters, staff, updated_at: Date.now() },
+          true
+        ).catch(err => console.error("[ - API CREDITS MEMBERS - ] Failed to save cache:", err))
+      }
 
       res.status(200).json({ supporters, staff })
     } catch (err) {
