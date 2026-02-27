@@ -410,35 +410,39 @@ export default function CreditsPage() {
   }, [])
 
   // - FETCH ROLE MEMBERS ON FIRST VISIT TO SUPPORTER/STAFF TAB - \\
+  // - FETCH ROLE MEMBERS ON FIRST VISIT TO SUPPORTER/STAFF TAB - \\
   useEffect(() => {
     if ((active_tab === 'supporter' || active_tab === 'staff') && !members_fetched) {
       set_members_loading(true)
 
-      fetch('/api/discord-role-members')
-        .then((r) => r.json())
-        .then((d) => {
-          const supporters_raw: role_member[] = Array.isArray(d.supporters) ? d.supporters : []
-          const staff_raw     : role_member[] = Array.isArray(d.staff)      ? d.staff      : []
+      const fetch_members = async (attempts = 0): Promise<void> => {
+        const is_retry = attempts > 0
+        const url      = is_retry ? '/api/discord-role-members?refresh=1' : '/api/discord-role-members'
 
-          // - AUTO BUST CACHE IF SUPPORTERS IS EMPTY (STALE CACHE) - \\
-          if (!supporters_raw.length) {
-            return fetch('/api/discord-role-members?refresh=1')
-              .then((r) => r.json())
-              .then((d2) => ({
-                supporters: Array.isArray(d2.supporters) ? d2.supporters : [],
-                staff     : Array.isArray(d2.staff)      ? d2.staff      : staff_raw,
-              }))
+        try {
+          const res  = await fetch(url)
+          const data = await res.json()
+
+          const supporters_raw: role_member[] = Array.isArray(data.supporters) ? data.supporters : []
+          const staff_raw     : role_member[] = Array.isArray(data.staff)      ? data.staff      : []
+
+          // - BOT CACHE STILL WARMING UP — RETRY AFTER DELAY (MAX 3 ATTEMPTS) - \\
+          if (data.loading && attempts < 3) {
+            await new Promise(r => setTimeout(r, 6000))
+            return fetch_members(attempts + 1)
           }
 
-          return Promise.resolve({ supporters: supporters_raw, staff: staff_raw })
-        })
-        .then((d) => {
-          set_supporters(d.supporters)
-          set_staff(d.staff)
+          set_supporters(supporters_raw)
+          set_staff(staff_raw)
           set_members_fetched(true)
-        })
-        .catch(() => {})
-        .finally(() => set_members_loading(false))
+        } catch {
+          // silent
+        } finally {
+          if (attempts === 0 || attempts >= 3) set_members_loading(false)
+        }
+      }
+
+      fetch_members()
     }
   }, [active_tab, members_fetched])
 

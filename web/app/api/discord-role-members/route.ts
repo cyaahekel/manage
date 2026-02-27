@@ -18,8 +18,36 @@ interface cache_entry {
 let __cache: cache_entry | null = null
 
 /**
+ * Fetches from bot API with a 15s timeout.
+ * @param force_refresh - Pass refresh=1 to bust bot's DB cache
+ * @returns supporters and staff arrays, plus optional loading flag
+ */
+async function fetch_from_bot(force_refresh: boolean): Promise<{ supporters: discord_member[]; staff: discord_member[]; loading?: boolean }> {
+  const url        = `${__bot_url}/api/credits-members${force_refresh ? '?refresh=1' : ''}`
+  const controller = new AbortController()
+  const timeout_id = setTimeout(() => controller.abort(), 15000)
+
+  try {
+    const res = await fetch(url, { signal: controller.signal, cache: 'no-store' })
+    clearTimeout(timeout_id)
+
+    if (!res.ok) {
+      console.error(`[ - ROLE MEMBERS - ] Bot API ${res.status}: ${await res.text()}`)
+      return { supporters: [], staff: [] }
+    }
+
+    return await res.json()
+  } catch (err) {
+    clearTimeout(timeout_id)
+    console.error('[ - ROLE MEMBERS - ] Fetch error:', err)
+    return { supporters: [], staff: [] }
+  }
+}
+
+/**
  * @route GET /api/discord-role-members
- * @description Proxies to bot's /api/credits-members — single paginated REST fetch, splits by role.
+ * @description Proxies to bot's /api/credits-members. Stale-while-revalidate on both sides.
+ *              Returns immediately — no blocking polls. Client handles retry if loading:true.
  * @returns JSON { supporters: discord_member[]; staff: discord_member[] }
  */
 export async function GET(req: NextRequest) {
@@ -32,34 +60,16 @@ export async function GET(req: NextRequest) {
     )
   }
 
-  try {
-    const controller = new AbortController()
-    const timeout_id = setTimeout(() => controller.abort(), 60000) // 60s timeout
+  const data = await fetch_from_bot(refresh)
 
-    const res = await fetch(`${__bot_url}/api/credits-members`, {
-      signal: controller.signal,
-      cache : 'no-store',
-    })
-
-    clearTimeout(timeout_id)
-
-    if (!res.ok) {
-      const text = await res.text()
-      console.error(`[ - ROLE MEMBERS - ] Bot API ${res.status}: ${text}`)
-      return NextResponse.json({ error: 'Bot API error' }, { status: res.status })
-    }
-
-    const data = await res.json() as { supporters: discord_member[]; staff: discord_member[] }
-
-    console.info(`[ - ROLE MEMBERS - ] Supporters: ${data.supporters.length}, Staff: ${data.staff.length}`)
-
-    if (data.supporters.length > 0 || data.staff.length > 0) {
-      __cache = { supporters: data.supporters, staff: data.staff, expires_at: Date.now() + __cache_ttl_ms }
-    }
-
-    return NextResponse.json(data)
-  } catch (error) {
-    console.error('[ - ROLE MEMBERS - ] Failed to fetch members:', error)
-    return NextResponse.json({ error: 'Failed to fetch members' }, { status: 500 })
+  if ((data.supporters?.length ?? 0) > 0 || (data.staff?.length ?? 0) > 0) {
+    __cache = { supporters: data.supporters, staff: data.staff, expires_at: Date.now() + __cache_ttl_ms }
   }
+
+  console.info(`[ - ROLE MEMBERS - ] Supporters: ${data.supporters?.length ?? 0}, Staff: ${data.staff?.length ?? 0}, loading: ${data.loading ?? false}`)
+  return NextResponse.json({
+    supporters : data.supporters ?? [],
+    staff      : data.staff      ?? [],
+    ...(data.loading ? { loading: true } : {}),
+  })
 }
