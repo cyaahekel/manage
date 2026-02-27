@@ -3,11 +3,11 @@
 <table border="0" cellspacing="0" cellpadding="0">
   <tr>
     <td valign="middle">
-      <img src="https://github.com/bimoraa/atomic_bot/blob/main/assets/images/logo.png?raw=true" alt="Atomic Bot Logo" height="80" />
+      <img src="https://github.com/bimoraa/atomic_bot/blob/main/assets/images/logo.png?raw=true" alt="Atomic Bot Logo" height="160" />
     </td>
-    <td valign="middle" width="16"></td>
+    <td valign="middle" width="24"></td>
     <td valign="middle">
-      <img src="https://github.com/bimoraa/atomic_bot/blob/main/assets/images/banner.png?raw=true" alt="Atomic Bot Banner" height="80" />
+      <img src="https://github.com/bimoraa/atomic_bot/blob/main/assets/images/banner.png?raw=true" alt="Atomic Bot Banner" height="160" />
     </td>
   </tr>
 </table>
