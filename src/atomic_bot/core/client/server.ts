@@ -275,6 +275,9 @@ export function start_webhook_server(client: Client): void {
    * @route GET /api/role-members/:role_id
    * @param role_id - Discord role snowflake ID
    * @returns Array of { id, username, avatar_url } for all members with that role
+   * @description Uses Discord REST API directly to bypass makeCache empty collection issue.
+   *              m.roles.cache is always empty when makeCache returns new Collection(),
+   *              so we read the raw `roles` string[] from the REST response instead.
    */
   app.get("/api/role-members/:role_id", async (req: Request, res: Response) => {
     try {
@@ -283,39 +286,54 @@ export function start_webhook_server(client: Client): void {
       }
 
       const role_id = req.params.role_id
-      const guild   = discord_client.guilds.cache.get(main_guild_id)
 
-      if (!guild) {
-        return res.status(404).json({ error: "Guild not found" })
+      // - PAGINATE THROUGH ALL GUILD MEMBERS VIA REST - \\
+      type raw_member = {
+        user  : { id: string; username: string; global_name?: string; avatar?: string }
+        nick  ?: string
+        avatar?: string
+        roles  : string[]
       }
 
-      // - FETCH ALL MEMBERS - RETURNS COLLECTION DIRECTLY, DON'T RELY ON CACHE - \\
-      const fetch_timeout = new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error("members.fetch timeout")), 15000)
-      )
-      const fetched = await Promise.race([
-        guild.members.fetch({ withPresences: false }),
-        fetch_timeout,
-      ])
+      const all_members: raw_member[] = []
+      let   after: string | null      = null
+      const limit                     = 1000
 
-      // - ENSURE ROLES ARE IN CACHE TOO - \\
-      await guild.roles.fetch()
+      while (true) {
+        const query  = after ? `?limit=${limit}&after=${after}` : `?limit=${limit}`
+        const page   = await discord_client.rest.get(`/guilds/${main_guild_id}/members${query}`) as raw_member[]
 
-      const role = guild.roles.cache.get(role_id)
-      if (!role) {
-        console.error(`[ - API ROLE MEMBERS - ] Role ${role_id} not found in guild ${main_guild_id}`)
-        return res.status(404).json({ error: "Role not found" })
+        all_members.push(...page)
+
+        if (page.length < limit) break
+
+        after = page[page.length - 1]!.user.id
       }
 
-      const members = [...fetched.values()]
-        .filter(m => m.roles.cache.has(role_id))
-        .map(m => ({
-          id         : m.id,
-          username   : m.displayName ?? m.user.globalName ?? m.user.username,
-          avatar_url : m.displayAvatarURL({ size: 64 }),
-        }))
+      // - FILTER BY ROLE ID FROM RAW ROLES ARRAY - \\
+      const cdn                    = "https://cdn.discordapp.com"
+      const filtered: raw_member[] = all_members.filter(m => m.roles.includes(role_id))
 
-      console.info(`[ - API ROLE MEMBERS - ] Role ${role.name} (${role_id}): ${members.length} members`)
+      const get_avatar = (m: raw_member): string => {
+        if (m.avatar) {
+          const ext = m.avatar.startsWith("a_") ? "gif" : "png"
+          return `${cdn}/guilds/${main_guild_id}/users/${m.user.id}/avatars/${m.avatar}.${ext}?size=64`
+        }
+        if (m.user.avatar) {
+          const ext = m.user.avatar.startsWith("a_") ? "gif" : "png"
+          return `${cdn}/avatars/${m.user.id}/${m.user.avatar}.${ext}?size=64`
+        }
+        const default_index = Number(BigInt(m.user.id) >> BigInt(22)) % 6
+        return `${cdn}/embed/avatars/${default_index}.png`
+      }
+
+      const members = filtered.map(m => ({
+        id         : m.user.id,
+        username   : m.nick ?? m.user.global_name ?? m.user.username,
+        avatar_url : get_avatar(m),
+      }))
+
+      console.info(`[ - API ROLE MEMBERS - ] Role ${role_id}: ${members.length} / ${all_members.length} members`)
 
       res.status(200).json({ members })
     } catch (err) {
