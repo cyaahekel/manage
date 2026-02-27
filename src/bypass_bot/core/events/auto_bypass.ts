@@ -86,26 +86,6 @@ export async function handle_auto_bypass(message: Message): Promise<boolean> {
   
   if (!url) {
     console.warn(`[ - AUTO BYPASS - ] No URL found in message`)
-
-    // - NOTIFY USER IN DM THAT NO URL WAS DETECTED - \\
-    if (is_dm) {
-      await message.reply(
-        component.build_message({
-          components: [
-            component.container({
-              components: [
-                component.text([
-                  "## No URL Detected",
-                  "",
-                  "Please send a valid URL to bypass (e.g. `https://example.com/...`).",
-                ]),
-              ],
-            }),
-          ],
-        })
-      ).catch((err: unknown) => console.error(`[ - AUTO BYPASS - ] Failed to reply no-url in DM:`, err))
-    }
-
     return false
   }
 
@@ -138,9 +118,9 @@ export async function handle_auto_bypass(message: Message): Promise<boolean> {
     const invite_url   = client_id
       ? `https://discord.com/api/oauth2/authorize?client_id=${client_id}&permissions=0&scope=bot%20applications.commands`
       : "https://discord.com/oauth2/authorize"
-    // - OAUTH URL: user authorizes bot to DM them (no guild required) - \\
+    // - OAUTH USER INSTALL: shows 'Send you direct messages' in auth popup - \\
     const dm_auth_url  = client_id
-      ? `https://discord.com/oauth2/authorize?client_id=${client_id}&scope=bot&integration_type=1&permissions=0`
+      ? `https://discord.com/oauth2/authorize?client_id=${client_id}&scope=applications.commands&integration_type=1`
       : invite_url
 
     if (!is_dm && message.guildId) {
@@ -264,6 +244,14 @@ export async function handle_auto_bypass(message: Message): Promise<boolean> {
         console.warn(`[ - AUTO BYPASS - ] Success!`)
       } catch (err) {
         console.error(`[ - AUTO BYPASS - ] Failed to edit success message:`, err)
+      }
+
+      // - DM USER IF THEY AUTHORIZED VIA OAUTH 'DM when Done' BUTTON - \\
+      try {
+        await message.author.send(success_message)
+        console.warn(`[ - AUTO BYPASS - ] DM sent to ${message.author.tag}`)
+      } catch {
+        // - USER HAS NOT AUTHORIZED OR HAS DMs DISABLED, SKIP SILENTLY - \\
       }
     } else {
       const log_text = [

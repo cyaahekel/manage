@@ -159,9 +159,9 @@ const bypass_command: Command = {
       const invite_url   = client_id
         ? `https://discord.com/api/oauth2/authorize?client_id=${client_id}&permissions=0&scope=bot%20applications.commands`
         : "https://discord.com/oauth2/authorize"
-      // - OAUTH URL: user authorizes bot to DM them (no guild required) - \\
+      // - OAUTH USER INSTALL: shows 'Send you direct messages' in auth popup - \\
       const dm_auth_url  = client_id
-        ? `https://discord.com/oauth2/authorize?client_id=${client_id}&scope=bot&integration_type=1&permissions=0`
+        ? `https://discord.com/oauth2/authorize?client_id=${client_id}&scope=applications.commands&integration_type=1`
         : invite_url
 
       const processing_message = component.build_message({
@@ -326,6 +326,14 @@ const bypass_command: Command = {
       }
       
       console.warn(`[ - BYPASS COMMAND - ] Success message sent!`)
+
+      // - DM USER IF THEY AUTHORIZED VIA OAUTH 'DM when Done' BUTTON - \\
+      try {
+        await interaction.user.send(success_message)
+        console.warn(`[ - BYPASS COMMAND - ] DM sent to ${interaction.user.tag}`)
+      } catch {
+        // - USER HAS NOT AUTHORIZED OR HAS DMs DISABLED, SKIP SILENTLY - \\
+      }
 
     } catch (error: any) {
       console.error(`[ - BYPASS COMMAND - ] Error:`, error)
