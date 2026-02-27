@@ -2,7 +2,7 @@ import { Client, Collection, REST, Routes } from "discord.js";
 import { Command } from "@shared/types/command";
 import { readdirSync } from "fs";
 import { join } from "path";
-import { client_id, is_dev } from "@startup/atomic_bot";
+import { is_dev } from "@startup/atomic_bot";
 
 export async function load_commands(client: Client & { commands: Collection<string, Command> }) {
   client.commands = new Collection();
@@ -49,11 +49,14 @@ export async function load_commands(client: Client & { commands: Collection<stri
   return commands_data;
 }
 
-export async function register_commands(commands_data: object[]) {
+/**
+ * @param commands_data - Serialized slash command payloads
+ * @param app_id - Application ID taken from the authenticated client (client.application.id)
+ */
+export async function register_commands(commands_data: object[], app_id: string) {
   const token = is_dev ? process.env.DEV_DISCORD_TOKEN! : process.env.DISCORD_TOKEN!
-  const rest = new REST().setToken(token);
+  const rest  = new REST().setToken(token)
 
-  await rest.put(Routes.applicationCommands(client_id!), {
-    body: commands_data,
-  });
+  console.log(`[ - COMMANDS - ] Registering ${commands_data.length} commands for app ${app_id}`)
+  await rest.put(Routes.applicationCommands(app_id), { body: commands_data })
 }

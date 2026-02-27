@@ -22,7 +22,7 @@ import { check_spam }                                                    from ".
 import { load_reminders_from_db }                                        from "../atomic_bot/modules/reminder/reminder"
 import { start_loa_checker }                                             from "@shared/database/services/loa_checker"
 import { start_invite_logger }                                           from "@shared/database/services/invite_logger"
-import { start_webhook_server, set_bot_ready }                           from "../atomic_bot/core/client/server"
+import { start_webhook_server, set_bot_ready, warm_credits_cache_from_db }           from "../atomic_bot/core/client/server"
 import { start_scheduler }                                               from "../atomic_bot/modules/staff/staff/schedule_hwid_less"
 import { start_weekly_reset_scheduler }                                  from "../atomic_bot/core/handlers/schedulers/weekly_work_reset"
 import { start_quarantine_scheduler }                                    from "../atomic_bot/core/handlers/schedulers/quarantine_release"
@@ -239,6 +239,7 @@ client.once("ready", async () => {
   try {
     const mongo = await db.connect()
     if (mongo) {
+      warm_credits_cache_from_db().catch(() => {})
       await load_close_requests()
       await load_all_tickets()
       await load_middleman_tickets_on_startup(client)
@@ -267,7 +268,8 @@ client.once("ready", async () => {
 
   try {
     const commands_data = await load_commands(client)
-    await register_commands(commands_data)
+    const app_id         = client.application!.id
+    await register_commands(commands_data, app_id)
     await load_sub_commands()
   } catch (error) {
     console.error("[Commands] Registration failed:", error)

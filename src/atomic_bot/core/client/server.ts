@@ -27,6 +27,33 @@ export function set_bot_ready(ready: boolean): void {
 const member_cache = new Map<string, { data: any; timestamp: number }>()
 const cache_ttl = 5 * 60 * 1000 // - 5 minutes - \\
 
+// - CREDITS MEMBERS MODULE-LEVEL CACHE (shared across requests) - \\
+type credits_member = { id: string; username: string; avatar_url: string }
+type credits_cache  = { supporters: credits_member[]; staff: credits_member[]; updated_at: number }
+
+let credits_mem_cache       : credits_cache | null  = null
+let credits_refreshing      : boolean               = false
+let credits_refresh_promise : Promise<void> | null  = null
+
+/**
+ * @description Warms the in-memory credits cache from DB. Call AFTER DB is connected.
+ * @returns void
+ */
+export async function warm_credits_cache_from_db(): Promise<void> {
+  try {
+    const db_cached = await Promise.race([
+      database.find_one<credits_cache>("credits_members", { id: "cache" }),
+      new Promise<null>(r => setTimeout(() => r(null), 5000)),
+    ])
+    if (db_cached && Array.isArray(db_cached.supporters) && db_cached.supporters.length > 0) {
+      credits_mem_cache = db_cached
+      console.info(`[ - API CREDITS MEMBERS - ] Warmed from DB: ${db_cached.supporters.length} supporters, ${db_cached.staff.length} staff`)
+    }
+  } catch (err) {
+    console.error("[ - API CREDITS MEMBERS - ] DB warm failed:", err)
+  }
+}
+
 /**
  * @description Start Express HTTP server for Railway deployment
  * @param client - Discord client instance
@@ -271,13 +298,6 @@ export function start_webhook_server(client: Client): void {
   })
 
   // - IN-MEMORY HOT CACHE — PRIMARY STORE, NO DB LOOKUP LATENCY - \\
-  type credits_member = { id: string; username: string; avatar_url: string }
-  type credits_cache  = { supporters: credits_member[]; staff: credits_member[]; updated_at: number }
-
-  let credits_mem_cache  : credits_cache | null = null
-  let credits_refreshing : boolean              = false
-  let credits_refresh_promise: Promise<void> | null = null
-
   const role_supporter = "1357767950421065981"
   const role_staff     = "1264915024707588208"
   const cdn            = "https://cdn.discordapp.com"
@@ -356,22 +376,6 @@ export function start_webhook_server(client: Client): void {
 
     return credits_refresh_promise
   }
-
-  // - WARM IN-MEMORY CACHE FROM DB ON STARTUP - \\
-  setImmediate(async () => {
-    try {
-      const db_cached = await Promise.race([
-        database.find_one<credits_cache>("credits_members", { id: "cache" }),
-        new Promise<null>(r => setTimeout(() => r(null), 5000)),
-      ])
-      if (db_cached && Array.isArray(db_cached.supporters) && db_cached.supporters.length > 0) {
-        credits_mem_cache = db_cached
-        console.info(`[ - API CREDITS MEMBERS - ] Warmed from DB: ${db_cached.supporters.length} supporters, ${db_cached.staff.length} staff`)
-      }
-    } catch (err) {
-      console.error("[ - API CREDITS MEMBERS - ] DB warm failed:", err)
-    }
-  })
 
   // - GET SUPPORTERS AND STAFF — IN-MEMORY FIRST, STALE WHILE REVALIDATE - \\
   /**
