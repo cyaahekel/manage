@@ -3,13 +3,12 @@
 const __bypass_api_key = process.env.BYPASS_API_KEY || ""
 const __bypass_api_url = process.env.BYPASS_API_URL || ""
 
-const __bypass_timeout = 15000  // - Per-request timeout - \\
-const __bypass_global_timeout = 90000  // - Max wait across all retries - \\
-export const bypass_max_retry = 3      // - Fewer retries to reduce API hammering - \\
-const __bypass_max_retry = bypass_max_retry
-const __bypass_queue_delay_ms = 6000   // - Delay between queued requests - \\
-const __bypass_base_retry_ms = 5000   // - Base delay for exponential backoff - \\
-const __bypass_max_retry_ms = 60000  // - Cap exponential backoff at 60s - \\
+const __bypass_timeout        = 15000   // - Per-request timeout - \\
+const __bypass_global_timeout = 200000  // - Max wait across all retries (3 × 60s + buffer) - \\
+export const bypass_max_retry = 3       // - Max retries on actual API errors - \\
+const __bypass_max_retry      = bypass_max_retry
+const __bypass_queue_delay_ms = 6000    // - Delay between queued requests - \\
+const __bypass_retry_ms       = 60000   // - Fixed 60s wait before each retry - \\
 const __bypass_default_backoff = 30     // - Default backoff seconds on 429 - \\
 
 // - SLIDING WINDOW REQUEST TRACKER - \\
@@ -300,24 +299,22 @@ async function _run_bypass_link(
       return last_result
     }
 
+    // - TASK STILL PROCESSING ON SERVER SIDE: NO RETRY, WAIT FOR RESULT NATURALLY - \\
+    if (last_result.api_code === "TASK_ALREADY_PROCESSING") {
+      console.warn(`[ - BYPASS - ] _run_bypass_link aborting retries for URL: ${url} (task already processing on server)`)
+      return last_result
+    }
+
     if (attempt < __bypass_max_retry) {
-      // - EXPONENTIAL BACKOFF WITH JITTER - \\
-      let delay: number
-      if (last_result.api_code === "TASK_ALREADY_PROCESSING") {
-        // - SERVER IS ALREADY PROCESSING URL - SHORTER WAIT IS ENOUGH - \\
-        delay = 8000 + Math.floor(Math.random() * 2000)
-      } else {
-        delay = Math.min(__bypass_base_retry_ms * Math.pow(2, attempt - 1), __bypass_max_retry_ms)
-        if (last_result.retry_after && !isNaN(last_result.retry_after)) {
-          delay = Math.max(delay, last_result.retry_after * 1000)
-        }
-        // - ADD UP TO 1s OF JITTER TO SPREAD OUT CONCURRENT RETRIES - \\
-        delay += Math.floor(Math.random() * 1000)
+      // - FIXED 60S RETRY DELAY - \\
+      let delay = __bypass_retry_ms
+      if (last_result.retry_after && !isNaN(last_result.retry_after)) {
+        delay = Math.max(delay, last_result.retry_after * 1000)
       }
 
       // - TOTAL WAIT = RETRY DELAY + REMAINING GLOBAL BACKOFF - \\
-      const backoff_remaining = last_result.api_code === "TASK_ALREADY_PROCESSING" ? 0 : __get_backoff_remaining_ms()
-      const total_wait_ms = delay + backoff_remaining
+      const backoff_remaining = __get_backoff_remaining_ms()
+      const total_wait_ms     = delay + backoff_remaining
 
       console.warn(`[ - BYPASS - ] Attempt ${attempt} failed, retrying in ${total_wait_ms}ms (delay: ${delay}ms, backoff: ${backoff_remaining}ms)...`)
 
