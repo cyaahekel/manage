@@ -95,6 +95,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Bypass service is not configured." }, { status: 503 })
     }
 
+    // - INCREMENT COUNT PER ATTEMPT (BEFORE FETCH) - \\
+    try {
+      await increment_bypass_count()
+    } catch (err) {
+      console.error('[ - BYPASS STATS - ] Failed to increment count:', err)
+    }
+
     // - CALL BYPASS API SERVER-SIDE (KEY NEVER EXPOSED TO CLIENT) - \\
     const params     = new URLSearchParams({ url })
     const controller = new AbortController()
@@ -148,12 +155,6 @@ export async function POST(req: NextRequest) {
     }
 
     console.log(`[ - BYPASS API - ] Success for: ${url}`)
-
-    try {
-      await increment_bypass_count()
-    } catch (err) {
-      console.error('[ - BYPASS STATS - ] Failed to increment count:', err)
-    }
 
     return NextResponse.json({ success: true, result: data.result })
 

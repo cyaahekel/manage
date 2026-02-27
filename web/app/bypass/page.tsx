@@ -6,6 +6,7 @@ import { cn }                       from '@/lib/utils'
 import { BypassTopbar }  from '@/components/bypass-topbar'
 import ShinyText          from '@/components/ShinyText'
 import DarkVeil          from '@/components/DarkVeil'
+import CountUp            from '@/components/CountUp'
 import { FlipWords }      from '@/components/ui/flip-words'
 import {
   Link2,
@@ -26,7 +27,7 @@ export default function BypassPage() {
   const [url, set_url]             = useState('')
   const [state, set_state]         = useState<bypass_state>({ status: 'idle' })
   const [copied, set_copied]       = useState(false)
-  const [bypass_count, set_bypass_count]       = useState<number>(87000)
+  const [bypass_count, set_bypass_count]       = useState<number>(0)
   const [supported_count, set_supported_count] = useState<number>(0)
   const input_ref                  = useRef<HTMLInputElement>(null)
   const submitted_url              = useRef<string>('')
@@ -77,15 +78,16 @@ export default function BypassPage() {
 
       const data = await res.json().catch(() => ({ error: 'Unexpected response from server.' }))
 
+      set_bypass_count(c => c + 1)  // - COUNT EVERY ATTEMPT - \\
+      refresh_bypass_count()          // - SYNC REAL VALUE FROM DB - \\
+
       if (!res.ok || !data.success) {
         set_state({ status: 'error', message: data.error || 'Something went wrong.' })
         return
       }
 
-      set_bypass_count(c => c + 1)  // - OPTIMISTIC UPDATE - \\
       submitted_url.current = trimmed
       set_state({ status: 'success', result: data.result })
-      refresh_bypass_count()          // - SYNC REAL VALUE FROM DB - \\
     } catch {
       set_state({ status: 'error', message: 'Network error. Please check your connection.' })
     }
@@ -265,7 +267,16 @@ export default function BypassPage() {
               <StatsGrid size={20} />
               <div className="relative z-20">
                 <p className="text-xs text-muted-foreground uppercase tracking-widest font-medium">Links Bypassed</p>
-                <p className="text-2xl font-bold text-foreground mt-0.5">{bypass_count.toLocaleString()}</p>
+                <p className="text-2xl font-bold text-foreground mt-0.5">
+                  <CountUp
+                    from={0}
+                    to={bypass_count}
+                    separator=","
+                    direction="up"
+                    duration={1}
+                    startWhen={bypass_count > 0}
+                  />
+                </p>
               </div>
               <div className="relative z-20 text-muted-foreground/40">
                 <svg width="32" height="32" viewBox="0 0 251 202" fill="none" xmlns="http://www.w3.org/2000/svg">
