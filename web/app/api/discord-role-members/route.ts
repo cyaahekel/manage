@@ -34,10 +34,11 @@ export async function GET(req: NextRequest) {
 
   try {
     const controller = new AbortController()
-    const timeout_id = setTimeout(() => controller.abort(), 30000)
+    const timeout_id = setTimeout(() => controller.abort(), 60000) // 60s timeout
 
     const res = await fetch(`${__bot_url}/api/credits-members`, {
       signal: controller.signal,
+      cache : 'no-store',
     })
 
     clearTimeout(timeout_id)
