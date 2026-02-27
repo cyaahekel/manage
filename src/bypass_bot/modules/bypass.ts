@@ -155,10 +155,14 @@ const bypass_command: Command = {
         return
       }
 
-      const client_id  = interaction.client.user?.id || ""
-      const invite_url = client_id
+      const client_id   = interaction.client.user?.id || ""
+      const invite_url   = client_id
         ? `https://discord.com/api/oauth2/authorize?client_id=${client_id}&permissions=0&scope=bot%20applications.commands`
         : "https://discord.com/oauth2/authorize"
+      // - OAUTH URL: user authorizes bot to DM them (no guild required) - \\
+      const dm_auth_url  = client_id
+        ? `https://discord.com/oauth2/authorize?client_id=${client_id}&scope=bot&permissions=0`
+        : invite_url
 
       const processing_message = component.build_message({
         components: [
@@ -166,7 +170,7 @@ const bypass_command: Command = {
             components: [
               component.section({
                 content   : "## <a:GTA_Loading:1459707117840629832> - Bypassing Link\nHang on! We're processing your bypass.\n",
-                accessory : component.link_button("Invite BOT", invite_url),
+                accessory : component.link_button("DM when Done", dm_auth_url),
               }),
             ],
           }),
@@ -187,7 +191,7 @@ const bypass_command: Command = {
               components: [
                 component.section({
                   content   : `## <a:GTA_Loading:1459707117840629832> - Bypassing Link\nHang on! We're processing your bypass. (Retry ${attempt}/${bypass_max_retry}${wait_label})\n`,
-                  accessory : component.link_button("Invite BOT", invite_url),
+                  accessory : component.link_button("DM when Done", dm_auth_url),
                 }),
               ],
             }),
@@ -323,46 +327,12 @@ const bypass_command: Command = {
       
       console.warn(`[ - BYPASS COMMAND - ] Success message sent!`)
 
-      // - SEND TO DM - \\
+      // - SILENT DM: only works if user authorized via OAuth "DM when Done" button - \\
       try {
-        const dm_success_message = component.build_message({
-          components: [
-            component.container({
-              components: [
-                component.section({
-                  content   : "## <:checkmark:1417196825110253780> - Bypass Completed\nYour bypass was completed successfully. Use /bypass or send a link to start another bypass.\n",
-                  accessory : component.thumbnail("https://github.com/bimoraa/atomic_bot/blob/main/assets/images/atomic_logo.png?raw=true"),
-                }),
-              ],
-            }),
-            component.container({
-              components: [
-                component.text(`## <:rbx:1447976733050667061> - Desktop Copy\n\`\`\`\n${result.result}\n\`\`\``),
-                component.divider(2),
-                component.section({
-                  content   : `Completed in ${result.time}s • Requested by <@${interaction.user.id}> `,
-                  accessory : component.secondary_button(
-                    "Mobile Copy",
-                    `bypass_mobile_copy:${interaction.user.id}:${interaction.id}`
-                  ),
-                }),
-              ],
-            }),
-            component.container({
-              components: [
-                component.section({
-                  content   : "Want to invite the bot to your server? Click here →\n",
-                  accessory : component.link_button("Invite BOT", invite_url),
-                }),
-              ],
-            }),
-          ],
-        })
-
-        await interaction.user.send(dm_success_message)
-        console.warn(`[ - BYPASS COMMAND - ] Sent result to ${interaction.user.tag}'s DM`)
-      } catch (dm_error) {
-        console.warn(`[ - BYPASS COMMAND - ] Could not send DM to ${interaction.user.tag}`)
+        await interaction.user.send(success_message)
+        console.warn(`[ - BYPASS COMMAND - ] DM sent to ${interaction.user.tag}`)
+      } catch {
+        // - USER HAS NOT AUTHORIZED OR DMs DISABLED, SKIP SILENTLY - \\
       }
 
     } catch (error: any) {

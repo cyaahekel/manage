@@ -134,10 +134,14 @@ export async function handle_auto_bypass(message: Message): Promise<boolean> {
   let processing_msg: Awaited<ReturnType<typeof message.reply>> | null = null
 
   try {
-    const client_id  = message.client.user?.id || ""
-    const invite_url = client_id
+    const client_id   = message.client.user?.id || ""
+    const invite_url   = client_id
       ? `https://discord.com/api/oauth2/authorize?client_id=${client_id}&permissions=0&scope=bot%20applications.commands`
       : "https://discord.com/oauth2/authorize"
+    // - OAUTH URL: user authorizes bot to DM them (no guild required) - \\
+    const dm_auth_url  = client_id
+      ? `https://discord.com/oauth2/authorize?client_id=${client_id}&scope=bot&permissions=0`
+      : invite_url
 
     if (!is_dm && message.guildId) {
       const rate_limit = check_bypass_rate_limit(message.guildId)
@@ -169,7 +173,7 @@ export async function handle_auto_bypass(message: Message): Promise<boolean> {
             components: [
               component.section({
                 content   : "## <a:GTA_Loading:1459707117840629832> - Bypassing Link\nHang on! We're processing your bypass.\n",
-                accessory : component.link_button("Invite BOT", invite_url),
+                accessory : component.link_button("DM when Done", dm_auth_url),
               }),
             ],
           }),
@@ -190,7 +194,7 @@ export async function handle_auto_bypass(message: Message): Promise<boolean> {
                 components: [
                   component.section({
                     content   : `## <a:GTA_Loading:1459707117840629832> - Bypassing Link\nHang on! We're processing your bypass. (Retry ${attempt}/3)\n`,
-                    accessory : component.link_button("Invite BOT", invite_url),
+                    accessory : component.link_button("DM when Done", dm_auth_url),
                   }),
                 ],
               }),
@@ -262,14 +266,12 @@ export async function handle_auto_bypass(message: Message): Promise<boolean> {
         console.error(`[ - AUTO BYPASS - ] Failed to edit success message:`, err)
       }
 
-      // - SEND TO DM (IF NOT IN DM ALREADY) - \\
-      if (!is_dm) {
-        try {
-          await message.author.send(success_message)
-          console.warn(`[ - AUTO BYPASS - ] Sent result to ${message.author.tag}'s DM`)
-        } catch (dm_error) {
-          console.warn(`[ - AUTO BYPASS - ] Could not send DM to ${message.author.tag}`)
-        }
+      // - SILENT DM: only works if user authorized via OAuth "DM when Done" button - \\
+      try {
+        await message.author.send(success_message)
+        console.warn(`[ - AUTO BYPASS - ] DM sent to ${message.author.tag}`)
+      } catch {
+        // - USER HAS NOT AUTHORIZED OR DMs DISABLED, SKIP SILENTLY - \\
       }
     } else {
       const log_text = [
