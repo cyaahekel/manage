@@ -203,17 +203,42 @@ const bypass_command: Command = {
       console.warn(`[ - BYPASS COMMAND - ] Bypass result (attempts: ${result.attempts}):`, JSON.stringify(result))
 
       if (!result.success || !result.result) {
+        const log_text = [
+          `[ BYPASS ] - Bypassing Link`,
+          `URL      : ${url}`,
+          `User     : ${interaction.user.tag} (${interaction.user.id})`,
+          `Guild    : ${interaction.guild?.name || "DM"}`,
+          `Time     : ${new Date().toISOString()}`,
+          ``,
+          `[ BYPASS ] - Error Expected:`,
+          `${result.error || "Unknown error occurred"}`,
+          `Attempts : ${result.attempts ?? "N/A"}`,
+        ].join("\n")
+
+        try {
+          await db.get_pool().query(
+            `INSERT INTO bypass_cache (key, url, expires_at)
+             VALUES ($1, $2, NOW() + INTERVAL '1 hour')
+             ON CONFLICT (key) DO UPDATE SET url = $2, expires_at = NOW() + INTERVAL '1 hour'`,
+            [`bypass_log_${interaction.id}`, log_text]
+          )
+        } catch (db_err) {
+          console.error(`[ - BYPASS COMMAND - ] Failed to store log:`, db_err)
+        }
+
         const error_message = component.build_message({
           components: [
             component.container({
               components: [
-                component.text([
-                  "## <:lcok:1417196069716234341> Bypass Failed",
-                  "",
-                  `**Error:** ${result.error || "Unknown error occurred"}`,
-                  "",
-                  `**URL:** ${url}`,
-                ]),
+                component.text("## Bypass Failed !"),
+              ],
+            }),
+            component.container({
+              components: [
+                component.section({
+                  content   : result.error || "Unknown error occurred",
+                  accessory : component.secondary_button("View Request Log", `bypass_request_log:${interaction.id}`),
+                }),
               ],
             }),
           ],
@@ -339,16 +364,20 @@ const bypass_command: Command = {
 
     } catch (error: any) {
       console.error(`[ - BYPASS COMMAND - ] Error:`, error)
-      
+
       const error_message = component.build_message({
         components: [
           component.container({
             components: [
-              component.text([
-                "## <:lcok:1417196069716234341> Error",
-                "",
-                "An error occurred while processing your request",
-              ]),
+              component.text("## Bypass Failed !"),
+            ],
+          }),
+          component.container({
+            components: [
+              component.section({
+                content   : "An unexpected error occurred while processing your request.",
+                accessory : component.secondary_button("View Request Log", `bypass_request_log:${interaction.id}`),
+              }),
             ],
           }),
         ],

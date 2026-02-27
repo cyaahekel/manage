@@ -7,6 +7,7 @@ import { readdirSync }                                                          
 import { join }                                                                      from "path"
 import { handle_auto_bypass }                                                        from "@bypass/core/events/auto_bypass"
 import { handle_bypass_mobile_copy }                                                 from "@bypass/core/buttons/bypass_mobile_copy"
+import { handle_bypass_request_log }                                                 from "@bypass/core/buttons/bypass_request_log"
 import { handle_bypass_support_type_select }                                         from "@bypass/core/select_menus/bypass_support_type_select"
 
 config()
@@ -163,6 +164,10 @@ client.on("interactionCreate", async (interaction) => {
     try {
       if (interaction.customId.startsWith("bypass_mobile_copy:")) {
         await handle_bypass_mobile_copy(interaction)
+        return
+      }
+      if (interaction.customId.startsWith("bypass_request_log:")) {
+        await handle_bypass_request_log(interaction)
         return
       }
     } catch (error) {

@@ -269,17 +269,44 @@ export async function handle_auto_bypass(message: Message): Promise<boolean> {
         }
       }
     } else {
+      const log_text = [
+        `[ BYPASS ] - Bypassing Link`,
+        `URL      : ${url}`,
+        `User     : ${message.author.tag} (${message.author.id})`,
+        `Channel  : ${message.channelId}`,
+        `Guild    : ${message.guild?.name || "DM"}`,
+        `Source   : ${is_dm ? "DM" : "Channel"}`,
+        `Time     : ${new Date().toISOString()}`,
+        ``,
+        `[ BYPASS ] - Error Expected:`,
+        `${result.error || "Unknown error"}`,
+        `Attempts : ${result.attempts ?? "N/A"}`,
+      ].join("\n")
+
+      try {
+        await db.get_pool().query(
+          `INSERT INTO bypass_cache (key, url, expires_at)
+           VALUES ($1, $2, NOW() + INTERVAL '1 hour')
+           ON CONFLICT (key) DO UPDATE SET url = $2, expires_at = NOW() + INTERVAL '1 hour'`,
+          [`bypass_log_${message.id}`, log_text]
+        )
+      } catch (db_err) {
+        console.error(`[ - AUTO BYPASS - ] Failed to store log:`, db_err)
+      }
+
       const error_message = component.build_message({
         components: [
           component.container({
             components: [
-              component.text([
-                "## Bypass Failed",
-                "",
-                `**Error:** ${result.error || "Unknown error"}`,
-                "",
-                `**URL:** ${url}`,
-              ]),
+              component.text("## Bypass Failed !"),
+            ],
+          }),
+          component.container({
+            components: [
+              component.section({
+                content   : result.error || "Unknown error occurred",
+                accessory : component.secondary_button("View Request Log", `bypass_request_log:${message.id}`),
+              }),
             ],
           }),
         ],
@@ -313,15 +340,39 @@ export async function handle_auto_bypass(message: Message): Promise<boolean> {
     // - ALWAYS UPDATE PROCESSING MESSAGE TO AVOID STUCK STATE - \\
     if (processing_msg) {
       try {
+        const stuck_log_text = [
+          `[ BYPASS ] - Bypassing Link`,
+          `URL      : ${url || "unknown"}`,
+          `User     : ${message.author.tag} (${message.author.id})`,
+          `Channel  : ${message.channelId}`,
+          `Guild    : ${message.guild?.name || "DM"}`,
+          `Source   : ${is_dm ? "DM" : "Channel"}`,
+          `Time     : ${new Date().toISOString()}`,
+          ``,
+          `[ BYPASS ] - Error Expected:`,
+          `${(error as Error)?.message || String(error)}`,
+        ].join("\n")
+
+        await db.get_pool().query(
+          `INSERT INTO bypass_cache (key, url, expires_at)
+           VALUES ($1, $2, NOW() + INTERVAL '1 hour')
+           ON CONFLICT (key) DO UPDATE SET url = $2, expires_at = NOW() + INTERVAL '1 hour'`,
+          [`bypass_log_${message.id}`, stuck_log_text]
+        ).catch((db_err: unknown) => console.error(`[ - AUTO BYPASS - ] Failed to store stuck log:`, db_err))
+
         const stuck_error_message = component.build_message({
           components: [
             component.container({
               components: [
-                component.text([
-                  "## Bypass Failed",
-                  "",
-                  "An unexpected error occurred while processing your request. Please try again.",
-                ]),
+                component.text("## Bypass Failed !"),
+              ],
+            }),
+            component.container({
+              components: [
+                component.section({
+                  content   : "An unexpected error occurred while processing your request. Please try again.",
+                  accessory : component.secondary_button("View Request Log", `bypass_request_log:${message.id}`),
+                }),
               ],
             }),
           ],
