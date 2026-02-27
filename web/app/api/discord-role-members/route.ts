@@ -29,7 +29,7 @@ let __cache: cache_entry | null = null
  */
 async function fetch_role_from_bot(role_id: string): Promise<discord_member[]> {
   const controller = new AbortController()
-  const timeout_id = setTimeout(() => controller.abort(), 10000)
+  const timeout_id = setTimeout(() => controller.abort(), 20000)
 
   try {
     const res = await fetch(`${__bot_url}/api/role-members/${role_id}`, {
@@ -57,8 +57,10 @@ async function fetch_role_from_bot(role_id: string): Promise<discord_member[]> {
  * @description Returns guild members by supporter/staff role via bot API. Cached 5 min.
  * @returns JSON { supporters: discord_member[]; staff: discord_member[] }
  */
-export async function GET(_req: NextRequest) {
-  if (__cache && Date.now() < __cache.expires_at) {
+export async function GET(req: NextRequest) {
+  const refresh = req.nextUrl.searchParams.get('refresh') === '1'
+
+  if (!refresh && __cache && Date.now() < __cache.expires_at) {
     return NextResponse.json(
       { supporters: __cache.supporters, staff: __cache.staff },
       { headers: { 'X-Cache': 'HIT' } },
@@ -66,13 +68,14 @@ export async function GET(_req: NextRequest) {
   }
 
   try {
-    // - FETCH BOTH ROLES IN PARALLEL FROM BOT API - \\
-    const [supporters, staff] = await Promise.all([
-      fetch_role_from_bot(__role_supporter),
-      fetch_role_from_bot(__role_staff),
-    ])
+    // - FETCH SEQUENTIALLY TO AVOID RACING guild.members.fetch() ON THE BOT - \\
+    const supporters = await fetch_role_from_bot(__role_supporter)
+    const staff      = await fetch_role_from_bot(__role_staff)
 
-    __cache = { supporters, staff, expires_at: Date.now() + __cache_ttl_ms }
+    // - ONLY CACHE WHEN BOTH RETURNED DATA (AVOID CACHING PARTIAL FAILURES) - \\
+    if (supporters.length > 0 || staff.length > 0) {
+      __cache = { supporters, staff, expires_at: Date.now() + __cache_ttl_ms }
+    }
 
     return NextResponse.json({ supporters, staff }, {
       headers: { 'Cache-Control': 'public, max-age=300' },

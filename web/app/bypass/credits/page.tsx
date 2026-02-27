@@ -164,7 +164,7 @@ function MemberDetailPanel({
     <>
       {/* - BACKDROP - \\ */}
       <div
-        className = "fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
+        className = "fixed inset-0 z-40 bg-black/70"
         onClick   = {on_close}
       />
 
@@ -300,7 +300,7 @@ function DeveloperTab({ avatar_map }: { avatar_map: Record<string, string | null
       {__credits.map((credit) => (
         <div
           key       = {credit.name}
-          className = "rounded-2xl border border-border bg-card/60 backdrop-blur-sm p-5 transition-colors hover:bg-card/80"
+          className = "rounded-2xl border border-border bg-card/60 p-5 transition-colors hover:bg-card/80"
         >
           <div className="flex items-start gap-4">
             <UserAvatar initials={credit.initials} avatar_url={avatar_map[credit.discord_id] ?? null} />
@@ -375,7 +375,7 @@ function MemberGrid({ members, loading, on_click }: { members: role_member[]; lo
         <button
           key       = {m.id}
           onClick   = {() => on_click(m.id)}
-          className = "flex items-center gap-3 rounded-xl border border-border bg-card/60 backdrop-blur-sm p-3 text-left transition-colors hover:bg-card/80 hover:border-border/80"
+          className = "flex items-center gap-3 rounded-xl border border-border bg-card/60 p-3 text-left transition-colors hover:bg-card/80"
         >
           <SmallAvatar avatar_url={m.avatar_url} username={m.username} />
           <p className="truncate text-xs font-medium text-foreground">{m.username}</p>
@@ -415,11 +415,28 @@ export default function CreditsPage() {
   useEffect(() => {
     if ((active_tab === 'supporter' || active_tab === 'staff') && !members_fetched) {
       set_members_loading(true)
+
       fetch('/api/discord-role-members')
         .then((r) => r.json())
         .then((d) => {
-          if (Array.isArray(d.supporters)) set_supporters(d.supporters)
-          if (Array.isArray(d.staff))      set_staff(d.staff)
+          const supporters_raw: role_member[] = Array.isArray(d.supporters) ? d.supporters : []
+          const staff_raw     : role_member[] = Array.isArray(d.staff)      ? d.staff      : []
+
+          // - AUTO BUST CACHE IF SUPPORTERS IS EMPTY (STALE CACHE) - \\
+          if (!supporters_raw.length) {
+            return fetch('/api/discord-role-members?refresh=1')
+              .then((r) => r.json())
+              .then((d2) => ({
+                supporters: Array.isArray(d2.supporters) ? d2.supporters : [],
+                staff     : Array.isArray(d2.staff)      ? d2.staff      : staff_raw,
+              }))
+          }
+
+          return Promise.resolve({ supporters: supporters_raw, staff: staff_raw })
+        })
+        .then((d) => {
+          set_supporters(d.supporters)
+          set_staff(d.staff)
           set_members_fetched(true)
         })
         .catch(() => {})

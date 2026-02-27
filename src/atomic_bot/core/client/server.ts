@@ -290,10 +290,20 @@ export function start_webhook_server(client: Client): void {
       }
 
       // - FETCH ALL MEMBERS - RETURNS COLLECTION DIRECTLY, DON'T RELY ON CACHE - \\
-      const fetched = await guild.members.fetch()
+      const fetch_timeout = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error("members.fetch timeout")), 15000)
+      )
+      const fetched = await Promise.race([
+        guild.members.fetch({ withPresences: false }),
+        fetch_timeout,
+      ])
+
+      // - ENSURE ROLES ARE IN CACHE TOO - \\
+      await guild.roles.fetch()
 
       const role = guild.roles.cache.get(role_id)
       if (!role) {
+        console.error(`[ - API ROLE MEMBERS - ] Role ${role_id} not found in guild ${main_guild_id}`)
         return res.status(404).json({ error: "Role not found" })
       }
 
@@ -304,6 +314,8 @@ export function start_webhook_server(client: Client): void {
           username   : m.displayName ?? m.user.globalName ?? m.user.username,
           avatar_url : m.displayAvatarURL({ size: 64 }),
         }))
+
+      console.info(`[ - API ROLE MEMBERS - ] Role ${role.name} (${role_id}): ${members.length} members`)
 
       res.status(200).json({ members })
     } catch (err) {
