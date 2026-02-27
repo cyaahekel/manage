@@ -1,8 +1,16 @@
 <div align="center">
 
-<img src="https://github.com/bimoraa/atomic_bot/blob/main/assets/images/atomic_logo.png?raw=true" alt="Atomic Bot Logo" width="140" />
-
-<h1>Atomic Bot</h1>
+<table border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td valign="middle">
+      <img src="https://github.com/bimoraa/atomic_bot/blob/main/assets/images/logo.png?raw=true" alt="Atomic Bot Logo" height="80" />
+    </td>
+    <td valign="middle" width="16"></td>
+    <td valign="middle">
+      <img src="https://github.com/bimoraa/atomic_bot/blob/main/assets/images/banner.png?raw=true" alt="Atomic Bot Banner" height="80" />
+    </td>
+  </tr>
+</table>
 
 <p>A multi-bot Discord platform for server management, automation,<br/>JKT48 live notifications, and link bypassing.</p>
 
