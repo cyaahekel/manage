@@ -117,10 +117,10 @@ export default function BypassPage() {
       {/* - AURORA BACKGROUND - \\ */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <Aurora
-          colorStops={['#1a0533', '#0f172a', '#0c1a0f']}
-          amplitude={1.2}
-          blend={0.6}
-          speed={0.5}
+          colorStops={['#7cff67', '#B19EEF', '#5227FF']}
+          blend={0.5}
+          amplitude={1.0}
+          speed={1}
         />
       </div>
 
