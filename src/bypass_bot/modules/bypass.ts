@@ -161,7 +161,7 @@ const bypass_command: Command = {
         : "https://discord.com/oauth2/authorize"
       // - OAUTH URL: user authorizes bot to DM them (no guild required) - \\
       const dm_auth_url  = client_id
-        ? `https://discord.com/oauth2/authorize?client_id=${client_id}&scope=bot&permissions=0`
+        ? `https://discord.com/oauth2/authorize?client_id=${client_id}&scope=bot&integration_type=1&permissions=0`
         : invite_url
 
       const processing_message = component.build_message({
