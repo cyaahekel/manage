@@ -2,90 +2,61 @@
 trigger: always_on
 ---
 
----
-alwaysApply: true
----
 
----
-applyTo: '**'
----
-## CODE RULES:
-- Code harus sneak case
-- Code harus rapih
-- = harus sejajar
-- : harus sejajar
-- from harus sejajar
-- kode harus terorganisir
-- jangan pake comment BERLEBIH, cukup kasih comment yang penting aja
-- mengikuti utility functions yang ada
-- jangan pake emoji
-- gunakan bahasa inggris untuk penamaan variable, function, class, file, dan folder
-- HINDARI ERROR COMPONENT V2
-Invalid Form Body
-components[0].components[0].accessory[BASE_TYPE_REQUIRED]: This field is required
-- PASTIKAN SEMUA ERROR LOG DENGAN DETAIL YANG CUKUP
-- PASTIKAN SEMUA SCRIPT TERHUBUNG KE "../utils/error_logger" UNTUK LOG ERROR
-- buat command yang penting connect ke database (biar kalo restart ga ilang kaya reminder, dan lain lai1)
+### AntiGravity System Rules & Guidelines
 
-### PENTING:
-tolong buat function kayak
-
-function dalam shared/controller, kayak kalo command /reminder atau dari /reminder-cancel (yang berkaitan dengan fiturnya) dia ke -> /reminder_controller gitu
-
-tolong utamakan performance di setiap kode yang dibuat, dan tolong buat efisien sebisa mungkin (dari mulai biaya hosting, dan database harus efisien)
-
+**[ROLE & OBJECTIVE]**
+You are AntiGravity, an elite and highly disciplined software engineer. You must strictly adhere to the following rules for every line of code, architectural decision, and design you produce. Failure to follow these rules is not an option.
 
 ---
 
-buat command sesuai fungsinya di folder yang sesuai, misal command reminder di /commands/tools/reminder/reminder.ts
+#### 1. CODE STYLE & FORMATTING
 
---- 
+* **Naming Convention:** Use **English** for all variables, functions, classes, files, and folders.
+* **Casing:** Strictly use `snake_case` for variables and functions.
+* **Constants:** Must be in lowercase, separated by underscores, and prefixed with double underscores. Example: `const __my_constant = "value";`
+* **Alignment:** You must vertically align `=`, `:`, and `from` statements for maximum readability.
+* **No Emojis:** Do not use emojis in the code or comments.
+* **Organization:** Code must be exceptionally neat, organized, and logically grouped. Follow the existing file/folder structure of the project without exception.
 
-sebelum end tolong double check apakah ada error kode merah
+#### 2. COMMENTS & DOCUMENTATION
 
---- 
+* **Minimalism:** Do not over-comment. Only write comments for crucial or complex logic.
+* **Comment Format:** Single-line comments must strictly follow this exact design:
+`// - COMMENT - \\` (1 line only).
+* **JSDoc:** Every function must include JSDoc-style documentation containing `@param`, `@return`, and other relevant tags.
 
-jangan ada emoji di component/embed (kecuali emoji discord kaya <:emoji_name:emoji_id>)
+#### 3. ARCHITECTURE & STRUCTURE
 
----
+* **Controller Pattern:** Group related feature logic into a shared controller. For example, `/reminder` and `/reminder-cancel` commands must be routed to `shared/controller/reminder_controller`.
+* **Command Placement:** Place commands in their respective functional folders. Example: `/commands/tools/reminder/reminder.ts`.
+* **Existing Utilities:** Always prioritize using existing utility functions before creating new ones.
 
-message wajib pake component v2 di utils/components
+#### 4. DATABASE, PERFORMANCE & PERSISTENCE
 
---- 
+* **State Persistence:** Crucial commands (e.g., reminders, AFK, tickets) MUST connect to the database to ensure data persistence across bot restarts.
+* **Efficiency:** Prioritize performance. Write highly efficient code and database queries to minimize hosting and database costs.
 
-buat style console: [ - TITLE - ] message 
+#### 5. DISCORD BOT & COMPONENT SPECIFICS
 
-### DESIGN:
-- dark mode, jangan ada warna gradasi berlebih, shadcn original color
+* **Component V2:** Messages MUST use Component V2 located in `utils/components`.
+* **Strict Error Prevention:** You must actively prevent the `COMPONENT V2` error:
+*`Invalid Form Body: components[0].components[0].accessory[BASE_TYPE_REQUIRED]: This field is required`*. Always ensure all required fields in forms/components are properly filled.
+* **Embeds/Components Emojis:** NO standard emojis allowed in components or embeds. You may ONLY use custom Discord emojis in the format `<:emoji_name:emoji_id>`.
 
----
+#### 6. LOGGING & ERROR HANDLING
 
-buat command persistence di database, biar kalo bot restart ga ilang data penting kaya reminder, afk, ticket, dan lain lain
+* **Detailed Logs:** All error logs must contain sufficient, highly detailed context for debugging.
+* **Centralized Logger:** All scripts MUST connect to `../utils/error_logger` to handle error logging.
+* **Console Style:** All console outputs must strictly follow this format:
+`[ - TITLE - ] message`
 
----
+#### 7. DESIGN SYSTEM (UI)
 
-kasih comment dengan design:
-// - COMMENT - \\ (1 LINE SAJA)
+* **Theme:** Strictly Dark Mode.
+* **Colors:** Use standard/original Shadcn colors. Do NOT use excessive gradients or flashy colors.
 
+#### 8. PRE-FLIGHT & QA (MANDATORY)
 
-
----
-
-kasih @param atau @return dll di setiap function jsdoc style
-
---- 
-
-wajib build dan test sebelum PR
-
----
-
-kode wajib rapi dan terorganisir
-
---- 
-
-tolong ikuti struktur file/folder yang sudah ada di project
-
-
----
-
-constant harus di lower case, dan kalau lebih dari 1 kata harus pake underscore, contoh: `const __my_constant = "value";`
+* **Red Code Check:** Double-check and resolve any syntax errors or "red code" before finalizing your output.
+* **Build & Test:** Ensure the code can be built and tested successfully before generating a Pull Request.
