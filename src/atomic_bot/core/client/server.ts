@@ -270,11 +270,10 @@ export function start_webhook_server(client: Client): void {
     }
   })
 
-  // - GET SUPPORTERS AND STAFF IN ONE PAGINATED FETCH - \\
+  // - GET SUPPORTERS AND STAFF IN ONE FAST FETCH - \\
   /**
    * @route GET /api/credits-members
-   * @description Paginates all guild members once and splits into supporter/staff.
-   *              Bypasses makeCache empty collection by reading raw REST roles array.
+   * @description Fetches guild members and filters by role.
    * @returns JSON { supporters: member[], staff: member[] }
    */
   app.get("/api/credits-members", async (req: Request, res: Response) => {
@@ -285,51 +284,36 @@ export function start_webhook_server(client: Client): void {
 
       const role_supporter = "1357767950421065981"
       const role_staff     = "1264915024707588208"
-      const cdn            = "https://cdn.discordapp.com"
+      const guild          = discord_client.guilds.cache.get(main_guild_id)
 
-      type raw_member = {
-        user  : { id: string; username: string; global_name?: string; avatar?: string }
-        nick  ?: string
-        avatar?: string
-        roles  : string[]
+      if (!guild) {
+        return res.status(404).json({ error: "Guild not found" })
       }
 
-      const get_avatar = (m: raw_member): string => {
-        if (m.avatar) {
-          const ext = m.avatar.startsWith("a_") ? "gif" : "png"
-          return `${cdn}/guilds/${main_guild_id}/users/${m.user.id}/avatars/${m.avatar}.${ext}?size=64`
-        }
-        if (m.user.avatar) {
-          const ext = m.user.avatar.startsWith("a_") ? "gif" : "png"
-          return `${cdn}/avatars/${m.user.id}/${m.user.avatar}.${ext}?size=64`
-        }
-        return `${cdn}/embed/avatars/${Number(BigInt(m.user.id) >> BigInt(22)) % 6}.png`
-      }
+      // - FETCH MEMBERS FAST WITH PRESENCES DISABLED - \\
+      const fetch_timeout = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error("members.fetch timeout")), 15000)
+      )
+      
+      const fetched = await Promise.race([
+        guild.members.fetch({ withPresences: false }),
+        fetch_timeout,
+      ])
 
-      // - SINGLE PAGINATED PASS OVER ALL MEMBERS - \\
-      const all: raw_member[] = []
-      let   after: string | null = null
-      const limit                = 1000
+      await guild.roles.fetch()
 
-      while (true) {
-        const query = after ? `?limit=${limit}&after=${after}` : `?limit=${limit}`
-        const page  = await discord_client.rest.get(`/guilds/${main_guild_id}/members${query}`) as raw_member[]
-
-        all.push(...page)
-        if (page.length < limit) break
-        after = page[page.length - 1]!.user.id
-      }
-
-      const to_member = (m: raw_member) => ({
-        id         : m.user.id,
-        username   : m.nick ?? m.user.global_name ?? m.user.username,
-        avatar_url : get_avatar(m),
+      const members = [...fetched.values()]
+      
+      const to_member = (m: any) => ({
+        id         : m.id,
+        username   : m.displayName ?? m.user.globalName ?? m.user.username,
+        avatar_url : m.displayAvatarURL({ size: 64 }),
       })
 
-      const supporters = all.filter(m => m.roles.includes(role_supporter)).map(to_member)
-      const staff      = all.filter(m => m.roles.includes(role_staff)).map(to_member)
+      const supporters = members.filter(m => m.roles.cache.has(role_supporter)).map(to_member)
+      const staff      = members.filter(m => m.roles.cache.has(role_staff)).map(to_member)
 
-      console.info(`[ - API CREDITS MEMBERS - ] Total: ${all.length} | Supporters: ${supporters.length} | Staff: ${staff.length}`)
+      console.info(`[ - API CREDITS MEMBERS - ] Supporters: ${supporters.length} | Staff: ${staff.length}`)
 
       res.status(200).json({ supporters, staff })
     } catch (err) {
