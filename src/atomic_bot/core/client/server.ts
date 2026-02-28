@@ -859,6 +859,81 @@ export function start_webhook_server(client: Client): void {
     }
   })
 
+  // - GET CHANNELS FOR A SPECIFIC GUILD - \\
+  app.get("/api/guild/:guild_id/channels", async (req: Request, res: Response) => {
+    try {
+      if (!discord_client?.isReady()) {
+        return res.status(503).json({ error: "Bot not ready" })
+      }
+
+      const { guild_id } = req.params
+      const guild = discord_client.guilds.cache.get(guild_id)
+      if (!guild) {
+        return res.status(404).json({ error: "Guild not found" })
+      }
+
+      const all_channels = guild.channels.cache
+        .filter(c => c.type === ChannelType.GuildText || c.type === ChannelType.GuildCategory)
+        .sort((a, b) => (a.rawPosition ?? 0) - (b.rawPosition ?? 0))
+        .map(c => ({
+          id        : c.id,
+          name      : c.name,
+          type      : c.type as number,
+          parent_id : c.parentId ?? null,
+          position  : c.rawPosition ?? 0,
+        }))
+
+      const categories = guild.channels.cache
+        .filter(c => c.type === ChannelType.GuildCategory)
+        .sort((a, b) => (a.rawPosition ?? 0) - (b.rawPosition ?? 0))
+        .map(c => ({ id: c.id, name: c.name }))
+
+      res.status(200).json({ channels: all_channels, categories })
+    } catch (err) {
+      console.error("[ - API GUILD CHANNELS - ] Error:", err)
+      res.status(500).json({ error: "Failed to get channels" })
+    }
+  })
+
+  // - GET ROLES FOR A SPECIFIC GUILD - \\
+  app.get("/api/guild/:guild_id/roles", async (req: Request, res: Response) => {
+    try {
+      if (!discord_client?.isReady()) {
+        return res.status(503).json({ error: "Bot not ready" })
+      }
+
+      const { guild_id } = req.params
+      const guild = discord_client.guilds.cache.get(guild_id)
+      if (!guild) {
+        return res.status(404).json({ error: "Guild not found" })
+      }
+
+      const roles = guild.roles.cache
+        .filter(r => r.name !== "@everyone" && !r.managed)
+        .sort((a, b) => b.position - a.position)
+        .map(r => ({
+          id       : r.id,
+          name     : r.name,
+          color    : r.color,
+          position : r.position,
+        }))
+
+      res.status(200).json({ roles })
+    } catch (err) {
+      console.error("[ - API GUILD ROLES - ] Error:", err)
+      res.status(500).json({ error: "Failed to get roles" })
+    }
+  })
+
+  // - CHECK IF BOT IS IN GUILD - \\
+  app.get("/api/guild/:guild_id/status", async (req: Request, res: Response) => {
+    const { guild_id } = req.params
+    const in_guild = discord_client?.isReady()
+      ? discord_client.guilds.cache.has(guild_id)
+      : false
+    res.status(200).json({ in_guild })
+  })
+
   app.get("/api/reaction-roles", async (req: Request, res: Response) => {
     try {
       const configs = await database.find_many("reaction_roles", {

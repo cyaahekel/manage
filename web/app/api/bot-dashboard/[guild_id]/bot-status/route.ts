@@ -1,33 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-
-const __manage_guild_bit = 0x20
-const __discord_api_base = 'https://discord.com/api/v10'
-
-/**
- * @param access_token - Discord access token
- * @param guild_id     - Guild to verify
- * @returns Whether user has ManageGuild in that guild
- */
-async function verify_manage_guild(access_token: string, guild_id: string): Promise<boolean> {
-  try {
-    const response = await fetch('https://discord.com/api/users/@me/guilds', {
-      headers : { Authorization: `Bearer ${access_token}` },
-      next    : { revalidate: 0 },
-    })
-    if (!response.ok) return false
-    const guilds: Array<{ id: string; permissions: string }> = await response.json()
-    const guild = guilds.find(g => g.id === guild_id)
-    if (!guild) return false
-    return (BigInt(guild.permissions) & BigInt(__manage_guild_bit)) !== BigInt(0)
-  } catch {
-    return false
-  }
-}
+import { verify_manage_guild }       from '@/lib/auth'
 
 // - CHECK IF BOT IS IN GUILD - \\
 /**
  * @route GET /api/bot-dashboard/[guild_id]/bot-status
- * @description Returns whether the bot is present in the given guild
+ * @description Proxies to atomic bot to check guild membership
  * @returns JSON { in_guild: boolean, invite_url: string }
  */
 export async function GET(
@@ -42,20 +19,22 @@ export async function GET(
   const authorized = await verify_manage_guild(access_token, guild_id)
   if (!authorized) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
-  const bot_token = process.env.DISCORD_BOT_TOKEN
-  const client_id = process.env.DISCORD_CLIENT_ID ?? ''
-
-  const invite_url = `https://discord.com/oauth2/authorize?client_id=${client_id}&permissions=8&scope=bot+applications.commands&guild_id=${guild_id}`
-
-  if (!bot_token) return NextResponse.json({ in_guild: false, invite_url }, { status: 200 })
+  const bot_url    = process.env.NEXT_PUBLIC_BOT_URL ?? 'http://localhost:3456'
+  const invite_url =
+    `https://discord.com/api/oauth2/authorize?client_id=1476977037070696612&permissions=0&scope=bot%20applications.commands&guild_id=${guild_id}`
 
   try {
-    const response = await fetch(`${__discord_api_base}/guilds/${guild_id}`, {
-      headers : { Authorization: `Bot ${bot_token}` },
+    const response = await fetch(`${bot_url}/api/guild/${guild_id}/status`, {
+      headers : { Authorization: `Bearer ${process.env.BOT_API_SECRET ?? 'dev-secret'}` },
       next    : { revalidate: 0 },
     })
 
-    return NextResponse.json({ in_guild: response.ok, invite_url }, { status: 200 })
+    if (!response.ok) {
+      return NextResponse.json({ in_guild: false, invite_url }, { status: 200 })
+    }
+
+    const data = await response.json()
+    return NextResponse.json({ in_guild: data.in_guild ?? false, invite_url }, { status: 200 })
   } catch (err) {
     console.error('[ - BOT STATUS API - ]', err)
     return NextResponse.json({ in_guild: false, invite_url }, { status: 200 })

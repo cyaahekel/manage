@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-
-const __manage_guild_bit = 0x20
+import { verify_manage_guild }       from '@/lib/auth'
 
 // - DISCORD CHANNEL TYPES - \\
 const __text_channel     = 0
@@ -25,32 +24,11 @@ interface category_group {
   channels : channel_entry[]
 }
 
-/**
- * @param access_token - Discord access token
- * @param guild_id     - Guild to verify
- * @returns Whether user has ManageGuild in that guild
- */
-async function verify_manage_guild(access_token: string, guild_id: string): Promise<boolean> {
-  try {
-    const response = await fetch('https://discord.com/api/users/@me/guilds', {
-      headers : { Authorization: `Bearer ${access_token}` },
-      next    : { revalidate: 0 },
-    })
-    if (!response.ok) return false
-    const guilds: Array<{ id: string; permissions: string }> = await response.json()
-    const guild = guilds.find(g => g.id === guild_id)
-    if (!guild) return false
-    return (BigInt(guild.permissions) & BigInt(__manage_guild_bit)) !== BigInt(0)
-  } catch {
-    return false
-  }
-}
-
 // - GET CHANNELS FOR A GUILD - \\
 /**
  * @route GET /api/bot-dashboard/[guild_id]/channels
- * @description Returns text channels grouped by category for a guild
- * @returns JSON { categories: [{ id, name, channels: [{id, name}] }] }
+ * @description Proxies to atomic bot — returns text channels grouped by category
+ * @returns JSON { categories: [{ id, name, channels: [{id, name}] }], channels: discord_channel[] }
  */
 export async function GET(
   req        : NextRequest,
@@ -64,42 +42,31 @@ export async function GET(
   const allowed = await verify_manage_guild(access_token, guild_id)
   if (!allowed) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
-  const bot_token = process.env.DISCORD_BOT_TOKEN
-  if (!bot_token) {
-    console.error('[ - CHANNELS API - ] DISCORD_BOT_TOKEN not set')
-    return NextResponse.json({ error: 'Bot token not configured' }, { status: 500 })
-  }
+  const bot_url = process.env.NEXT_PUBLIC_BOT_URL ?? 'http://localhost:3456'
 
   try {
-    const res = await fetch(`https://discord.com/api/v10/guilds/${guild_id}/channels`, {
-      headers : { Authorization: `Bot ${bot_token}` },
+    const res = await fetch(`${bot_url}/api/guild/${guild_id}/channels`, {
+      headers : { Authorization: `Bearer ${process.env.BOT_API_SECRET ?? 'dev-secret'}` },
       next    : { revalidate: 30 },
     })
 
     if (!res.ok) {
       const body = await res.json().catch(() => ({}))
-      console.error('[ - CHANNELS API - ] Discord API error:', res.status, body)
-      return NextResponse.json({ error: 'Failed to fetch channels from Discord' }, { status: res.status })
+      console.error('[ - CHANNELS API - ] Bot error:', res.status, body)
+      return NextResponse.json({ error: 'Failed to fetch channels from bot' }, { status: res.status })
     }
 
-    const all_channels: discord_channel[] = await res.json()
+    const data: { channels: discord_channel[]; categories: { id: string; name: string }[] } = await res.json()
 
-    // - BUILD CATEGORY MAP - \\
-    const categories_map = new Map<string, string>()
-    for (const ch of all_channels) {
-      if (ch.type === __category_channel) {
-        categories_map.set(ch.id, ch.name)
-      }
-    }
+    const all_channels  = data.channels ?? []
+    const raw_categories = data.categories ?? []
 
-    // - COLLECT TEXT CHANNELS - \\
+    // - GROUP TEXT CHANNELS BY CATEGORY - \\
     const text_channels = all_channels
       .filter(ch => ch.type === __text_channel)
       .sort((a, b) => a.position - b.position)
 
-    // - GROUP BY CATEGORY - \\
     const grouped = new Map<string | null, channel_entry[]>()
-
     for (const ch of text_channels) {
       const key = ch.parent_id ?? null
       if (!grouped.has(key)) grouped.set(key, [])
@@ -108,25 +75,21 @@ export async function GET(
 
     const categories: category_group[] = []
 
-    // - UNCATEGORIZED FIRST - \\
     const uncategorized = grouped.get(null)
     if (uncategorized?.length) {
       categories.push({ id: null, name: 'Uncategorized', channels: uncategorized })
     }
 
-    // - THEN EACH CATEGORY SORTED BY POSITION - \\
     const sorted_cats = all_channels
       .filter(ch => ch.type === __category_channel)
       .sort((a, b) => a.position - b.position)
 
     for (const cat of sorted_cats) {
       const channels = grouped.get(cat.id)
-      if (channels?.length) {
-        categories.push({ id: cat.id, name: cat.name, channels })
-      }
+      if (channels?.length) categories.push({ id: cat.id, name: cat.name, channels })
     }
 
-    return NextResponse.json({ categories })
+    return NextResponse.json({ categories, channels: text_channels })
   } catch (err) {
     console.error('[ - CHANNELS API - ] Unexpected error:', err)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

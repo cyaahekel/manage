@@ -1,28 +1,6 @@
 import { NextRequest, NextResponse }                          from 'next/server'
 import { get_bypass_guild_stats, get_bypass_guild_total }   from '@/lib/db'
-
-const __manage_guild_bit = 0x20
-
-/**
- * @param access_token - Discord access token
- * @param guild_id     - Guild to verify
- * @returns Whether user has ManageGuild in that guild
- */
-async function verify_manage_guild(access_token: string, guild_id: string): Promise<boolean> {
-  try {
-    const response = await fetch('https://discord.com/api/users/@me/guilds', {
-      headers : { Authorization: `Bearer ${access_token}` },
-      next    : { revalidate: 0 },
-    })
-    if (!response.ok) return false
-    const guilds: Array<{ id: string; permissions: string }> = await response.json()
-    const guild = guilds.find(g => g.id === guild_id)
-    if (!guild) return false
-    return (BigInt(guild.permissions) & BigInt(__manage_guild_bit)) !== BigInt(0)
-  } catch {
-    return false
-  }
-}
+import { verify_manage_guild }                              from '@/lib/auth'
 
 // - GET BYPASS STATS FOR A GUILD - \\
 /**
