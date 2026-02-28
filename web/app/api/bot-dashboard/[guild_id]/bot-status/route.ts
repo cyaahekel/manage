@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verify_manage_guild }       from '@/lib/auth'
 
-// - CHECK IF BOT IS IN GUILD - \\
+const __DISCORD_API = 'https://discord.com/api/v10'
+
+// - CHECK IF BYPASS BOT IS IN GUILD - \\
 /**
  * @route GET /api/bot-dashboard/[guild_id]/bot-status
- * @description Proxies to atomic bot to check guild membership
+ * @description Checks if the bypass bot is in the guild via Discord REST API
  * @returns JSON { in_guild: boolean, invite_url: string }
  */
 export async function GET(
@@ -19,22 +21,23 @@ export async function GET(
   const authorized = await verify_manage_guild(access_token, guild_id)
   if (!authorized) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
-  const bot_url    = process.env.NEXT_PUBLIC_BOT_URL ?? 'http://localhost:3456'
   const invite_url =
     `https://discord.com/oauth2/authorize?client_id=1476977037070696612&permissions=4503599694556160&integration_type=0&scope=bot&guild_id=${guild_id}&disable_guild_select=true`
 
+  const bot_token = process.env.BYPASS_DISCORD_TOKEN
+  if (!bot_token) {
+    console.error('[ - BOT STATUS API - ] BYPASS_DISCORD_TOKEN not set')
+    return NextResponse.json({ in_guild: false, invite_url }, { status: 200 })
+  }
+
   try {
-    const response = await fetch(`${bot_url}/api/guild/${guild_id}/status`, {
-      headers : { Authorization: `Bearer ${process.env.BOT_API_SECRET ?? 'dev-secret'}` },
+    // - FETCH GUILD VIA BOT TOKEN: 200 = bot is member, 403/404 = not in guild - \\
+    const response = await fetch(`${__DISCORD_API}/guilds/${guild_id}`, {
+      headers : { Authorization: `Bot ${bot_token}` },
       next    : { revalidate: 0 },
     })
 
-    if (!response.ok) {
-      return NextResponse.json({ in_guild: false, invite_url }, { status: 200 })
-    }
-
-    const data = await response.json()
-    return NextResponse.json({ in_guild: data.in_guild ?? false, invite_url }, { status: 200 })
+    return NextResponse.json({ in_guild: response.ok, invite_url }, { status: 200 })
   } catch (err) {
     console.error('[ - BOT STATUS API - ]', err)
     return NextResponse.json({ in_guild: false, invite_url }, { status: 200 })
