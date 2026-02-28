@@ -21,10 +21,11 @@ function pct_bar(pct: string): number {
 }
 
 // - FORMAT SECONDS TO "Xh Ym" OR "Ym" - \\
-function format_voice(seconds: number): string {
-  if (seconds <= 0) return '0m'
-  const h = Math.floor(seconds / 3600)
-  const m = Math.floor((seconds % 3600) / 60)
+function format_voice(seconds: number | undefined): string {
+  const s = seconds ?? 0
+  if (!s || isNaN(s) || s <= 0) return '-'
+  const h = Math.floor(s / 3600)
+  const m = Math.floor((s % 3600) / 60)
   if (h > 0 && m > 0) return `${h}h ${m}m`
   if (h > 0)          return `${h}h`
   return `${m}m`
@@ -88,7 +89,7 @@ function DetailSheet({
           <p className="text-sm font-semibold tabular-nums">
             {format_voice(entry.voice_seconds)}
             <span className="ml-2 text-xs text-muted-foreground/60 font-normal">
-              ({entry.voice_count} pts)
+              ({(entry.voice_count ?? 0)} pts)
             </span>
           </p>
         </div>
