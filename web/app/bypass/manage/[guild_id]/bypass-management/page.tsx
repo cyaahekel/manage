@@ -14,9 +14,10 @@ import {
   CommandInput, CommandItem, CommandList,
 }                                            from '@/components/ui/command'
 import { Check, ChevronsUpDown, Hash,
-         Loader2, Shield, ToggleLeft,
-         ToggleRight, X }                   from 'lucide-react'
-import { cn }                               from '@/lib/utils'
+         Loader2, Shield, X,
+         CheckIcon, XIcon }              from 'lucide-react'
+import { Switch }                        from '@/components/ui/switch'
+import { cn }                            from '@/lib/utils'
 
 // - TYPES - \\
 
@@ -258,8 +259,7 @@ function AccessTab({ guild_id }: { guild_id: string }) {
 
   useEffect(() => { load() }, [load])
 
-  const toggle_enabled = useCallback(async () => {
-    const next = !enabled
+  const toggle_enabled = useCallback(async (next: boolean) => {
     set_enabled(next)
     set_saving(true)
     try {
@@ -273,7 +273,7 @@ function AccessTab({ guild_id }: { guild_id: string }) {
     } finally {
       set_saving(false)
     }
-  }, [guild_id, enabled])
+  }, [guild_id])
 
   const save_roles = useCallback(async () => {
     set_saving(true)
@@ -321,18 +321,22 @@ function AccessTab({ guild_id }: { guild_id: string }) {
           <p className="text-sm font-medium text-foreground">Bypass Enabled</p>
           <p className="text-xs text-muted-foreground">Allow members to use the bypass command</p>
         </div>
-        <button
-          onClick={toggle_enabled}
-          disabled={saving}
-          className="flex items-center gap-2 text-sm disabled:opacity-50 transition-opacity"
-          aria-label="Toggle bypass"
-        >
-          {enabled ? (
-            <ToggleRight className="w-8 h-8 text-primary" />
-          ) : (
-            <ToggleLeft className="w-8 h-8 text-muted-foreground" />
-          )}
-        </button>
+
+        <div className="relative inline-grid h-7 grid-cols-[1fr_1fr] items-center text-sm font-medium">
+          <Switch
+            checked={enabled}
+            onCheckedChange={toggle_enabled}
+            disabled={saving}
+            className="peer absolute inset-0 h-7 w-14 data-[state=unchecked]:bg-input/50 [&>span]:z-10 [&>span]:size-6 [&>span]:transition-transform [&>span]:duration-300 [&>span]:ease-[cubic-bezier(0.16,1,0.3,1)] [&>span]:data-[state=checked]:!translate-x-7 [&>span]:data-[state=unchecked]:!translate-x-0"
+            aria-label="Toggle bypass enabled"
+          />
+          <span className="pointer-events-none relative ml-0.5 flex min-w-8 items-center justify-center text-center transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] peer-data-[state=checked]:invisible peer-data-[state=unchecked]:translate-x-6 peer-data-[state=unchecked]:rtl:-translate-x-6">
+            <XIcon className="size-4" aria-hidden="true" />
+          </span>
+          <span className="peer-data-[state=checked]:text-background pointer-events-none relative flex min-w-8 items-center justify-center text-center transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] peer-data-[state=checked]:-translate-x-full peer-data-[state=unchecked]:invisible peer-data-[state=checked]:rtl:translate-x-full">
+            <CheckIcon className="size-4" aria-hidden="true" />
+          </span>
+        </div>
       </div>
 
       <div className="border-t border-border" />
