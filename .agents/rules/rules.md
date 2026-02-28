@@ -2,6 +2,13 @@
 trigger: always_on
 ---
 
+---
+alwaysApply: true
+---
+
+---
+applyTo: '**'
+---
 ## CODE RULES:
 - Code harus sneak case
 - Code harus rapih
@@ -82,3 +89,7 @@ tolong ikuti struktur file/folder yang sudah ada di project
 ---
 
 constant harus di lower case, dan kalau lebih dari 1 kata harus pake underscore, contoh: `const __my_constant = "value";`
+
+---
+
+jika ada duplicate / dll tolong fix manual, jangan via powershell

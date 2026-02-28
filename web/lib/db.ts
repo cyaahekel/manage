@@ -271,6 +271,23 @@ export async function insert_bypass_log(entry: Omit<bypass_log_row, 'id' | 'crea
 }
 
 /**
+ * @param guild_id - Discord guild ID
+ * @returns Number of deleted rows
+ */
+export async function delete_bypass_logs(guild_id: string): Promise<number> {
+  const client = await pool.connect()
+  try {
+    const result = await client.query(
+      'DELETE FROM bypass_logs WHERE guild_id = $1',
+      [guild_id]
+    )
+    return result.rowCount ?? 0
+  } finally {
+    client.release()
+  }
+}
+
+/**
  * @returns Pool instance for direct queries
  */
 export function get_pool(): Pool {

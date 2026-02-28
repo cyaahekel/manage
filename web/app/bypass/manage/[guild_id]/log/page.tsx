@@ -1,15 +1,18 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
-import { useManageContext }                  from '../context'
-import { Button }                            from '@/components/ui/button'
-import { Badge }                             from '@/components/ui/badge'
-import { ScrollArea }                        from '@/components/ui/scroll-area'
+import { useEffect, useState, useCallback, useMemo } from 'react'
+import { useManageContext }                            from '../context'
+import { Button }                                     from '@/components/ui/button'
+import { Badge }                                      from '@/components/ui/badge'
 import {
   Dialog, DialogContent, DialogHeader,
   DialogTitle, DialogTrigger,
-}                                            from '@/components/ui/dialog'
-import { Loader2, ChevronDown }              from 'lucide-react'
+}                                                     from '@/components/ui/dialog'
+import { ScrollArea }                                 from '@/components/ui/scroll-area'
+import { Loader2, ChevronDown, CheckCircle2,
+         XCircle, Search, Filter }                    from 'lucide-react'
+import { Skeleton }                                   from '@/components/ui/skeleton'
+import { cn }                                         from '@/lib/utils'
 
 // - TYPES - \\
 
@@ -151,6 +154,8 @@ export default function LogPage() {
   const [offset, set_offset]       = useState(0)
   const [loading, set_loading]     = useState(true)
   const [loading_more, set_more]   = useState(false)
+  const [search, set_search]       = useState('')
+  const [filter, set_filter]       = useState<'all' | 'success' | 'failed'>('all')
 
   const fetch_logs = useCallback(async (off: number, append = false) => {
     append ? set_more(true) : set_loading(true)
@@ -178,70 +183,182 @@ export default function LogPage() {
     fetch_logs(next, true)
   }
 
+  const filtered = useMemo(() => {
+    let result = logs
+    if (filter === 'success') result = result.filter(l => l.success)
+    if (filter === 'failed')  result = result.filter(l => !l.success)
+    if (search.trim()) {
+      const q = search.toLowerCase()
+      result  = result.filter(l => l.user_tag.toLowerCase().includes(q) || l.url.toLowerCase().includes(q))
+    }
+    return result
+  }, [logs, filter, search])
+
   if (loading) return (
-    <div className="flex items-center gap-2 text-xs text-muted-foreground py-8">
-      <Loader2 className="w-3 h-3 animate-spin" />
-      Loading logs...
+    <div className="px-6 py-6 space-y-6 max-w-5xl mx-auto h-[calc(100vh-4rem)] overflow-y-auto w-full">
+      {/* HEADER SKELETON */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="space-y-2">
+          <Skeleton className="h-6 w-32 rounded-lg" />
+          <Skeleton className="h-4 w-48 rounded-md" />
+        </div>
+        <div className="flex items-center gap-3">
+          <Skeleton className="h-9 w-64 rounded-xl" />
+          <Skeleton className="h-9 w-[180px] rounded-xl" />
+        </div>
+      </div>
+
+      {/* TABLE SKELETON */}
+      <div className="border border-border/60 rounded-xl bg-card shadow-sm overflow-hidden">
+        <div className="h-11 border-b border-border/40 bg-muted/20 flex items-center px-4">
+          <div className="w-[30%]">
+             <Skeleton className="h-4 w-16" />
+          </div>
+           <div className="w-[40%] hidden sm:block">
+             <Skeleton className="h-4 w-24" />
+          </div>
+           <div className="w-[15%]">
+             <Skeleton className="h-4 w-12" />
+          </div>
+           <div className="w-[15%] hidden md:block">
+             <Skeleton className="h-4 w-10" />
+          </div>
+        </div>
+
+        <div className="divide-y divide-border/40 flex flex-col">
+          {Array.from({ length: 15 }).map((_, i) => (
+            <div key={i} className="flex items-center px-4 py-3 h-[52px]">
+              <div className="w-[30%] flex items-center gap-3">
+                <Skeleton className="w-8 h-8 rounded-full shrink-0" />
+                <Skeleton className="h-4 w-28 rounded-md" />
+              </div>
+              <div className="w-[40%] hidden sm:block pr-4">
+                <Skeleton className="h-4 w-full max-w-[200px] rounded-md" />
+              </div>
+              <div className="w-[15%]">
+                <Skeleton className="h-5 w-16 rounded-full" />
+              </div>
+              <div className="w-[15%] hidden md:block">
+                <Skeleton className="h-4 w-20 rounded-md" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   )
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
+    <div className="px-6 py-6 space-y-6 max-w-5xl mx-auto h-[calc(100vh-4rem)] overflow-y-auto w-full">
+
+      {/* - HEADER - \\ */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-xl font-semibold text-foreground">Bypass Log</h1>
+          <h1 className="text-xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">Activity Log</h1>
           <p className="text-sm text-muted-foreground mt-1">
             {total.toLocaleString()} total entries
           </p>
         </div>
+
+        <div className="flex items-center gap-3">
+          {/* - SEARCH - \\ */}
+          <div className="relative group">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-foreground transition-colors" />
+            <input
+              type="text"
+              value={search}
+              onChange={e => set_search(e.target.value)}
+              placeholder="Search user or URL..."
+              className="h-10 pl-9 pr-4 rounded-xl border border-border/60 bg-muted/10 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring w-full sm:w-64 transition-all"
+            />
+          </div>
+
+          {/* - FILTER - \\ */}
+          <div className="flex items-center gap-1 bg-muted/30 border border-border/60 rounded-xl p-1 shrink-0">
+            {(['all', 'success', 'failed'] as const).map(f => (
+              <button
+                key={f}
+                onClick={() => set_filter(f)}
+                className={cn(
+                  'px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all duration-200',
+                  filter === f
+                    ? 'bg-background text-foreground shadow-sm ring-1 ring-border/50'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/50',
+                )}
+              >
+                {f === 'all' ? 'All' : f === 'success' ? 'Success' : 'Failed'}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
-      {logs.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 text-center">
-          <p className="text-sm text-muted-foreground">No bypass activity yet.</p>
+      {/* - TABLE - \\ */}
+      {filtered.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-24 text-center bg-card/50 border border-border/60 border-dashed rounded-2xl mx-1">
+          <div className="w-12 h-12 rounded-full bg-muted/50 border border-border/50 flex items-center justify-center mb-4">
+            <Search className="w-6 h-6 text-muted-foreground/60" />
+          </div>
+          <p className="text-base font-medium text-foreground">No matches found</p>
+          <p className="text-sm text-muted-foreground mt-1 max-w-sm">
+            {search || filter !== 'all' ? 'Try adjusting your search query or filters.' : 'No bypass activity has been recorded yet.'}
+          </p>
         </div>
       ) : (
-        <>
-          <div className="border border-border rounded-lg overflow-hidden">
-            <table className="w-full text-sm">
+        <div className="space-y-4">
+          <div className="border border-border/60 bg-card rounded-2xl shadow-sm overflow-hidden">
+            <table className="w-full text-sm whitespace-nowrap">
               <thead>
-                <tr className="border-b border-border bg-muted/30">
-                  <th className="text-left text-xs font-medium text-muted-foreground px-4 py-2.5">User</th>
-                  <th className="text-left text-xs font-medium text-muted-foreground px-4 py-2.5 hidden sm:table-cell">Requested Link</th>
-                  <th className="text-left text-xs font-medium text-muted-foreground px-4 py-2.5">Result</th>
-                  <th className="text-left text-xs font-medium text-muted-foreground px-4 py-2.5 hidden md:table-cell">Date</th>
-                  <th className="px-4 py-2.5" />
+                <tr className="border-b border-border/40 bg-muted/10">
+                  <th className="text-left text-xs font-semibold text-muted-foreground px-5 py-3.5">User</th>
+                  <th className="text-left text-xs font-semibold text-muted-foreground px-5 py-3.5 hidden sm:table-cell">Requested URL</th>
+                  <th className="text-left text-xs font-semibold text-muted-foreground px-5 py-3.5">Status</th>
+                  <th className="text-left text-xs font-semibold text-muted-foreground px-5 py-3.5 hidden md:table-cell">Date</th>
+                  <th className="px-5 py-3.5 w-16" />
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border">
-                {logs.map(log => (
-                  <tr key={log.id} className="hover:bg-muted/20 transition-colors">
-                    <td className="px-4 py-2.5">
-                      <div className="flex items-center gap-2">
+              <tbody className="divide-y divide-border/40">
+                {filtered.map(log => (
+                  <tr key={log.id} className="hover:bg-muted/30 transition-colors group">
+                    <td className="px-5 py-3.5">
+                      <div className="flex items-center gap-3">
                         <img
                           src={__avatar_url(log.user_id, log.avatar)}
                           alt={log.user_tag}
-                          className="w-6 h-6 rounded-full shrink-0"
+                          className="w-8 h-8 rounded-full ring-1 ring-border/50 shrink-0"
                           loading="lazy"
                         />
-                        <span className="text-xs font-medium truncate max-w-[120px]">{log.user_tag}</span>
+                        <div className="flex flex-col min-w-0">
+                          <span className="text-sm font-medium truncate max-w-[120px] sm:max-w-[160px] text-foreground">{log.user_tag}</span>
+                          <span className="text-[10px] text-muted-foreground truncate hidden sm:block">{log.user_id}</span>
+                        </div>
                       </div>
                     </td>
-                    <td className="px-4 py-2.5 hidden sm:table-cell">
-                      <span className="font-mono text-xs text-muted-foreground">
-                        {__truncate(log.url)}
-                      </span>
+                    <td className="px-5 py-3.5 hidden sm:table-cell w-full max-w-[300px]">
+                      <div className="flex items-center">
+                        <code className="font-mono text-xs px-2 py-1 bg-muted/40 rounded-md text-muted-foreground group-hover:bg-muted/60 transition-colors truncate border border-border/40 hover:text-foreground inline-block max-w-full">
+                          {__truncate(log.url, 60)}
+                        </code>
+                      </div>
                     </td>
-                    <td className="px-4 py-2.5">
-                      {log.success
-                        ? <Badge variant="outline" className="text-[10px] font-normal border-green-800 text-green-400 bg-green-900/20">Success</Badge>
-                        : <Badge variant="outline" className="text-[10px] font-normal border-red-800 text-red-400 bg-red-900/20">Failed</Badge>
-                      }
+                    <td className="px-5 py-3.5">
+                      <div className="flex items-center">
+                        {log.success
+                          ? <Badge variant="outline" className="text-[11px] font-medium border-green-800/30 text-emerald-400 bg-emerald-500/10 gap-1.5 pl-1.5">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                              Success
+                            </Badge>
+                          : <Badge variant="outline" className="text-[11px] font-medium border-red-800/30 text-rose-400 bg-rose-500/10 gap-1.5 pl-1.5">
+                              <XCircle className="w-3.5 h-3.5 text-rose-500" />
+                              Failed
+                            </Badge>
+                        }
+                      </div>
                     </td>
-                    <td className="px-4 py-2.5 hidden md:table-cell">
-                      <span className="text-xs text-muted-foreground">{__fmt_date(log.created_at)}</span>
+                    <td className="px-5 py-3.5 hidden md:table-cell text-muted-foreground text-xs font-medium">
+                      {__fmt_date(log.created_at)}
                     </td>
-                    <td className="px-4 py-2.5 text-right">
+                    <td className="px-5 py-3.5 text-right opacity-80 group-hover:opacity-100 transition-opacity">
                       <DetailsDialog log={log} />
                     </td>
                   </tr>
@@ -251,23 +368,24 @@ export default function LogPage() {
           </div>
 
           {logs.length < total && (
-            <div className="flex justify-center pt-2">
+            <div className="flex justify-center pt-2 pb-8">
               <Button
-                variant="ghost"
+                variant="outline"
                 size="sm"
                 onClick={load_more}
                 disabled={loading_more}
-                className="text-xs text-muted-foreground hover:text-foreground gap-1.5"
+                className="h-9 px-4 text-xs font-medium rounded-xl border border-border/80 bg-card hover:bg-muted/50 hover:text-foreground shadow-sm"
               >
                 {loading_more
-                  ? <><Loader2 className="w-3 h-3 animate-spin" />Loading...</>
-                  : <><ChevronDown className="w-3 h-3" />Load more ({total - logs.length} remaining)</>
+                  ? <><Loader2 className="w-3.5 h-3.5 animate-spin mr-2" />Loading more...</>
+                  : <><ChevronDown className="w-3.5 h-3.5 mr-2" />Load more ({total - logs.length} remaining)</>
                 }
               </Button>
             </div>
           )}
-        </>
+        </div>
       )}
+
     </div>
   )
 }

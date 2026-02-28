@@ -1,9 +1,5 @@
 import { cn } from "@/lib/utils"
 
-/**
- * @param className - Additional CSS classes
- * @returns Skeleton loading component
- */
 function Skeleton({
   className,
   ...props

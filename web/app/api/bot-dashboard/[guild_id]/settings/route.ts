@@ -1,7 +1,9 @@
-import { NextRequest, NextResponse }                                           from 'next/server'
-import { get_bypass_guild_settings, set_bypass_guild_settings,
-         remove_bypass_guild_setting }                                         from '@/lib/db'
-import { verify_manage_guild }                                                 from '@/lib/auth'
+import { NextRequest, NextResponse } from 'next/server'
+import {
+  get_bypass_guild_settings, set_bypass_guild_settings,
+  remove_bypass_guild_setting
+} from '@/lib/db'
+import { verify_manage_guild } from '@/lib/auth'
 
 // - GET SETTINGS FOR A GUILD - \\
 /**
@@ -36,7 +38,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ gui
   const allowed = await verify_manage_guild(access_token, guild_id)
   if (!allowed) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
-  let body: Record<string, string | boolean>
+  let body: Record<string, any>
   try {
     body = await req.json()
   } catch {
@@ -49,7 +51,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ gui
     return NextResponse.json({ success: true })
   }
 
-  const patch: Record<string, string> = {}
+  const patch: Record<string, any> = {}
 
   if (typeof body.bypass_channel === 'string') {
     patch.bypass_channel = body.bypass_channel.trim()
@@ -66,6 +68,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ gui
 
   if (typeof body.bypass_disabled_reason === 'string') {
     patch.bypass_disabled_reason = body.bypass_disabled_reason.trim()
+  }
+
+  if (Array.isArray(body.bypass_roles)) {
+    patch.bypass_roles = body.bypass_roles
   }
 
   if (Object.keys(patch).length === 0) {

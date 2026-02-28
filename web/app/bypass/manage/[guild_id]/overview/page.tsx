@@ -1,79 +1,60 @@
 'use client'
 
-import { useEffect, useState, useCallback }  from 'react'
-import { useManageContext }                   from '../context'
-import { Card, CardContent, CardHeader,
-         CardTitle, CardDescription }        from '@/components/ui/card'
-import { Skeleton }                          from '@/components/ui/skeleton'
-import { Badge }                             from '@/components/ui/badge'
-import { Activity, TrendingUp, BarChart2,
-         ExternalLink }                      from 'lucide-react'
+import React, { useEffect, useState, useCallback, useMemo } from 'react'
+import { useRouter } from 'next/navigation'
+import { useManageContext } from '../context'
+import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
+import { Badge } from '@/components/ui/badge'
+import {
+  Card, CardContent, CardDescription,
+  CardHeader, CardTitle,
+} from '@/components/ui/card'
+import {
+  ChartContainer, ChartTooltip, ChartTooltipContent,
+  type ChartConfig,
+} from '@/components/ui/chart'
+import { Skeleton } from '@/components/ui/skeleton'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { cn } from '@/lib/utils'
+import {
+  Activity, TrendingUp, BarChart2, CheckCircle2,
+  XCircle, ExternalLink, Hash, Settings2,
+  ShieldCheck, AlertTriangle, RefreshCw,
+  MoreHorizontal
+} from 'lucide-react'
 
 // - TYPES - \\
 
 interface guild_stats {
-  total     : number
-  today     : number
-  this_week : number
-  chart     : { date: string; count: number }[]
+  total: number
+  today: number
+  this_week: number
+  success_rate: number
+  chart: { date: string; count: number }[]
 }
 
-// - BAR CHART - \\
+interface bypass_log_row {
+  id: number
+  user_id: string
+  user_tag: string
+  avatar: string | null
+  url: string
+  result_url: string | null
+  success: boolean
+  created_at: string
+}
 
-function BypassBarChart({ data }: { data: { date: string; count: number }[] }) {
-  if (!data.length) return (
-    <div className="h-32 flex items-center justify-center">
-      <p className="text-xs text-muted-foreground">No data yet</p>
-    </div>
-  )
-
-  const filled: { date: string; count: number }[] = []
-  for (let i = 13; i >= 0; i--) {
-    const d   = new Date(Date.now() - i * 86400_000)
-    const key = d.toISOString().slice(0, 10)
-    const row = data.find(r => r.date === key)
-    filled.push({ date: key, count: row?.count ?? 0 })
-  }
-
-  const max     = Math.max(...filled.map(r => r.count), 1)
-  const fmt_day = (iso: string) =>
-    new Date(iso + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-
-  return (
-    <div className="w-full">
-      <div className="flex items-end gap-1 h-28">
-        {filled.map(r => {
-          const pct      = (r.count / max) * 100
-          const is_today = r.date === new Date().toISOString().slice(0, 10)
-          return (
-            <div key={r.date} className="flex-1 flex flex-col items-center gap-1 group relative">
-              <div
-                className={`w-full rounded-t transition-all ${is_today ? 'bg-primary/80' : 'bg-muted-foreground/25 group-hover:bg-muted-foreground/40'}`}
-                style={{ height: `${Math.max(pct, pct > 0 ? 4 : 0)}%`, minHeight: r.count > 0 ? '4px' : '2px' }}
-              />
-              <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 pointer-events-none z-10 transition-opacity">
-                <div className="bg-popover border border-border text-xs px-2 py-1 rounded shadow-md whitespace-nowrap">
-                  <span className="text-muted-foreground">{fmt_day(r.date)}: </span>
-                  <span className="font-semibold text-foreground">{r.count}</span>
-                </div>
-              </div>
-            </div>
-          )
-        })}
-      </div>
-      <div className="flex gap-1 mt-1">
-        {filled.map((r, i) => (
-          <div key={r.date} className="flex-1 text-center">
-            {i % 3 === 0 && (
-              <span className="text-[9px] text-muted-foreground">
-                {fmt_day(r.date)}
-              </span>
-            )}
-          </div>
-        ))}
-      </div>
-    </div>
-  )
+interface guild_settings_state {
+  bypass_channel: string | null
+  bypass_enabled: boolean
+  bypass_roles: string[]
 }
 
 // - HELPERS - \\
@@ -81,145 +62,334 @@ function BypassBarChart({ data }: { data: { date: string; count: number }[] }) {
 const __guild_icon_url = (id: string, icon: string) =>
   `https://cdn.discordapp.com/icons/${id}/${icon}.webp?size=64`
 
-const __invite_url =
-  'https://discord.com/oauth2/authorize?client_id=1476977037070696612&permissions=4503599694556160&integration_type=0&scope=bot'
+const __avatar_url = (user_id: string, avatar: string | null) =>
+  avatar
+    ? `https://cdn.discordapp.com/avatars/${user_id}/${avatar}.webp?size=32`
+    : `https://cdn.discordapp.com/embed/avatars/${parseInt(user_id) % 5}.png`
+
+const __fmt_relative = (iso: string): string => {
+  const diff = Date.now() - new Date(iso).getTime()
+  const mins = Math.floor(diff / 60_000)
+  if (mins < 1) return 'just now'
+  if (mins < 60) return `${mins}m ago`
+  const hrs = Math.floor(mins / 60)
+  if (hrs < 24) return `${hrs}h ago`
+  return `${Math.floor(hrs / 24)}d ago`
+}
+
+const __truncate = (s: string, n = 40) => s.length > n ? `${s.slice(0, n)}…` : s
+
+// - BAR CHART - \\
+
+const chartConfig = {
+  count: {
+    label: "Bypassed Links",
+    color: "hsl(var(--foreground))",
+  },
+} satisfies ChartConfig
+
+function BypassBarChart({ data }: { data: { date: string; count: number }[] }) {
+  const filled = React.useMemo(() => {
+    const arr: { date: string; count: number }[] = []
+    for (let i = 13; i >= 0; i--) {
+      const d   = new Date(Date.now() - i * 86_400_000)
+      const key = d.toISOString().slice(0, 10)
+      arr.push({ date: key, count: data.find(r => r.date === key)?.count ?? 0 })
+    }
+    return arr
+  }, [data])
+
+  const total = React.useMemo(
+    () => filled.reduce((acc, curr) => acc + curr.count, 0),
+    [filled],
+  )
+
+  return (
+    <Card className="rounded-2xl border-border/60 shadow-sm bg-card">
+      <CardHeader className="flex flex-col items-stretch border-b border-border/40 sm:flex-row sm:items-center sm:justify-between px-6 py-5">
+        <div className="flex flex-col justify-center gap-1.5">
+          <CardTitle className="text-lg">Activity Overview</CardTitle>
+          <CardDescription className="text-sm">
+            Total bypass requests processed over the last 14 days
+          </CardDescription>
+        </div>
+        <div className="flex flex-col items-start sm:items-end gap-1 pt-4 sm:pt-0 border-t border-border/40 sm:border-t-0 sm:border-l sm:border-border/40 sm:pl-8 mt-4 sm:mt-0">
+          <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Total Bypasses</span>
+          <span className="text-3xl font-bold sm:text-4xl leading-none text-foreground">{total.toLocaleString()}</span>
+        </div>
+      </CardHeader>
+      <CardContent className="px-2 pt-6 sm:px-6 sm:pt-8 sm:pb-6">
+        <ChartContainer
+          config={chartConfig}
+          className="aspect-auto h-[250px] w-full"
+        >
+          <BarChart
+            accessibilityLayer
+            data={filled}
+            margin={{ left: 12, right: 12 }}
+          >
+            <CartesianGrid vertical={false} />
+            <XAxis
+              dataKey="date"
+              tickLine={false}
+              axisLine={false}
+              tickMargin={8}
+              minTickGap={32}
+              tickFormatter={(value) => {
+                const date = new Date(value)
+                return date.toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                })
+              }}
+            />
+            <ChartTooltip
+              content={
+                <ChartTooltipContent
+                  className="w-[150px]"
+                  nameKey="count"
+                  labelFormatter={(value) => {
+                    return new Date(value).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })
+                  }}
+                />
+              }
+            />
+            <Bar dataKey="count" fill="var(--color-count)" radius={[3, 3, 0, 0]} />
+          </BarChart>
+        </ChartContainer>
+      </CardContent>
+    </Card>
+  )
+}
+
+// - STAT CARD - \\
+
+const __stat_items = [
+  { label: 'All Time', key: 'total' as const, icon: BarChart2 },
+  { label: 'This Week', key: 'this_week' as const, icon: TrendingUp },
+  { label: 'Today', key: 'today' as const, icon: Activity },
+  { label: 'Success Rate', key: 'rate' as const, icon: CheckCircle2 },
+] as const
 
 // - PAGE - \\
 
 export default function OverviewPage() {
+  const router = useRouter()
   const { guild_id, guild } = useManageContext()
 
-  const [stats, set_stats]                     = useState<guild_stats | null>(null)
-  const [loading_stats, set_loading_stats]     = useState(true)
-  const [loading_settings, set_loading_settings] = useState(true)
-  const [is_configured, set_is_configured]     = useState(false)
+  const [stats, set_stats] = useState<guild_stats | null>(null)
+  const [settings, set_settings] = useState<guild_settings_state | null>(null)
+  const [recent, set_recent] = useState<bypass_log_row[]>([])
+  const [refreshing, set_refreshing] = useState(false)
+  const [loading, set_loading] = useState(true)
 
-  const fetch_stats = useCallback(async () => {
-    set_loading_stats(true)
+  const fetch_all = useCallback(async (silent = false) => {
+    if (!silent) set_loading(true)
+    else set_refreshing(true)
     try {
-      const r = await fetch(`/api/bot-dashboard/${guild_id}/stats`)
-      if (r.ok) set_stats(await r.json())
-    } catch {
-      // - non-critical - \\
-    } finally {
-      set_loading_stats(false)
-    }
-  }, [guild_id])
+      const [stats_r, settings_r, logs_r] = await Promise.all([
+        fetch(`/api/bot-dashboard/${guild_id}/stats`),
+        fetch(`/api/bot-dashboard/${guild_id}/settings`),
+        fetch(`/api/bot-dashboard/${guild_id}/logs?limit=5&offset=0`),
+      ])
 
-  const check_configured = useCallback(async () => {
-    set_loading_settings(true)
-    try {
-      const r = await fetch(`/api/bot-dashboard/${guild_id}/settings`)
-      if (r.ok) {
-        const data = await r.json()
-        set_is_configured(Boolean(data.settings?.bypass_channel))
+      if (stats_r.ok) {
+        const d = await stats_r.json()
+        set_stats(d)
+      }
+      if (settings_r.ok) {
+        const d = await settings_r.json()
+        set_settings({
+          bypass_channel: d.settings?.bypass_channel ?? null,
+          bypass_enabled: d.settings?.bypass_enabled !== 'false',
+          bypass_roles: d.settings?.bypass_roles ?? [],
+        })
+      }
+      if (logs_r.ok) {
+        const d = await logs_r.json()
+        set_recent(d.logs ?? [])
       }
     } catch {
       // - non-critical - \\
     } finally {
-      set_loading_settings(false)
+      set_loading(false)
+      set_refreshing(false)
     }
   }, [guild_id])
 
-  useEffect(() => {
-    fetch_stats()
-    check_configured()
-  }, [fetch_stats, check_configured])
+  useEffect(() => { fetch_all() }, [fetch_all])
+
+  const success_rate = stats
+    ? stats.total > 0 ? `${Math.round((stats.success_rate ?? 0) * 100)}%` : 'N/A'
+    : 'N/A'
 
   return (
-    <div className="space-y-6">
+    <div className="px-6 py-6 md:py-8 max-w-5xl mx-auto h-[calc(100vh-4rem)] overflow-y-auto w-full space-y-6">
 
-      {/* - PAGE TITLE - \\ */}
-      <div className="flex items-center gap-3">
-        {guild?.icon ? (
-          <img src={__guild_icon_url(guild.id, guild.icon)} alt={guild.name} className="w-9 h-9 rounded-full" />
-        ) : (
-          <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center">
-            <span className="text-sm font-semibold text-muted-foreground">
-              {guild?.name.charAt(0).toUpperCase() ?? '?'}
-            </span>
-          </div>
-        )}
-        <div>
-          <h1 className="text-xl font-semibold text-foreground">{guild?.name ?? guild_id}</h1>
-          <p className="text-xs text-muted-foreground font-mono">{guild_id}</p>
+      {/* - PAGE HEADER - \\ */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">Overview</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Analytics and current status for <span className="font-medium text-foreground">{guild?.name ?? 'this server'}</span>.
+          </p>
         </div>
-        <div className="ml-auto flex items-center gap-2">
-          {!loading_settings && (
-            is_configured
-              ? <Badge variant="outline" className="text-xs border-green-800 text-green-400 bg-green-900/20">Configured</Badge>
-              : <Badge variant="outline" className="text-xs border-yellow-800 text-yellow-400 bg-yellow-900/20">Not Configured</Badge>
-          )}
-          <a
-            href={__invite_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => fetch_all(true)}
+            disabled={refreshing}
+            className="inline-flex items-center gap-2 text-sm font-medium text-foreground transition-all duration-200 disabled:opacity-50 h-10 px-4 border border-border/80 rounded-xl bg-card hover:bg-muted/50 hover:text-foreground shadow-sm"
           >
-            <ExternalLink className="w-3 h-3" />
-            Invite
-          </a>
+            <RefreshCw className={`w-4 h-4 text-muted-foreground ${refreshing ? 'animate-spin' : ''}`} />
+            Refresh Data
+          </button>
         </div>
       </div>
 
-      {/* - STATS CARD - \\ */}
-      <Card className="bg-card border-border">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
-            <BarChart2 className="w-4 h-4 text-muted-foreground" />
-            Overview
-          </CardTitle>
-          <CardDescription className="text-xs">
-            Bypass activity for {guild?.name ?? guild_id}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-5">
-          {loading_stats ? (
-            <div className="grid grid-cols-3 gap-3">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <Skeleton key={i} className="h-16 w-full rounded-xl" />
-              ))}
+      {/* - STAT CARDS - \\ */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {__stat_items.map((item) => {
+          const value = item.key === 'rate'
+            ? success_rate
+            : (stats?.[item.key] ?? 0).toLocaleString()
+          return (
+            <Card key={item.label} className="bg-card rounded-2xl shadow-sm border-border/60">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-5 pt-5">
+                <CardTitle className="text-sm font-medium text-muted-foreground">{item.label}</CardTitle>
+                <div className="p-2 bg-muted/40 rounded-lg border border-border/40">
+                  <item.icon className="h-4 w-4 text-foreground/70" />
+                </div>
+              </CardHeader>
+              <CardContent className="px-5 pb-5 mt-1">
+                <div className="text-2xl font-bold text-foreground">
+                  {loading ? <Skeleton className="h-7 w-20 rounded-md" /> : value}
+                </div>
+              </CardContent>
+            </Card>
+          )
+        })}
+      </div>
+
+      {/* - CHART - \\ */}
+      {loading ? (
+        <Card className="shadow-sm border-border/60 bg-card rounded-2xl">
+          <CardContent className="h-[340px] flex items-center justify-center p-6">
+            <Skeleton className="h-full w-full rounded-xl" />
+          </CardContent>
+        </Card>
+      ) : (
+        <BypassBarChart data={stats?.chart ?? []} />
+      )}
+
+      {/* - BOTTOM ROW - \\ */}
+      <div className="space-y-6">
+
+        {/* - RECENT ACTIVITY - \\ */}
+        <Card className="shadow-sm rounded-2xl border-border/60 bg-card flex flex-col overflow-hidden">
+          <CardHeader className="flex flex-row items-center justify-between py-5 border-b border-border/40 bg-muted/10 pb-5 mb-0">
+            <div>
+              <CardTitle className="text-base font-semibold">Recent Activity</CardTitle>
+              <CardDescription className="text-xs mt-1">Latest bypass attempts by members</CardDescription>
             </div>
-          ) : (
-            <div className="grid grid-cols-3 gap-3">
-              <div className="bg-muted/40 rounded-xl p-3 flex flex-col gap-1">
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <Activity className="w-3 h-3" />
-                  All Time
-                </div>
-                <p className="text-2xl font-bold text-foreground tabular-nums">
-                  {(stats?.total ?? 0).toLocaleString()}
-                </p>
-              </div>
-              <div className="bg-muted/40 rounded-xl p-3 flex flex-col gap-1">
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <TrendingUp className="w-3 h-3" />
-                  This Week
-                </div>
-                <p className="text-2xl font-bold text-foreground tabular-nums">
-                  {(stats?.this_week ?? 0).toLocaleString()}
-                </p>
-              </div>
-              <div className="bg-muted/40 rounded-xl p-3 flex flex-col gap-1">
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <BarChart2 className="w-3 h-3" />
-                  Today
-                </div>
-                <p className="text-2xl font-bold text-foreground tabular-nums">
-                  {(stats?.today ?? 0).toLocaleString()}
-                </p>
-              </div>
+            <button
+              onClick={() => router.push(`/bypass/manage/${guild_id}/log`)}
+              className="text-xs font-semibold text-muted-foreground hover:text-foreground flex items-center gap-1.5 transition-colors bg-background border border-border/50 px-3 py-1.5 rounded-lg shadow-sm shrink-0"
+            >
+              View all <ExternalLink className="w-3.5 h-3.5" />
+            </button>
+          </CardHeader>
+          <CardContent className="flex-1 p-0">
+            <div className="overflow-x-auto w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+              <Table className="min-w-full">
+                <TableHeader>
+                  <TableRow className="border-b border-border/40 hover:bg-transparent bg-muted/5">
+                    <TableHead className="w-1/4 pl-6 h-11 text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Member</TableHead>
+                    <TableHead className="w-auto h-11 text-[11px] font-medium text-muted-foreground uppercase tracking-wider">URL</TableHead>
+                    <TableHead className="w-1/6 text-right h-11 text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Time</TableHead>
+                    <TableHead className="w-[100px] pr-6 text-right h-11 text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+              <TableBody>
+                {loading ? (
+                  Array.from({ length: 4 }).map((_, i) => (
+                    <TableRow key={i} className="border-border/40 hover:bg-transparent">
+                      <TableCell className="pl-6 py-3.5">
+                        <div className="flex items-center gap-3">
+                          <Skeleton className="w-8 h-8 rounded-full shrink-0" />
+                          <Skeleton className="h-4 w-24" />
+                        </div>
+                      </TableCell>
+                      <TableCell className="py-3.5">
+                        <Skeleton className="h-4 w-40 rounded-md" />
+                      </TableCell>
+                      <TableCell className="text-right py-3.5">
+                        <Skeleton className="h-4 w-16 ml-auto" />
+                      </TableCell>
+                      <TableCell className="pr-6 text-right py-3.5">
+                        <Skeleton className="h-5 w-5 rounded-full ml-auto" />
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : recent.length === 0 ? (
+                  <TableRow className="border-none hover:bg-transparent">
+                    <TableCell colSpan={4} className="h-[200px] text-center text-sm text-muted-foreground">
+                      No activity yet.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  recent.map(log => (
+                    <TableRow key={log.id} className="border-border/40 hover:bg-muted/30 transition-colors group">
+                      <TableCell className="pl-6 py-3.5">
+                        <div className="flex items-center gap-3">
+                          <img
+                            src={__avatar_url(log.user_id, log.avatar)}
+                            alt={log.user_tag}
+                            className="w-8 h-8 rounded-full ring-1 ring-border/50 shrink-0"
+                          />
+                          <div className="flex flex-col min-w-0">
+                            <span className="text-sm font-medium text-foreground truncate max-w-[120px] sm:max-w-[160px] block">{log.user_tag}</span>
+                            <span className="text-[10px] text-muted-foreground truncate block">{log.user_id}</span>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="py-3.5 text-left w-full max-w-[150px] sm:max-w-[250px]">
+                        <code className="font-mono text-[11px] px-2 py-1 bg-muted/40 rounded-md text-muted-foreground group-hover:bg-muted/60 transition-colors truncate block border border-border/40 hover:text-foreground" title={log.url}>
+                          {__truncate(log.url)}
+                        </code>
+                      </TableCell>
+                      <TableCell className="text-right py-3.5">
+                        <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">
+                          {__fmt_relative(log.created_at)}
+                        </span>
+                      </TableCell>
+                      <TableCell className="pr-6 text-right py-3.5">
+                        <div className="flex items-center justify-end">
+                          {log.success
+                            ? <Badge variant="outline" className="text-[10px] font-medium border-emerald-800/30 text-emerald-400 bg-emerald-500/10 gap-1 pl-1.5 pr-2 py-0 h-5">
+                                <CheckCircle2 className="w-3 h-3 text-emerald-500" />
+                                Success
+                              </Badge>
+                            : <Badge variant="outline" className="text-[10px] font-medium border-rose-800/30 text-rose-400 bg-rose-500/10 gap-1 pl-1.5 pr-2 py-0 h-5">
+                                <XCircle className="w-3 h-3 text-rose-500" />
+                                Failed
+                              </Badge>
+                          }
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
             </div>
-          )}
-          <div>
-            <p className="text-xs text-muted-foreground mb-3">Last 14 days</p>
-            {loading_stats
-              ? <Skeleton className="h-32 w-full rounded-lg" />
-              : <BypassBarChart data={stats?.chart ?? []} />
-            }
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+
+      </div>
     </div>
   )
 }
