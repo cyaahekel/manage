@@ -354,43 +354,45 @@ export default function ManageLayout({ children }: { children: React.ReactNode }
 
       {/* - BOT INVITE DIALOG - \\ */}
       <AlertDialog open={!bot_in_guild}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <div className="mb-4 flex size-9 items-center justify-center rounded-full bg-sky-600/10 dark:bg-sky-400/10">
+        <AlertDialogContent className="sm:max-w-md">
+          <AlertDialogHeader className="flex flex-col items-start text-left gap-1.5">
+            <div className="mb-2 flex size-9 items-center justify-center rounded-full bg-sky-600/10 dark:bg-sky-400/10">
               <Bot className="size-4.5 text-sky-600 dark:text-sky-400" />
             </div>
             <AlertDialogTitle>Bot not in this server</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogDescription className="text-left text-sm mt-1">
               The bot has not been invited to <strong>{guild?.name ?? 'this server'}</strong> yet.
               Invite it first to start using the management dashboard.
             </AlertDialogDescription>
-            <ol className="text-muted-foreground mt-4 flex list-decimal flex-col gap-2 pl-6 text-sm">
-              <li>Click <strong>Invite Bot</strong> below</li>
-              <li>The server <strong>{guild?.name ?? 'your server'}</strong> will be pre-selected</li>
-              <li>Authorize the requested permissions</li>
-              <li>Return here — the dashboard will unlock automatically</li>
-            </ol>
+            <div className="w-full rounded-md border border-border/40 bg-muted/20 p-4 mt-3">
+              <ol className="text-muted-foreground flex list-decimal flex-col gap-2.5 pl-4 text-[13px] leading-relaxed w-full marker:text-foreground/70 marker:font-medium">
+                <li>Click <strong className="text-foreground/90 font-medium">Invite Bot</strong> below</li>
+                <li>The server <strong className="text-foreground/90 font-medium">{guild?.name ?? 'your server'}</strong> will be pre-selected</li>
+                <li>Authorize the requested permissions</li>
+                <li>Return here — the dashboard will unlock automatically</li>
+              </ol>
+            </div>
             {checking_bot && (
-              <div className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground">
-                <Loader2 className="w-3 h-3 animate-spin" />
+              <div className="mt-3 flex items-center gap-2 text-[13px] font-medium text-sky-600 dark:text-sky-400">
+                <Loader2 className="w-4 h-4 animate-spin" />
                 Checking bot status...
               </div>
             )}
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => router.push('/bypass/dashboard')}>
+          <AlertDialogFooter className="mt-4 flex flex-col-reverse sm:flex-row gap-2 sm:gap-0">
+            <AlertDialogCancel className="mt-0 sm:mt-0" onClick={() => router.push('/bypass/dashboard')}>
               Go Back
             </AlertDialogCancel>
             <button
               onClick={check_bot}
               disabled={checking_bot}
-              className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm border border-border bg-muted/60 text-foreground hover:bg-muted transition-colors disabled:opacity-50"
+              className="inline-flex w-full sm:w-auto items-center justify-center gap-1.5 rounded-md px-4 py-2 text-sm border border-border bg-muted/60 text-foreground hover:bg-muted transition-colors disabled:opacity-50 font-medium h-9"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${checking_bot ? 'animate-spin' : ''}`} />
               Check Again
             </button>
             <AlertDialogAction
-              className="bg-sky-600 text-white hover:bg-sky-700 focus-visible:ring-sky-600 dark:bg-sky-500 dark:hover:bg-sky-600"
+              className="w-full sm:w-auto bg-sky-600 text-white hover:bg-sky-700 focus-visible:ring-sky-600 dark:bg-sky-500 dark:hover:bg-sky-600 ml-0 sm:ml-2"
               onClick={() => {
                 window.open(invite_url, '_blank')
                 setTimeout(check_bot, 3000)

@@ -22,7 +22,7 @@ export async function GET(
   if (!authorized) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
   const invite_url =
-    `https://discord.com/oauth2/authorize?client_id=1476977037070696612&permissions=4503599694556160&integration_type=0&scope=bot&guild_id=${guild_id}&disable_guild_select=true`
+      `https://discord.com/oauth2/authorize?client_id=1476977037070696612&permissions=4503599694556160&integration_type=0&scope=bot&guild_id=${guild_id}&disable_guild_select=true`
 
   const bot_token = process.env.BYPASS_DISCORD_TOKEN
   if (!bot_token) {
