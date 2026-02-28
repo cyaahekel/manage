@@ -56,9 +56,10 @@ const __channel_label_fallback: Record<string, string> = {
 }
 
 const __discord_epoch        = BigInt(1420070400000)
-const __max_iter_channel     = 500         // - 500 * 100 = 50k msgs per channel max - \\
-const __channel_timeout_ms   = 120_000     // - 2 min hard cap per channel - \\
-const __iter_delay_ms        = 50          // - ms between fetches per channel - \\
+const __max_iter_channel     = 5_000       // - 5000 * 100 = 500k msgs per channel max - \\
+const __max_iter_thread      = 500         // - 500 * 100 = 50k msgs per thread max - \\
+const __channel_timeout_ms   = 600_000     // - 10 min hard cap per channel (runs in parallel) - \\
+// - NO manual delay — Discord.js handles rate limits internally - \\
 
 const log = logger.create_logger("prodete")
 
@@ -176,15 +177,78 @@ async function count_channel_messages(
 
     iterations++
 
-    if (iterations % 10 === 0) {
+    if (iterations % 50 === 0) {
       console.log(`[ - PRODETE - ] #${channel_name}: iter ${iterations} — ${total_msgs} msgs so far`)
     }
-
-    if (__iter_delay_ms > 0) await new Promise(r => setTimeout(r, __iter_delay_ms))
   }
 
   console.log(`[ - PRODETE - ] #${channel_name}: complete — ${counts.size} users, ${total_msgs} total messages`)
   return counts
+}
+
+/**
+ * Aggregates message counts across all active + archived threads in a channel.
+ * Merges results into the provided user_counts map.
+ * @param channel  TextChannel to collect threads from
+ * @param from_ts  start unix ms
+ * @param to_ts    end unix ms
+ * @param out      map to merge thread counts into
+ */
+async function count_thread_messages(
+  channel  : TextChannel,
+  from_ts  : number,
+  to_ts    : number,
+  out      : Map<string, number>
+): Promise<void> {
+  try {
+    const [active_result, archived_public] = await Promise.allSettled([
+      channel.threads.fetchActive(),
+      channel.threads.fetchArchived({ type: "public", fetchAll: true }).catch(() => ({ threads: new Map() })),
+    ])
+
+    const active_threads   = active_result.status === "fulfilled" ? [...active_result.value.threads.values()] : []
+    const archived_threads = archived_public.status === "fulfilled" ? [...(archived_public.value as { threads: Map<string, unknown> }).threads.values()] : []
+    const all_threads      = [...active_threads, ...archived_threads] as import("discord.js").AnyThreadChannel[]
+
+    let total_thread_msgs = 0
+
+    for (const thread of all_threads) {
+      // - SKIP THREADS CREATED ENTIRELY AFTER to_ts - \\
+      if (thread.createdTimestamp && thread.createdTimestamp > to_ts) continue
+
+      let before_id  = ts_to_snowflake(to_ts + 1)
+      let iterations = 0
+
+      while (iterations < __max_iter_thread) {
+        const batch = await thread.messages.fetch({ limit: 100, before: before_id, cache: false })
+
+        if (batch.size === 0) break
+
+        const sorted      = [...batch.values()].sort((a, b) => (BigInt(a.id) > BigInt(b.id) ? -1 : 1))
+        let reached_start = false
+
+        for (const msg of sorted) {
+          if (msg.createdTimestamp > to_ts)   continue
+          if (msg.createdTimestamp < from_ts) { reached_start = true; break }
+          out.set(msg.author.id, (out.get(msg.author.id) ?? 0) + 1)
+          total_thread_msgs++
+        }
+
+        if (reached_start) break
+
+        const oldest = sorted[sorted.length - 1]
+        if (oldest) before_id = oldest.id
+
+        iterations++
+      }
+    }
+
+    if (total_thread_msgs > 0) {
+      console.log(`[ - PRODETE - ] #${channel.name} threads: ${all_threads.length} threads, ${total_thread_msgs} msgs`)
+    }
+  } catch (err) {
+    log.warn(`Thread scan failed for #${channel.name}: ${(err as Error).message}`)
+  }
 }
 
 /**
@@ -214,6 +278,10 @@ async function aggregate_channel_messages(
       }
       const real_name = (ch as TextChannel).name
       const counts    = await count_channel_messages(ch as TextChannel, real_name, from_ts, to_ts)
+
+      // - MERGE THREAD MESSAGES INTO SAME channel counts - \\
+      await count_thread_messages(ch as TextChannel, from_ts, to_ts, counts)
+
       const total     = [...counts.values()].reduce((a, b) => a + b, 0)
       console.log(`[ - PRODETE - ] #${real_name}: ${counts.size} users, ${total} messages`)
       on_channel_done?.(channel_id)
@@ -250,8 +318,12 @@ async function aggregate_channel_messages(
  * @returns Map of user_id -> { ticket_type -> count }
  */
 async function count_ticket_claims(from_ts: number, to_ts: number): Promise<Map<string, Record<string, number>>> {
-  const counts = new Map<string, Record<string, number>>()
+  const counts     = new Map<string, Record<string, number>>()
   if (!db.is_connected()) return counts
+
+  // - close_time is stored in SECONDS (time.now()), convert ms range to seconds - \\
+  const from_sec = Math.floor(from_ts / 1000)
+  const to_sec   = Math.floor(to_ts   / 1000)
 
   try {
     const pool   = db.get_pool()
@@ -266,7 +338,7 @@ async function count_ticket_claims(from_ts: number, to_ts: number): Promise<Map<
         AND close_time  >= $2
         AND close_time  <= $3
       GROUP BY claimed_by, ticket_type
-    `, [__ticket_types, from_ts, to_ts])
+    `, [__ticket_types, from_sec, to_sec])
 
     for (const row of result.rows) {
       if (!counts.has(row.claimed_by)) counts.set(row.claimed_by, {})
