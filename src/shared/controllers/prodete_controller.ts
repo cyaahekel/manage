@@ -54,9 +54,9 @@ export const channel_labels: Record<string, string> = {
 }
 
 const __discord_epoch        = BigInt(1420070400000)
-const __max_iter_channel     = 1000        // - up to 100k msgs per channel - \\
-const __channel_timeout_ms   = 90_000      // - 90s hard cap per channel - \\
-const __iter_delay_ms        = 100         // - rate limit safety delay - \\
+const __max_iter_channel     = 500         // - 500 * 100 = 50k msgs per channel max - \\
+const __channel_timeout_ms   = 120_000     // - 2 min hard cap per channel - \\
+const __iter_delay_ms        = 50          // - ms between fetches per channel - \\
 
 const log = logger.create_logger("prodete")
 
@@ -114,51 +114,78 @@ function get_week_keys_in_range(from_ts: number, to_ts: number): string[] {
 
 /**
  * Counts messages per user in a single text channel within [from_ts, to_ts].
- * @param channel  TextChannel to scan
- * @param from_ts  start unix ms inclusive
- * @param to_ts    end unix ms inclusive
+ * Paginates BACKWARD from to_ts so we can stop the moment we pass from_ts —
+ * much faster than forward pagination for bounded date ranges.
+ * @param channel    TextChannel to scan
+ * @param channel_id channel ID (for logging)
+ * @param from_ts    start unix ms inclusive
+ * @param to_ts      end unix ms inclusive
  * @returns Map of user_id -> message count
  */
 async function count_channel_messages(
-  channel : TextChannel,
-  from_ts : number,
-  to_ts   : number
+  channel    : TextChannel,
+  channel_id : string,
+  from_ts    : number,
+  to_ts      : number
 ): Promise<Map<string, number>> {
+  const label    = channel_labels[channel_id] ?? channel_id
   const counts   = new Map<string, number>()
-  let after_id   = ts_to_snowflake(from_ts - 1)
-  let done       = false
+  // - START JUST PAST to_ts AND GO BACKWARD - \\
+  let before_id  = ts_to_snowflake(to_ts + 1)
   let iterations = 0
+  let total_msgs = 0
   const deadline = Date.now() + __channel_timeout_ms
 
-  while (!done && iterations < __max_iter_channel) {
+  console.log(`[ - PRODETE - ] #${label}: scan started (range ${new Date(from_ts).toISOString()} → ${new Date(to_ts).toISOString()})`)
+
+  while (iterations < __max_iter_channel) {
     if (Date.now() > deadline) {
-      log.warn(`Channel ${channel.id}: hit ${__channel_timeout_ms}ms timeout at iter ${iterations}`)
+      console.warn(`[ - PRODETE - ] #${label}: timeout after ${iterations} iters, ${total_msgs} msgs counted`)
       break
     }
 
-    const batch = await channel.messages.fetch({ limit: 100, after: after_id, cache: false })
+    const batch = await channel.messages.fetch({ limit: 100, before: before_id, cache: false })
 
-    if (batch.size === 0) break
-
-    // - SORT ASCENDING SO WE ITERATE OLDEST FIRST - \\
-    const sorted = batch.sort((a, b) => (BigInt(a.id) < BigInt(b.id) ? -1 : 1))
-
-    for (const msg of sorted.values()) {
-      if (msg.createdTimestamp > to_ts) {
-        done = true
-        break
-      }
-      counts.set(msg.author.id, (counts.get(msg.author.id) ?? 0) + 1)
+    if (batch.size === 0) {
+      console.log(`[ - PRODETE - ] #${label}: done — empty batch at iter ${iterations}, ${total_msgs} msgs`)
+      break
     }
 
-    const last = sorted.last()
-    if (!done && last) after_id = last.id
+    // - SORT DESCENDING (NEWEST FIRST) SINCE WE PAGINATE BACKWARD - \\
+    const sorted = [...batch.values()].sort((a, b) => (BigInt(a.id) > BigInt(b.id) ? -1 : 1))
+
+    let reached_start = false
+
+    for (const msg of sorted) {
+      if (msg.createdTimestamp < from_ts) {
+        // - PASSED THE START OF THE RANGE — DONE - \\
+        reached_start = true
+        break
+      }
+      // - MESSAGE IS WITHIN [from_ts, to_ts] — COUNT IT - \\
+      counts.set(msg.author.id, (counts.get(msg.author.id) ?? 0) + 1)
+      total_msgs++
+    }
+
+    if (reached_start) {
+      console.log(`[ - PRODETE - ] #${label}: done — reached range start at iter ${iterations}, ${total_msgs} msgs`)
+      break
+    }
+
+    // - OLDEST MSG IN BATCH BECOMES NEW UPPER BOUND - \\
+    const oldest = sorted[sorted.length - 1]
+    if (oldest) before_id = oldest.id
 
     iterations++
 
-    await new Promise(r => setTimeout(r, __iter_delay_ms))
+    if (iterations % 10 === 0) {
+      console.log(`[ - PRODETE - ] #${label}: iter ${iterations} — ${total_msgs} msgs counted so far`)
+    }
+
+    if (__iter_delay_ms > 0) await new Promise(r => setTimeout(r, __iter_delay_ms))
   }
 
+  console.log(`[ - PRODETE - ] #${label}: complete — ${counts.size} users, ${total_msgs} total messages`)
   return counts
 }
 
@@ -182,11 +209,13 @@ async function aggregate_channel_messages(
       const ch = await client.channels.fetch(channel_id, { force: false, cache: true })
       if (!ch || !("messages" in ch)) {
         log.warn(`Channel ${channel_id} not accessible or not a text channel`)
+        console.warn(`[ - PRODETE - ] channel ${channel_id}: not accessible`)
         on_channel_done?.(channel_id)
         return { channel_id, counts: new Map<string, number>() }
       }
-      const counts = await count_channel_messages(ch as TextChannel, from_ts, to_ts)
-      log.info(`Channel ${channel_id}: ${counts.size} active users, ${[...counts.values()].reduce((a, b) => a + b, 0)} messages`)
+      const counts = await count_channel_messages(ch as TextChannel, channel_id, from_ts, to_ts)
+      const total  = [...counts.values()].reduce((a, b) => a + b, 0)
+      console.log(`[ - PRODETE - ] channel ${channel_labels[channel_id] ?? channel_id}: ${counts.size} users, ${total} messages`)
       on_channel_done?.(channel_id)
       return { channel_id, counts }
     })
@@ -336,6 +365,7 @@ async function get_role_member_ids(client: Client, guild_id: string): Promise<Se
     }
 
     log.info(`Staff role has ${ids.size} members`)
+    console.log(`[ - PRODETE - ] staff role ${__staff_role_id}: ${ids.size} members found`)
   } catch (err) {
     log.error(`Failed to fetch role members: ${(err as Error).message}`)
   }
@@ -373,6 +403,9 @@ export async function build_prodete_report(
   }
 
   log.info(`Building ProDeTe report ${from_date} -> ${to_date} (${slug})`)
+  console.log(`[ - PRODETE - ] building report ${from_date} -> ${to_date}`)
+  console.log(`[ - PRODETE - ] range: ${new Date(from_ts).toISOString()} -> ${new Date(to_ts).toISOString()}`)
+  console.log(`[ - PRODETE - ] scanning ${__msg_channels.length} channels in parallel...`)
 
   // - PARALLEL CHANNEL SCAN — TICK AFTER EACH CHANNEL COMPLETES - \\
   const channel_maps = await aggregate_channel_messages(
@@ -393,9 +426,11 @@ export async function build_prodete_report(
   }
 
   const ticket_maps = await count_ticket_claims(from_ts, to_ts)
+  console.log(`[ - PRODETE - ] ticket claims loaded`)
   tick("Ticket claims loaded")
 
   const answer_maps = await count_ask_answers(from_ts, to_ts)
+  console.log(`[ - PRODETE - ] ask answers loaded`)
   tick("Ask answers loaded")
 
   // - BUILD TOTAL MAPS FROM BREAKDOWNS - \\
@@ -407,6 +442,7 @@ export async function build_prodete_report(
 
   // - FETCH ONLY MEMBERS WITH THE STAFF ROLE - \\
   const role_member_ids = await get_role_member_ids(client, guild_id)
+  console.log(`[ - PRODETE - ] filtering by role: ${role_member_ids.size} staff members`)
 
   const all_ids = new Set([
     ...msg_map.keys(),
@@ -463,6 +499,7 @@ export async function build_prodete_report(
   await save_prodete_report(report)
 
   log.info(`ProDeTe done: ${entries.length} staff — slug: ${slug}`)
+  console.log(`[ - PRODETE - ] report complete: ${entries.length} staff, grand total ${grand_total} activity points, slug: ${slug}`)
 
   return report
 }
