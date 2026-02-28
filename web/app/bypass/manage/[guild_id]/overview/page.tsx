@@ -303,10 +303,9 @@ export default function OverviewPage() {
             </button>
           </CardHeader>
           <CardContent className="flex-1 p-0">
-            <div className="overflow-x-auto w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-              <Table className="min-w-full">
-                <TableHeader>
-                  <TableRow className="border-b border-border/40 hover:bg-transparent bg-muted/5">
+            <Table>
+              <TableHeader>
+                <TableRow className="border-b border-border/40 hover:bg-transparent bg-muted/5">
                     <TableHead className="w-1/4 pl-6 h-11 text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Member</TableHead>
                     <TableHead className="w-auto h-11 text-[11px] font-medium text-muted-foreground uppercase tracking-wider">URL</TableHead>
                     <TableHead className="w-1/6 text-right h-11 text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Time</TableHead>
@@ -385,7 +384,6 @@ export default function OverviewPage() {
                 )}
               </TableBody>
             </Table>
-            </div>
           </CardContent>
         </Card>
 

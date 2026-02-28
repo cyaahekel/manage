@@ -199,6 +199,18 @@ export async function handle_auto_bypass(message: Message): Promise<boolean> {
     db.increment_bypass_count().catch(err => console.error(`[ - AUTO BYPASS - ] Failed to increment bypass count:`, err))
 
     if (result.success && result.result) {
+      if (message.guildId) {
+        db.insert_bypass_log({
+          guild_id   : message.guildId,
+          user_id    : message.author.id,
+          user_tag   : message.author.tag,
+          avatar     : message.author.avatar,
+          url        : url,
+          result_url : result.result,
+          success    : true,
+        }).catch(err => console.error(`[ - AUTO BYPASS - ] Failed to insert log:`, err))
+      }
+
       // - RECORD PER-GUILD BYPASS STAT - \\
       if (message.guildId) {
         db.record_bypass_guild_stat(message.guildId).catch(
@@ -272,6 +284,18 @@ export async function handle_auto_bypass(message: Message): Promise<boolean> {
         }
       }
     } else {
+      if (message.guildId) {
+        db.insert_bypass_log({
+          guild_id   : message.guildId,
+          user_id    : message.author.id,
+          user_tag   : message.author.tag,
+          avatar     : message.author.avatar,
+          url        : url,
+          result_url : null,
+          success    : false,
+        }).catch(err => console.error(`[ - AUTO BYPASS - ] Failed to insert log:`, err))
+      }
+
       const log_text = [
         `[ BYPASS ] - Bypassing Link`,
         `URL      : ${url}`,
@@ -330,6 +354,18 @@ export async function handle_auto_bypass(message: Message): Promise<boolean> {
     if (err_code === 340002 || err_code === 50007) {
       console.warn(`[ - AUTO BYPASS - ] DM restricted for ${message.author.tag} (code: ${err_code}), skipping.`)
       return false
+    }
+
+    if (message.guildId && !is_dm) {
+      db.insert_bypass_log({
+        guild_id   : message.guildId,
+        user_id    : message.author.id,
+        user_tag   : message.author.tag,
+        avatar     : message.author.avatar,
+        url        : url || "unknown",
+        result_url : null,
+        success    : false,
+      }).catch(err => console.error(`[ - AUTO BYPASS - ] Failed to insert catch log:`, err))
     }
 
     console.error("[ - AUTO BYPASS - ] Error:", error)
