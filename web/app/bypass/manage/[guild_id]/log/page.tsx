@@ -195,7 +195,7 @@ export default function LogPage() {
   }, [logs, filter, search])
 
   if (loading) return (
-    <div className="px-6 py-6 space-y-6 max-w-5xl mx-auto h-[calc(100vh-4rem)] overflow-y-auto w-full">
+    <div className="px-6 py-6 space-y-6 max-w-5xl mx-auto w-full">
       {/* HEADER SKELETON */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="space-y-2">
@@ -209,7 +209,7 @@ export default function LogPage() {
       </div>
 
       {/* TABLE SKELETON */}
-      <div className="border border-border/60 rounded-xl bg-card shadow-sm overflow-hidden">
+      <div className="border border-border/60 rounded-xl bg-card shadow-sm overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         <div className="h-11 border-b border-border/40 bg-muted/20 flex items-center px-4">
           <div className="w-[30%]">
              <Skeleton className="h-4 w-16" />
@@ -249,7 +249,7 @@ export default function LogPage() {
   )
 
   return (
-    <div className="px-6 py-6 space-y-6 max-w-5xl mx-auto h-[calc(100vh-4rem)] overflow-y-auto w-full">
+    <div className="px-6 py-6 space-y-6 max-w-5xl mx-auto w-full">
 
       {/* - HEADER - \\ */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -306,7 +306,7 @@ export default function LogPage() {
         </div>
       ) : (
         <div className="space-y-4">
-          <div className="border border-border/60 bg-card rounded-2xl shadow-sm overflow-hidden">
+          <div className="border border-border/60 bg-card rounded-2xl shadow-sm overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             <table className="w-full text-sm whitespace-nowrap">
               <thead>
                 <tr className="border-b border-border/40 bg-muted/10">
