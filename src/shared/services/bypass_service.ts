@@ -184,16 +184,9 @@ async function bypass_link_once(url: string, attempt: number): Promise<BypassRes
       "Connection"      : "keep-alive",
     }
 
-    // - HELPER: SINGLE TIMED FETCH - \\
-    const timed_fetch = async (endpoint: string): Promise<Response> => {
-      const ctrl       = new AbortController()
-      const timeout_id = setTimeout(() => ctrl.abort(), 30000)
-      try {
-        return await fetch(`${endpoint}?${params}`, { method: "GET", headers: req_headers, signal: ctrl.signal })
-      } finally {
-        clearTimeout(timeout_id)
-      }
-    }
+    // - HELPER: PLAIN FETCH, NO ABORT — LET THE SERVER RESPOND IN ITS OWN TIME - \\
+    const timed_fetch = (endpoint: string): Promise<Response> =>
+      fetch(`${endpoint}?${params}`, { method: "GET", headers: req_headers })
 
     const response = await __enqueue_bypass(() => {
       console.warn(`[ - BYPASS - ] Requesting: ${__bypass_api_url}?${params}`)
@@ -394,24 +387,16 @@ async function _run_bypass_link(
  */
 export async function get_supported_services(): Promise<SupportedService[]> {
   try {
-    const response = await __enqueue_bypass(async () => {
-      const controller = new AbortController()
-      const timeout_id = setTimeout(() => controller.abort(), 5000)
-
-      try {
-        return await fetch(`${__bypass_api_url.replace('/bypass', '/supported')}`, {
-          method: "GET",
-          headers: {
-            "x-api-key": __bypass_api_key,
-            "Accept-Encoding": "gzip, deflate, br",
-            "Connection": "keep-alive",
-          },
-          signal: controller.signal,
-        })
-      } finally {
-        clearTimeout(timeout_id)
-      }
-    })
+    const response = await __enqueue_bypass(() =>
+      fetch(`${__bypass_api_url.replace('/bypass', '/supported')}`, {
+        method: "GET",
+        headers: {
+          "x-api-key"       : __bypass_api_key,
+          "Accept-Encoding" : "gzip, deflate, br",
+          "Connection"      : "keep-alive",
+        },
+      })
+    )
 
     if (!response.ok) throw new Error(`HTTP ${response.status}`)
 

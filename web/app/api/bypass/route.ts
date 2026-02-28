@@ -4,7 +4,6 @@ import { increment_bypass_count }       from '@/lib/db'
 const __bypass_api_key     = process.env.BYPASS_API_KEY    || ""
 const __bypass_api_url     = process.env.BYPASS_API_URL    || ""
 const __bypass_refresh_url = __bypass_api_url.replace("/bypass", "/refresh")
-const __bypass_timeout     = 65_000
 const __refresh_interval   = 2_000  // - Poll /v1/refresh every 2s while TASK_ALREADY_PROCESSING - \\
 const __refresh_max_wait   = 55_000 // - Stop polling after 55s total - \\
 
@@ -110,25 +109,17 @@ export async function POST(req: NextRequest) {
     }
     const __request_start = Date.now()
 
-    // - HELPER: ONE FETCH WITH ABORT CONTROLLER - \\
-    const timed_fetch = async (fetch_url: string): Promise<Response> => {
-      const controller = new AbortController()
-      const timeout_id = setTimeout(() => controller.abort(), __bypass_timeout)
-      try {
-        return await fetch(`${fetch_url}?${params}`, { method: "GET", headers, signal: controller.signal })
-      } finally {
-        clearTimeout(timeout_id)
-      }
-    }
+    // - HELPER: PLAIN FETCH, NO ABORT — LET THE SERVER RESPOND IN ITS OWN TIME - \\
+    const timed_fetch = (fetch_url: string): Promise<Response> =>
+      fetch(`${fetch_url}?${params}`, { method: "GET", headers })
 
     let res: Response
     try {
       res = await timed_fetch(__bypass_api_url)
     } catch (err: any) {
-      const is_timeout = err?.name === "AbortError"
       console.error("[ - BYPASS API - ] Fetch error:", err)
       return NextResponse.json(
-        { error: is_timeout ? "Request timed out. Please try again." : "Failed to reach bypass service." },
+        { error: "Failed to reach bypass service." },
         { status: 503 }
       )
     }
