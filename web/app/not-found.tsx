@@ -1,10 +1,45 @@
+'use client'
+
+import dynamic from 'next/dynamic'
+import Link    from 'next/link'
+
+const GridScan  = dynamic(() => import('@/components/GridScan').then(m => m.GridScan), { ssr: false })
+const ASCIIText = dynamic(() => import('@/components/ASCIIText'), { ssr: false })
+
 export default function NotFound() {
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">404</h1>
-        <p className="text-muted-foreground">Transcript not found</p>
+    <div className="relative min-h-screen w-full overflow-hidden bg-black flex items-center justify-center">
+
+      {/* - BACKGROUND GRID - \\ */}
+      <div className="absolute inset-0 z-0">
+        <GridScan
+          sensitivity         = {0.55}
+          lineThickness       = {1}
+          linesColor          = "#392e4e"
+          gridScale           = {0.1}
+          scanColor           = "#FF9FFC"
+          scanOpacity         = {0.4}
+          enablePost          = {true}
+          bloomIntensity      = {0.6}
+          chromaticAberration = {0.002}
+          noiseIntensity      = {0.01}
+          style               = {{ width: '100%', height: '100%' }}
+        />
       </div>
+
+      {/* - CONTENT - \\ */}
+      <div className="relative z-10 flex flex-col items-center gap-4 text-center px-6 select-none">
+        <div style={{ width: '800px', height: '280px' }}>
+          <ASCIIText
+            text          = "404"
+            enableWaves   = {true}
+            asciiFontSize = {6}
+            textFontSize  = {320}
+          />
+        </div>
+      </div>
+
     </div>
   )
 }
+
