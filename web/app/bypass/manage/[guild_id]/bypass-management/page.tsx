@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { useManageContext }                  from '../context'
-import { AceternityTabs }                    from '@/components/ui/aceternity-tabs'
+import { Tabs }                              from '@/components/ui/tabs'
 import { Button }                            from '@/components/ui/button'
 import { Badge }                             from '@/components/ui/badge'
 import { ScrollArea }                        from '@/components/ui/scroll-area'
@@ -431,19 +431,12 @@ function AccessTab({ guild_id }: { guild_id: string }) {
 // - PAGE - \\
 
 export default function BypassManagementPage() {
-  const { guild_id } = useManageContext()
+  const { guild_id }             = useManageContext()
+  const [active_tab, set_active] = useState('channel')
 
-  const tabs = [
-    {
-      title   : 'Bypass Channel',
-      value   : 'channel',
-      content : <BypassChannelTab guild_id={guild_id} />,
-    },
-    {
-      title   : 'Access',
-      value   : 'access',
-      content : <AccessTab guild_id={guild_id} />,
-    },
+  const tab_items = [
+    { title: 'Bypass Channel', value: 'channel' },
+    { title: 'Access',         value: 'access'  },
   ]
 
   return (
@@ -452,7 +445,16 @@ export default function BypassManagementPage() {
         <h1 className="text-xl font-semibold text-foreground">Bypass Management</h1>
         <p className="text-sm text-muted-foreground mt-1">Configure bypass channel, access roles, and enable/disable state.</p>
       </div>
-      <AceternityTabs tabs={tabs} className="w-full" />
+
+      <Tabs
+        tabs={tab_items}
+        active={active_tab}
+        on_change={set_active}
+        className="mb-6"
+      />
+
+      {active_tab === 'channel' && <BypassChannelTab guild_id={guild_id} />}
+      {active_tab === 'access'  && <AccessTab guild_id={guild_id} />}
     </div>
   )
 }

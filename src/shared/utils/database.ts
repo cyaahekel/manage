@@ -559,6 +559,38 @@ async function init_tables(): Promise<void> {
       CREATE INDEX IF NOT EXISTS idx_staff_voice_sessions_range   ON staff_voice_sessions(joined_at, left_at)
     `)
 
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS bypass_guild_stats (
+        id       BIGSERIAL PRIMARY KEY,
+        guild_id TEXT NOT NULL,
+        date     DATE NOT NULL DEFAULT CURRENT_DATE,
+        count    INTEGER NOT NULL DEFAULT 1,
+        UNIQUE(guild_id, date)
+      )
+    `)
+
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS idx_bypass_guild_stats_guild ON bypass_guild_stats(guild_id, date DESC)
+    `)
+
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS bypass_logs (
+        id         BIGSERIAL PRIMARY KEY,
+        guild_id   TEXT NOT NULL,
+        user_id    TEXT NOT NULL,
+        user_tag   TEXT NOT NULL,
+        avatar     TEXT,
+        url        TEXT NOT NULL,
+        result_url TEXT,
+        success    BOOLEAN NOT NULL DEFAULT false,
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      )
+    `)
+
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS idx_bypass_logs_guild ON bypass_logs(guild_id, created_at DESC)
+    `)
+
     await migrate_tables(client)
 
     console.log("[ - POSTGRESQL - ] Tables initialized")
