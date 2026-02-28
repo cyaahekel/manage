@@ -471,7 +471,7 @@ export default function CreditsPage() {
         {/* - HEADER - \\ */}
         <div className="mb-8 space-y-1.5">
           <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground/60">
-            Atomic Bypass
+            Atomic Lancar Jaya Team
           </p>
           <h1 className="text-3xl font-bold tracking-tight text-foreground">Credits</h1>
           <p className="text-sm text-muted-foreground">The people who make this possible.</p>
