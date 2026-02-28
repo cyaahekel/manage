@@ -21,6 +21,9 @@ WORKDIR /app
 COPY --from=deps-dev /app/node_modules ./node_modules
 COPY . .
 
+# - ENSURE OPTIONAL ASSET DIRS EXIST SO RUNNER COPY NEVER FAILS - \\
+RUN mkdir -p /app/assets /app/staff-information
+
 RUN npm run build:fast
 
 
