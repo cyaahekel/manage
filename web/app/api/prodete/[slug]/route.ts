@@ -15,7 +15,7 @@ export async function GET(
 ): Promise<NextResponse> {
   const { slug } = await context.params
 
-  if (!slug || !/^\d{8}-\d{8}$/.test(slug)) {
+  if (!slug || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(slug)) {
     return NextResponse.json({ error: 'Invalid slug format.' }, { status: 400 })
   }
 

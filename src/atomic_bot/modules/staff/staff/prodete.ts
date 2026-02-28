@@ -4,8 +4,7 @@ import { component, format, logger } from "@shared/utils"
 import { is_admin }                   from "@shared/database/settings/permissions"
 import {
   build_prodete_report,
-  build_prodete_slug,
-  get_prodete_report,
+  get_prodete_report_by_dates,
   type prodete_entry,
   type prodete_report,
 } from "@shared/controllers/prodete_controller"
@@ -72,7 +71,7 @@ function is_valid_date(s: string): boolean {
 export const command: Command = {
   data: new SlashCommandBuilder()
     .setName("prodete")
-    .setDescription("Data Keaktifan Staff — generate activity report for a date range")
+    .setDescription("generate activity report for a date range")
     .addStringOption(opt =>
       opt.setName("from")
         .setDescription("Start date (DD-MM-YYYY), e.g. 01-02-2026")
@@ -125,14 +124,12 @@ export const command: Command = {
 
     await interaction.deferReply({ ephemeral: false })
 
-    const slug = build_prodete_slug(from_date, to_date)
-
     // - USE CACHED REPORT IF EXISTS AND NOT FORCING REFRESH - \\
     if (!refresh) {
-      const cached = await get_prodete_report(slug)
+      const cached = await get_prodete_report_by_dates(from_date, to_date)
       if (cached) {
         const table    = build_table(cached.entries)
-        const page_url = `${__web_base_url}/data/prodete/${slug}`
+        const page_url = `${__web_base_url}/data/prodete/${cached.slug}`
 
         const msg = component.build_message({
           components: [
@@ -180,17 +177,48 @@ export const command: Command = {
 
     await interaction.editReply(progress_msg)
 
+    // - THROTTLED PROGRESS EDITS (MAX 1 PER 3s TO AVOID RATE LIMITS) - \\
+    let last_progress_edit = Date.now()
+
+    const on_progress = async (message: string, done: number, total: number): Promise<void> => {
+      const now = Date.now()
+      if (now - last_progress_edit < 3000) return
+      last_progress_edit = now
+
+      const pct     = Math.round((done / total) * 100)
+      const filled  = Math.floor(pct / 10)
+      const bar     = "\u2588".repeat(filled) + "\u2591".repeat(10 - filled)
+
+      const upd = component.build_message({
+        components: [
+          component.container({
+            components: [
+              component.text([
+                `## ProDeTe \u2014 Generating Report`,
+                `**Period:** ${from_date} \u2013 ${to_date}`,
+                `\`[${bar}]\` ${pct}% \u2014 ${message}`,
+                `*Please wait...*`,
+              ]),
+            ],
+          }),
+        ],
+      })
+
+      await interaction.editReply(upd).catch(() => {})
+    }
+
     try {
       const report = await build_prodete_report(
         interaction.client,
         guild_id,
         from_date,
         to_date,
-        interaction.user.id
+        interaction.user.id,
+        on_progress
       )
 
       const table    = build_table(report.entries)
-      const page_url = `${__web_base_url}/data/prodete/${slug}`
+      const page_url = `${__web_base_url}/data/prodete/${report.slug}`
 
       const result_msg = component.build_message({
         components: [

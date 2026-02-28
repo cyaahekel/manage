@@ -1,12 +1,13 @@
-'use client'
+﻿'use client'
 
-import { useEffect, useState }                                  from 'react'
-import { cn }                                                   from '@/lib/utils'
-import { Skeleton }                                             from '@/components/ui/skeleton'
+import { useEffect, useState, use }                              from 'react'
+import { cn }                                                    from '@/lib/utils'
+import { Skeleton }                                              from '@/components/ui/skeleton'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { XCircle }                                              from 'lucide-react'
-import { use }                                                  from 'react'
-import type { prodete_report, prodete_entry }                   from '@/types/prodete'
+import { Sheet, SheetContent, SheetHeader, SheetTitle }          from '@/components/ui/sheet'
+import { XCircle, ChevronRight }                                 from 'lucide-react'
+import type { prodete_report, prodete_entry }                    from '@/types/prodete'
+import { channel_labels }                                        from '@/types/prodete'
 
 // - RANK MEDAL COLORS - \\
 function rank_class(rank: number): string {
@@ -16,20 +17,195 @@ function rank_class(rank: number): string {
   return 'text-muted-foreground'
 }
 
-// - BAR PERCENTAGE WIDTH - \\
 function pct_bar(pct: string): number {
   return Math.min(100, parseFloat(pct))
+}
+
+function ch_label(id: string): string {
+  return channel_labels[id] ?? id
 }
 
 interface page_props {
   params: Promise<{ slug: string }>
 }
 
+// - DETAIL SHEET COMPONENT - \\
+function DetailSheet({
+  entry,
+  open,
+  on_close,
+}: {
+  entry    : prodete_entry | null
+  open     : boolean
+  on_close : () => void
+}) {
+  if (!entry) return null
+
+  const ch_rows     = Object.entries(entry.channel_breakdown).sort(([, a], [, b]) => b - a)
+  const ticket_rows = Object.entries(entry.ticket_breakdown).sort(([, a], [, b]) => b - a)
+  const answer_rows = Object.entries(entry.answer_breakdown).sort(([a], [b]) => a.localeCompare(b))
+
+  return (
+    <Sheet open={open} onOpenChange={v => { if (!v) on_close() }}>
+      <SheetContent side="right" className="w-full sm:max-w-lg overflow-y-auto bg-background border-border">
+        <SheetHeader className="mb-6">
+          <SheetTitle className="text-base font-semibold">
+            {entry.username}
+            <span className="ml-2 text-xs font-mono text-muted-foreground/50">#{entry.rank}</span>
+          </SheetTitle>
+          <p className="text-xs text-muted-foreground font-mono">{entry.user_id}</p>
+        </SheetHeader>
+
+        {/* - SUMMARY ROW - \\ */}
+        <div className="grid grid-cols-4 gap-2 mb-6">
+          {[
+            { label: 'Total', val: entry.total },
+            { label: 'Pesan', val: entry.msg_count },
+            { label: 'Claim', val: entry.claim_count },
+            { label: 'Ask',   val: entry.answer_count },
+          ].map(({ label, val }) => (
+            <div key={label} className="rounded-lg border border-border bg-card p-3 text-center">
+              <p className="text-lg font-bold tabular-nums">{val.toLocaleString()}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{label}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* - MESSAGES PER CHANNEL - \\ */}
+        <section className="mb-6">
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+            Pesan per Channel
+          </h3>
+          {ch_rows.length === 0 ? (
+            <p className="text-xs text-muted-foreground/50 italic">No data</p>
+          ) : (
+            <div className="rounded-lg border border-border overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent *:border-border [&>:not(:last-child)]:border-r">
+                    <TableHead className="bg-muted py-2 text-xs font-medium text-foreground">Channel</TableHead>
+                    <TableHead className="bg-muted py-2 text-xs font-medium text-foreground text-right w-20">Pesan</TableHead>
+                    <TableHead className="bg-muted py-2 text-xs font-medium text-foreground w-28">Share</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {ch_rows.map(([ch_id, count]) => {
+                    const share = entry.msg_count > 0 ? (count / entry.msg_count) * 100 : 0
+                    return (
+                      <TableRow key={ch_id} className="*:border-border [&>:not(:last-child)]:border-r">
+                        <TableCell className="py-2 text-xs font-mono text-muted-foreground">
+                          {ch_label(ch_id)}
+                        </TableCell>
+                        <TableCell className="py-2 text-xs text-right tabular-nums font-medium">
+                          {count.toLocaleString()}
+                        </TableCell>
+                        <TableCell className="py-2">
+                          <div className="flex items-center gap-1.5">
+                            <div className="flex-1 h-1 bg-muted rounded-full overflow-hidden">
+                              <div
+                                className="h-full bg-foreground/50 rounded-full"
+                                style={{ width: `${share}%` }}
+                              />
+                            </div>
+                            <span className="text-xs tabular-nums text-muted-foreground w-10 text-right shrink-0">
+                              {share.toFixed(0)}%
+                            </span>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </section>
+
+        {/* - TICKET CLAIMS BY TYPE - \\ */}
+        <section className="mb-6">
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+            Ticket Claims
+          </h3>
+          {ticket_rows.length === 0 ? (
+            <p className="text-xs text-muted-foreground/50 italic">No claims</p>
+          ) : (
+            <div className="rounded-lg border border-border overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent *:border-border [&>:not(:last-child)]:border-r">
+                    <TableHead className="bg-muted py-2 text-xs font-medium text-foreground">Type</TableHead>
+                    <TableHead className="bg-muted py-2 text-xs font-medium text-foreground text-right w-20">Claims</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {ticket_rows.map(([type, count]) => (
+                    <TableRow key={type} className="*:border-border [&>:not(:last-child)]:border-r">
+                      <TableCell className="py-2 text-xs capitalize text-muted-foreground">{type}</TableCell>
+                      <TableCell className="py-2 text-xs text-right tabular-nums font-medium">
+                        {count.toLocaleString()}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  <TableRow className="*:border-border [&>:not(:last-child)]:border-r bg-muted/50">
+                    <TableCell className="py-2 text-xs font-semibold">Total</TableCell>
+                    <TableCell className="py-2 text-xs text-right tabular-nums font-semibold">
+                      {entry.claim_count.toLocaleString()}
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </section>
+
+        {/* - ASK ANSWERS BY WEEK - \\ */}
+        <section>
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+            Ask Answers per Week
+          </h3>
+          {answer_rows.length === 0 ? (
+            <p className="text-xs text-muted-foreground/50 italic">No answers</p>
+          ) : (
+            <div className="rounded-lg border border-border overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent *:border-border [&>:not(:last-child)]:border-r">
+                    <TableHead className="bg-muted py-2 text-xs font-medium text-foreground">Week</TableHead>
+                    <TableHead className="bg-muted py-2 text-xs font-medium text-foreground text-right w-20">Answers</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {answer_rows.map(([week, count]) => (
+                    <TableRow key={week} className="*:border-border [&>:not(:last-child)]:border-r">
+                      <TableCell className="py-2 text-xs font-mono text-muted-foreground">{week}</TableCell>
+                      <TableCell className="py-2 text-xs text-right tabular-nums font-medium">
+                        {count.toLocaleString()}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  <TableRow className="*:border-border [&>:not(:last-child)]:border-r bg-muted/50">
+                    <TableCell className="py-2 text-xs font-semibold">Total</TableCell>
+                    <TableCell className="py-2 text-xs text-right tabular-nums font-semibold">
+                      {entry.answer_count.toLocaleString()}
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </section>
+      </SheetContent>
+    </Sheet>
+  )
+}
+
+// - MAIN PAGE - \\
 export default function ProDetePage({ params }: page_props) {
-  const { slug }                            = use(params)
-  const [report, set_report]                = useState<prodete_report | null>(null)
-  const [loading, set_loading]              = useState(true)
-  const [error, set_error]                  = useState<string | null>(null)
+  const { slug }                              = use(params)
+  const [report, set_report]                  = useState<prodete_report | null>(null)
+  const [loading, set_loading]                = useState(true)
+  const [error, set_error]                    = useState<string | null>(null)
+  const [selected_entry, set_selected_entry]  = useState<prodete_entry | null>(null)
 
   useEffect(() => {
     const load = async () => {
@@ -54,8 +230,6 @@ export default function ProDetePage({ params }: page_props) {
     load()
   }, [slug])
 
-  const fmt_date = (dt: string) => dt // "DD-MM-YYYY" — already readable
-
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12">
@@ -71,13 +245,14 @@ export default function ProDetePage({ params }: page_props) {
             <>
               <h1 className="text-2xl font-bold tracking-tight">ProDeTe</h1>
               <p className="text-sm text-muted-foreground">
-                Data Keaktifan Staff &mdash; {fmt_date(report!.from_date)} s/d {fmt_date(report!.to_date)}
+                Data Keaktifan Staff &mdash; {report!.from_date} s/d {report!.to_date}
               </p>
               <p className="text-xs text-muted-foreground/50">
-                Updated <span title={new Date(report!.generated_at).toISOString()}>
+                Updated{' '}
+                <span title={new Date(report!.generated_at).toISOString()}>
                   {new Date(report!.generated_at).toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })} WIB
                 </span>
-                &ensp;&bull;&ensp;{report!.entries.length} staff counted
+                &ensp;&bull;&ensp;{report!.entries.length} staff
               </p>
             </>
           )}
@@ -97,8 +272,8 @@ export default function ProDetePage({ params }: page_props) {
             <Table>
               <TableHeader>
                 <TableRow className="*:border-border [&>:not(:last-child)]:border-r hover:bg-transparent">
-                  {['#', 'Staff', 'Pesan', 'Claim', 'Ask', 'Total', '%'].map(h => (
-                    <TableHead key={h} className="bg-muted py-2.5">
+                  {['#', 'Staff', 'Pesan', 'Claim', 'Ask', 'Total', '%', ''].map((_, i) => (
+                    <TableHead key={i} className="bg-muted py-2.5">
                       <Skeleton className="h-4 w-10" />
                     </TableHead>
                   ))}
@@ -114,6 +289,7 @@ export default function ProDetePage({ params }: page_props) {
                     <TableCell className="py-3"><Skeleton className="h-4 w-10" /></TableCell>
                     <TableCell className="py-3"><Skeleton className="h-4 w-12" /></TableCell>
                     <TableCell className="py-3"><Skeleton className="h-4 w-16" /></TableCell>
+                    <TableCell className="py-3"><Skeleton className="h-4 w-8" /></TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -134,6 +310,7 @@ export default function ProDetePage({ params }: page_props) {
                   <TableHead className="bg-muted py-2.5 font-medium text-foreground w-20 text-right">Ask</TableHead>
                   <TableHead className="bg-muted py-2.5 font-medium text-foreground w-24 text-right">Total</TableHead>
                   <TableHead className="bg-muted py-2.5 font-medium text-foreground w-36">%</TableHead>
+                  <TableHead className="bg-muted py-2.5 w-16" />
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -176,6 +353,15 @@ export default function ProDetePage({ params }: page_props) {
                         </span>
                       </div>
                     </TableCell>
+                    <TableCell className="py-2.5 text-center">
+                      <button
+                        onClick={() => set_selected_entry(entry)}
+                        className="inline-flex items-center gap-0.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        Detail
+                        <ChevronRight className="w-3 h-3" />
+                      </button>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -186,11 +372,19 @@ export default function ProDetePage({ params }: page_props) {
         {/* - LEGEND - \\ */}
         {!loading && !error && report && (
           <p className="mt-4 text-xs text-muted-foreground/30 text-center">
-            Pesan = messages in tracked channels &bull; Claim = priority/helper ticket claims &bull; Ask = ask-staff answers
+            by Bryan n Lendowsky. UUID: {report.slug}
           </p>
         )}
 
       </div>
+
+      {/* - DETAIL DRAWER - \\ */}
+      <DetailSheet
+        entry    = {selected_entry}
+        open     = {selected_entry !== null}
+        on_close = {() => set_selected_entry(null)}
+      />
     </div>
   )
 }
+

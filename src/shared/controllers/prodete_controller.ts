@@ -1,15 +1,19 @@
+import { randomUUID }          from "crypto"
 import { Client, TextChannel } from "discord.js"
 import { db, logger }          from "@shared/utils"
 
 export interface prodete_entry {
-  rank         : number
-  user_id      : string
-  username     : string
-  msg_count    : number
-  claim_count  : number
-  answer_count : number
-  total        : number
-  percentage   : string
+  rank              : number
+  user_id           : string
+  username          : string
+  msg_count         : number
+  claim_count       : number
+  answer_count      : number
+  total             : number
+  percentage        : string
+  channel_breakdown : Record<string, number>   // channel_id -> count
+  ticket_breakdown  : Record<string, number>   // ticket_type -> count
+  answer_breakdown  : Record<string, number>   // "YYYY-Www" -> count
 }
 
 export interface prodete_report {
@@ -36,21 +40,32 @@ const __msg_channels: readonly string[] = [
 // - TICKET TYPES TO COUNT CLAIMS FROM - \\
 const __ticket_types: readonly string[] = ["priority", "helper"]
 
+// - ONLY COUNT USERS WITH THIS STAFF ROLE - \\
+const __staff_role_id = "1264915024707588208"
+
+// - HUMAN-READABLE CHANNEL LABELS FOR WEB DISPLAY - \\
+export const channel_labels: Record<string, string> = {
+  "1351969499116736602" : "staff-general",
+  "1398761098852958239" : "mod-chat",
+  "1319275642277199902" : "staff-discussion",
+  "1446809167942910043" : "daily-report",
+  "1291781831775092847" : "admin-chat",
+  "1398318499658600529" : "escalation",
+}
+
 const __discord_epoch        = BigInt(1420070400000)
-const __max_iter_channel     = 50          // - ~5000 messages per channel max - \\
-const __channel_timeout_ms   = 25_000      // - 25s hard cap per channel - \\
+const __max_iter_channel     = 1000        // - up to 100k msgs per channel - \\
+const __channel_timeout_ms   = 90_000      // - 90s hard cap per channel - \\
 const __iter_delay_ms        = 100         // - rate limit safety delay - \\
 
 const log = logger.create_logger("prodete")
 
 /**
- * Builds the URL slug for a ProDeTe report.
- * @param from_date "DD-MM-YYYY"
- * @param to_date   "DD-MM-YYYY"
- * @returns "DDMMYYYY-DDMMYYYY"
+ * Generates a UUID slug for a new ProDeTe report.
+ * @returns UUID v4 string
  */
-export function build_prodete_slug(from_date: string, to_date: string): string {
-  return `${from_date.replace(/-/g, "")}-${to_date.replace(/-/g, "")}`
+export function build_prodete_slug(): string {
+  return randomUUID()
 }
 
 /**
@@ -148,32 +163,36 @@ async function count_channel_messages(
 }
 
 /**
- * Aggregates message counts across all __msg_channels.
- * @param client  Discord client
- * @param from_ts start unix ms
- * @param to_ts   end unix ms
- * @returns Map of user_id -> total message count
+ * Aggregates message counts per channel per user across all tracked channels.
+ * @param client          Discord client
+ * @param from_ts         start unix ms
+ * @param to_ts           end unix ms
+ * @param on_channel_done called when each channel finishes scanning
+ * @returns Map of channel_id -> (user_id -> count)
  */
 async function aggregate_channel_messages(
-  client  : Client,
-  from_ts : number,
-  to_ts   : number
-): Promise<Map<string, number>> {
-  const totals = new Map<string, number>()
-
+  client           : Client,
+  from_ts          : number,
+  to_ts            : number,
+  on_channel_done ?: (channel_id: string) => void
+): Promise<Map<string, Map<string, number>>> {
   // - FETCH ALL CHANNELS IN PARALLEL FOR SPEED - \\
   const results = await Promise.allSettled(
     __msg_channels.map(async (channel_id) => {
       const ch = await client.channels.fetch(channel_id, { force: false, cache: true })
       if (!ch || !("messages" in ch)) {
         log.warn(`Channel ${channel_id} not accessible or not a text channel`)
-        return null
+        on_channel_done?.(channel_id)
+        return { channel_id, counts: new Map<string, number>() }
       }
       const counts = await count_channel_messages(ch as TextChannel, from_ts, to_ts)
-      log.info(`Channel ${channel_id}: ${counts.size} active users`)
-      return counts
+      log.info(`Channel ${channel_id}: ${counts.size} active users, ${[...counts.values()].reduce((a, b) => a + b, 0)} messages`)
+      on_channel_done?.(channel_id)
+      return { channel_id, counts }
     })
   )
+
+  const channel_maps = new Map<string, Map<string, number>>()
 
   for (const result of results) {
     if (result.status === "rejected") {
@@ -181,12 +200,10 @@ async function aggregate_channel_messages(
       continue
     }
     if (!result.value) continue
-    for (const [uid, n] of result.value) {
-      totals.set(uid, (totals.get(uid) ?? 0) + n)
-    }
+    channel_maps.set(result.value.channel_id, result.value.counts)
   }
 
-  return totals
+  return channel_maps
 }
 
 /**
@@ -195,26 +212,34 @@ async function aggregate_channel_messages(
  * @param to_ts   end unix ms
  * @returns Map of user_id -> claim count
  */
-async function count_ticket_claims(from_ts: number, to_ts: number): Promise<Map<string, number>> {
-  const counts = new Map<string, number>()
+/**
+ * Counts ticket claims per staff broken down by ticket type.
+ * @param from_ts start unix ms
+ * @param to_ts   end unix ms
+ * @returns Map of user_id -> { ticket_type -> count }
+ */
+async function count_ticket_claims(from_ts: number, to_ts: number): Promise<Map<string, Record<string, number>>> {
+  const counts = new Map<string, Record<string, number>>()
   if (!db.is_connected()) return counts
 
   try {
     const pool   = db.get_pool()
-    const result = await pool.query<{ claimed_by: string; n: string }>(`
+    const result = await pool.query<{ claimed_by: string; ticket_type: string; n: string }>(`
       SELECT
         claimed_by,
+        ticket_type,
         COUNT(*) AS n
       FROM ticket_transcripts
       WHERE claimed_by  IS NOT NULL
         AND ticket_type  = ANY($1)
         AND close_time  >= $2
         AND close_time  <= $3
-      GROUP BY claimed_by
+      GROUP BY claimed_by, ticket_type
     `, [__ticket_types, from_ts, to_ts])
 
     for (const row of result.rows) {
-      counts.set(row.claimed_by, Number(row.n))
+      if (!counts.has(row.claimed_by)) counts.set(row.claimed_by, {})
+      counts.get(row.claimed_by)![row.ticket_type] = Number(row.n)
     }
   } catch (err) {
     log.error(`Failed to count ticket claims: ${(err as Error).message}`)
@@ -229,8 +254,14 @@ async function count_ticket_claims(from_ts: number, to_ts: number): Promise<Map<
  * @param to_ts   end unix ms
  * @returns Map of user_id -> answer count
  */
-async function count_ask_answers(from_ts: number, to_ts: number): Promise<Map<string, number>> {
-  const counts    = new Map<string, number>()
+/**
+ * Counts ask-staff answers per staff broken down by week for weeks in range.
+ * @param from_ts start unix ms
+ * @param to_ts   end unix ms
+ * @returns Map of user_id -> { "YYYY-Www" -> count }
+ */
+async function count_ask_answers(from_ts: number, to_ts: number): Promise<Map<string, Record<string, number>>> {
+  const counts    = new Map<string, Record<string, number>>()
   if (!db.is_connected()) return counts
 
   const week_keys = get_week_keys_in_range(from_ts, to_ts)
@@ -242,8 +273,15 @@ async function count_ask_answers(from_ts: number, to_ts: number): Promise<Map<st
     )
 
     for (const row of result.rows) {
-      const sum = week_keys.reduce((acc, wk) => acc + (row.weekly?.[wk] ?? 0), 0)
-      if (sum > 0) counts.set(row.staff_id, sum)
+      const breakdown: Record<string, number> = {}
+      let   total = 0
+
+      for (const wk of week_keys) {
+        const val = row.weekly?.[wk] ?? 0
+        if (val > 0) { breakdown[wk] = val; total += val }
+      }
+
+      if (total > 0) counts.set(row.staff_id, breakdown)
     }
   } catch (err) {
     log.error(`Failed to count ask answers: ${(err as Error).message}`)
@@ -272,6 +310,40 @@ async function resolve_username(client: Client, guild_id: string, user_id: strin
 }
 
 /**
+ * Fetches all member IDs that have the staff role from the guild.
+ * @param client   Discord client
+ * @param guild_id Target guild ID
+ * @returns Set of user IDs with the staff role
+ */
+async function get_role_member_ids(client: Client, guild_id: string): Promise<Set<string>> {
+  const ids = new Set<string>()
+
+  try {
+    const guild = client.guilds.cache.get(guild_id) ?? await client.guilds.fetch(guild_id)
+    if (!guild) return ids
+
+    // - FETCH MEMBERS TO POPULATE CACHE, THEN FILTER BY ROLE - \\
+    await guild.members.fetch()
+    const role = guild.roles.cache.get(__staff_role_id)
+
+    if (!role) {
+      log.warn(`Staff role ${__staff_role_id} not found in guild ${guild_id}`)
+      return ids
+    }
+
+    for (const [member_id] of role.members) {
+      ids.add(member_id)
+    }
+
+    log.info(`Staff role has ${ids.size} members`)
+  } catch (err) {
+    log.error(`Failed to fetch role members: ${(err as Error).message}`)
+  }
+
+  return ids
+}
+
+/**
  * Builds a ProDeTe report for the given date range, saves it to DB, and returns it.
  * @param client        Discord client
  * @param guild_id      Guild to resolve member names in
@@ -285,24 +357,62 @@ export async function build_prodete_report(
   guild_id     : string,
   from_date    : string,
   to_date      : string,
-  triggered_by : string
+  triggered_by : string,
+  on_progress ?: (message: string, done: number, total: number) => Promise<void>
 ): Promise<prodete_report> {
-  const from_ts = parse_date_wib_start(from_date)
-  const to_ts   = parse_date_wib_start(to_date) + 86400 * 1000 - 1
-  const slug    = build_prodete_slug(from_date, to_date)
+  const from_ts    = parse_date_wib_start(from_date)
+  const to_ts      = parse_date_wib_start(to_date) + 86400 * 1000 - 1
+  const slug       = build_prodete_slug()
+  const __steps    = __msg_channels.length + 2
+  let   __done     = 0
+
+  // - FIRE-AND-FORGET PROGRESS TICK - \\
+  const tick = (label: string): void => {
+    __done++
+    on_progress?.(label, __done, __steps).catch(() => {})
+  }
 
   log.info(`Building ProDeTe report ${from_date} -> ${to_date} (${slug})`)
 
-  // - FETCH ALL THREE SOURCES IN SEQUENCE (CHANNELS TAKE MOST TIME) - \\
-  const msg_map    = await aggregate_channel_messages(client, from_ts, to_ts)
-  const claim_map  = await count_ticket_claims(from_ts, to_ts)
-  const answer_map = await count_ask_answers(from_ts, to_ts)
+  // - PARALLEL CHANNEL SCAN — TICK AFTER EACH CHANNEL COMPLETES - \\
+  const channel_maps = await aggregate_channel_messages(
+    client, from_ts, to_ts,
+    (ch_id) => tick(`Channel scanned (${ch_id})`)
+  )
+
+  // - BUILD TOTAL MSG MAP + PER-USER CHANNEL BREAKDOWN - \\
+  const msg_map   = new Map<string, number>()
+  const ch_detail = new Map<string, Record<string, number>>()
+
+  for (const [ch_id, user_map] of channel_maps) {
+    for (const [uid, n] of user_map) {
+      msg_map.set(uid, (msg_map.get(uid) ?? 0) + n)
+      if (!ch_detail.has(uid)) ch_detail.set(uid, {})
+      ch_detail.get(uid)![ch_id] = n
+    }
+  }
+
+  const ticket_maps = await count_ticket_claims(from_ts, to_ts)
+  tick("Ticket claims loaded")
+
+  const answer_maps = await count_ask_answers(from_ts, to_ts)
+  tick("Ask answers loaded")
+
+  // - BUILD TOTAL MAPS FROM BREAKDOWNS - \\
+  const claim_map  = new Map<string, number>()
+  const answer_map = new Map<string, number>()
+
+  for (const [uid, bd] of ticket_maps) claim_map.set(uid, Object.values(bd).reduce((a, b) => a + b, 0))
+  for (const [uid, bd] of answer_maps) answer_map.set(uid, Object.values(bd).reduce((a, b) => a + b, 0))
+
+  // - FETCH ONLY MEMBERS WITH THE STAFF ROLE - \\
+  const role_member_ids = await get_role_member_ids(client, guild_id)
 
   const all_ids = new Set([
     ...msg_map.keys(),
     ...claim_map.keys(),
     ...answer_map.keys(),
-  ])
+  ].filter(id => role_member_ids.has(id)))
 
   const raw: Omit<prodete_entry, "rank" | "percentage">[] = []
 
@@ -315,7 +425,18 @@ export async function build_prodete_report(
     if (total === 0) continue
 
     const username = await resolve_username(client, guild_id, uid)
-    raw.push({ user_id: uid, username, msg_count, claim_count, answer_count, total })
+
+    raw.push({
+      user_id           : uid,
+      username,
+      msg_count,
+      claim_count,
+      answer_count,
+      total,
+      channel_breakdown : ch_detail.get(uid)   ?? {},
+      ticket_breakdown  : ticket_maps.get(uid) ?? {},
+      answer_breakdown  : answer_maps.get(uid) ?? {},
+    })
   }
 
   const grand_total = raw.reduce((s, e) => s + e.total, 0)
@@ -376,8 +497,55 @@ async function save_prodete_report(report: prodete_report): Promise<void> {
 }
 
 /**
- * Retrieves a saved prodete report from the database by slug.
- * @param slug "DDMMYYYY-DDMMYYYY"
+ * Retrieves a saved prodete report from the database by date range.
+ * Used for cache lookup before generating a new report.
+ * @param from_date "DD-MM-YYYY"
+ * @param to_date   "DD-MM-YYYY"
+ * @returns prodete_report or null if not found
+ */
+export async function get_prodete_report_by_dates(from_date: string, to_date: string): Promise<prodete_report | null> {
+  if (!db.is_connected()) return null
+
+  try {
+    const pool   = db.get_pool()
+    const result = await pool.query<{
+      slug         : string
+      from_date    : string
+      to_date      : string
+      entries      : prodete_entry[] | string
+      generated_by : string
+      generated_at : string
+    }>(`
+      SELECT slug, from_date, to_date, entries, generated_by, generated_at
+      FROM prodete_reports
+      WHERE from_date = $1 AND to_date = $2
+      ORDER BY generated_at DESC
+      LIMIT 1
+    `, [from_date, to_date])
+
+    if (result.rows.length === 0) return null
+
+    const row = result.rows[0]
+
+    return {
+      slug         : row.slug,
+      from_date    : row.from_date,
+      to_date      : row.to_date,
+      from_ts      : parse_date_wib_start(row.from_date),
+      to_ts        : parse_date_wib_start(row.to_date) + 86400 * 1000 - 1,
+      entries      : typeof row.entries === "string" ? JSON.parse(row.entries) : row.entries,
+      generated_by : row.generated_by,
+      generated_at : Number(row.generated_at),
+    }
+  } catch (err) {
+    log.error(`Failed to get ProDeTe report by dates: ${(err as Error).message}`)
+    return null
+  }
+}
+
+/**
+ * Retrieves a saved prodete report from the database by UUID slug.
+ * @param slug UUID string
  * @returns prodete_report or null if not found
  */
 export async function get_prodete_report(slug: string): Promise<prodete_report | null> {
