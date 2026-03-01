@@ -1,21 +1,15 @@
 // - Ticket transcript generation and storage utilities - \\
 
 import { ThreadChannel, Client, Message, Collection } from "discord.js"
+import { randomUUID } from "crypto"
 import { db, time } from "../utils"
 
 /**
- * @param {string} length - Transcript ID length
- * @returns {string} Generated transcript ID
+ * @param {string} length - Transcript ID length (IGNORED, NOW USES UUID)
+ * @returns {string} Generated transcript ID (UUID)
  */
 export function generate_transcript_id(length: number = 12): string {
-  const chars = "abcdefghijklmnopqrstuvwxyz0123456789"
-  let id      = ""
-  
-  for (let i = 0; i < length; i++) {
-    id += chars.charAt(Math.floor(Math.random() * chars.length))
-  }
-  
-  return id
+  return randomUUID()
 }
 
 export interface transcript_message {

@@ -93,7 +93,7 @@ function render_embed(embed: any, index: number) {
     : 'hsl(var(--primary))'
   
   return (
-    <Card key={index} className="mt-2 border-l-4" style={{ borderLeftColor: border_color }}>
+    <Card key={index} className="mt-2 border-l-4 rounded-md" style={{ borderLeftColor: border_color }}>
       <CardContent className="p-2 sm:p-3">
         {embed.author && (
           <div className="flex items-center gap-2 mb-2">
@@ -151,8 +151,8 @@ function render_component(component: any, index: number | string): any {
   if (component.type === 17) {
     const has_accent = component.accent_color
     return (
-      <Card key={`container-${index}`} className={cn("my-2", has_accent && "border-l-4")} style={has_accent ? { borderLeftColor: `#${component.accent_color.toString(16).padStart(6, '0')}` } : {}}>
-        <CardContent className="px-3">
+      <Card key={`container-${index}`} className={cn("my-2 rounded-md", has_accent && "border-l-4")} style={has_accent ? { borderLeftColor: `#${component.accent_color.toString(16).padStart(6, '0')}` } : {}}>
+        <CardContent className="p-3 sm:p-4 flex flex-col pt-3 pb-3">
           {component.components?.map((child: any, idx: number) => render_component(child, `${index}-${idx}`))}
         </CardContent>
       </Card>
@@ -162,16 +162,16 @@ function render_component(component: any, index: number | string): any {
   // - TYPE 9 - Section \\
   if (component.type === 9) {
     return (
-      <div key={`section-${index}`} className="flex gap-3">
-        <div className="flex-1">
+      <div key={`section-${index}`} className="flex gap-4 items-start">
+        <div className="flex-1 min-w-0">
           {component.components?.map((child: any, idx: number) => render_component(child, `${index}-${idx}`))}
         </div>
         {component.accessory && component.accessory.type === 11 && (
-          <div className="flex-shrink-0">
+          <div className="flex-shrink-0 mt-0.5">
             <img 
               src={component.accessory.media?.url} 
               alt="" 
-              className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-2 border-border" 
+              className="w-16 h-16 sm:w-20 sm:h-20 rounded-md object-cover border border-border/50"
             />
           </div>
         )}
@@ -249,19 +249,19 @@ function render_component(component: any, index: number | string): any {
         // - HEADINGS - \\
         if (line.startsWith('### ')) {
           elements.push(
-            <h3 key={idx} className="scroll-m-20 text-base font-semibold tracking-tight mt-3 mb-1">
+            <h3 key={idx} className="scroll-m-20 text-base font-semibold tracking-tight mt-0 mb-1">
               <span dangerouslySetInnerHTML={{ __html: parse_basic_markdown(line.substring(4)) }} />
             </h3>
           )
         } else if (line.startsWith('## ')) {
           elements.push(
-            <h2 key={idx} className="scroll-m-20 text-lg font-semibold tracking-tight mt-3 mb-2">
+            <h2 key={idx} className="scroll-m-20 text-lg font-semibold tracking-tight mt-0 mb-2">
               <span dangerouslySetInnerHTML={{ __html: parse_basic_markdown(line.substring(3)) }} />
             </h2>
           )
         } else if (line.startsWith('# ')) {
           elements.push(
-            <h1 key={idx} className="scroll-m-20 text-xl font-bold tracking-tight mt-4 mb-2">
+            <h1 key={idx} className="scroll-m-20 text-xl font-bold tracking-tight mt-0 mb-2">
               <span dangerouslySetInnerHTML={{ __html: parse_basic_markdown(line.substring(2)) }} />
             </h1>
           )
@@ -321,7 +321,7 @@ function render_component(component: any, index: number | string): any {
   // - TYPE 1 - Action Row \\
   if (component.type === 1) {
     return (
-      <div key={`action-${index}`} className="flex flex-wrap gap-2 mt-2">
+      <div key={`action-${index}`} className="flex flex-wrap gap-2 mt-2 mb-0">
         {component.components?.map((child: any, idx: number) => {
           // - TYPE 2 - Button \\
           if (child.type === 2) {
@@ -665,7 +665,7 @@ export function TranscriptMessage({ message }: TranscriptMessageProps) {
   }
 
   return (
-    <div className="flex gap-2 sm:gap-3 py-4 px-3 sm:px-4 hover:bg-muted/30 transition-colors rounded-md group border-b border-border/50 last:border-0">
+    <div className="flex gap-2 sm:gap-3 py-4 px-3 sm:px-4 hover:bg-muted/30 transition-colors group border-b border-border/50 last:border-0">
       <div className="flex-shrink-0 relative">
         {message.referenced_message && (
           <div className="absolute -top-3 left-4 flex items-start gap-2">
