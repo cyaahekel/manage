@@ -292,8 +292,8 @@ async function bypass_link_once(url: string, attempt: number): Promise<BypassRes
 
     let error_message = "Unknown error occurred"
 
-    if (name === "AbortError" || message.includes("aborted")) {
-      error_message = "Request timeout - Please try again later."
+  if (name === "AbortError" || message.includes("aborted") || message.includes("timeout") || message.includes("timed out")) {
+    error_message = "Request failed - the API took too long to complete. Please try again."
     } else if (message.includes("not supported") || message.includes("unsupported")) {
       error_message = "Link is not supported."
     } else if (message.includes("429")) {
@@ -328,16 +328,26 @@ export async function bypass_link(
   on_retry?: (attempt: number, wait_ms: number, is_processing: boolean) => void | Promise<void>
 ): Promise<BypassResponse> {
   console.warn(`[ - BYPASS - ] Starting bypass_link for URL: ${url}`)
-  // - RACE AGAINST GLOBAL TIMEOUT TO PREVENT STUCK LOADING STATE - \\
+  
+  // - GLOBAL TIMEOUT LIMIT - \\
   let global_timeout_id!: ReturnType<typeof setTimeout>
   const timeout_promise = new Promise<BypassResponse>(resolve => {
     global_timeout_id = setTimeout(() => {
       console.warn(`[ - BYPASS - ] Global timeout (${__bypass_global_timeout}ms) hit for URL: ${url}`)
-      resolve({ success: false, error: "Request timed out - Please try again later.", attempts: 0 })
+      resolve({ 
+        success: false, 
+        error: "Request failed - the API took too long to complete. Please try again.", 
+        attempts: 0 
+      })
     }, __bypass_global_timeout)
   })
 
-  const result = await Promise.race([timeout_promise, _run_bypass_link(url, on_retry)])
+  // - RACE API CALL AGAINST TIMEOUT - \\
+  const result = await Promise.race([
+    timeout_promise, 
+    _run_bypass_link(url, on_retry)
+  ])
+  
   clearTimeout(global_timeout_id)
   console.warn(`[ - BYPASS - ] bypass_link finished for URL: ${url} with success: ${result.success}`)
   return result
