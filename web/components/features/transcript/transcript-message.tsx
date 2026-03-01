@@ -53,8 +53,20 @@ export interface TranscriptMessageProps {
  * @returns HTML string with markdown formatted
  */
 function parse_basic_markdown(text: string): string {
+  // - Custom emojis: <a:name:id> and <:name:id> (BEFORE HTML escape) - \\
+  text = text.replace(/<a:(\w+):(\d+)>/g, '\x01EMOJI\x02animated\x02$1\x02$2\x03')
+  text = text.replace(/<:(\w+):(\d+)>/g,  '\x01EMOJI\x02static\x02$1\x02$2\x03')
+
   // - Escape HTML \\
   text = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+
+  // - Restore custom emojis \\
+  text = text.replace(/\x01EMOJI\x02animated\x02([^\x03]+)\x02(\d+)\x03/g,
+    '<img src="https://cdn.discordapp.com/emojis/$2.gif" alt=":$1:" title=":$1:" class="inline-block w-5 h-5 align-middle" style="display:inline;vertical-align:middle" loading="lazy" />'
+  )
+  text = text.replace(/\x01EMOJI\x02static\x02([^\x03]+)\x02(\d+)\x03/g,
+    '<img src="https://cdn.discordapp.com/emojis/$2.webp" alt=":$1:" title=":$1:" class="inline-block w-5 h-5 align-middle" style="display:inline;vertical-align:middle" loading="lazy" />'
+  )
   
   // - Inline code (must be before other formatting) \\
   text = text.replace(/`([^`]+)`/g, '<code class="px-1.5 py-0.5 rounded bg-muted text-sm font-mono">$1</code>')
@@ -548,14 +560,26 @@ export function TranscriptMessage({ message, transcript_id, ticket_type }: Trans
     
     // - Role mentions: <@&ID> - \\
     text = text.replace(/<@&(\d+)>/g, '__ROLE_$1__')
-    
+
+    // - Custom emojis: <a:name:id> and <:name:id> (BEFORE HTML escape) - \\
+    text = text.replace(/<a:(\w+):(\d+)>/g, '\x01EMOJI\x02animated\x02$1\x02$2\x03')
+    text = text.replace(/<:(\w+):(\d+)>/g,  '\x01EMOJI\x02static\x02$1\x02$2\x03')
+
     // - Escape HTML \\
     text = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    
+
     // - Restore mentions with HTML - \\
     text = text.replace(/__MENTION_(\d+)_([^_]+)__/g, '<span class="inline-flex items-center gap-1 px-1 rounded bg-blue-500/20 text-blue-400 font-medium">@$2</span>')
     text = text.replace(/__CHANNEL_(\d+)_([^_]+)__/g, '<span class="inline-flex items-center gap-1 px-1 rounded bg-blue-500/20 text-blue-400 font-medium">#$2</span>')
     text = text.replace(/__ROLE_(\d+)__/g, '<span class="inline-flex items-center gap-1 px-1 rounded bg-blue-500/20 text-blue-400 font-medium">@role</span>')
+
+    // - Restore custom emojis \\
+    text = text.replace(/\x01EMOJI\x02animated\x02([^\x03]+)\x02(\d+)\x03/g,
+      '<img src="https://cdn.discordapp.com/emojis/$2.gif" alt=":$1:" title=":$1:" class="inline-block w-5 h-5 align-middle" style="display:inline;vertical-align:middle" loading="lazy" />'
+    )
+    text = text.replace(/\x01EMOJI\x02static\x02([^\x03]+)\x02(\d+)\x03/g,
+      '<img src="https://cdn.discordapp.com/emojis/$2.webp" alt=":$1:" title=":$1:" class="inline-block w-5 h-5 align-middle" style="display:inline;vertical-align:middle" loading="lazy" />'
+    )
     
     // - Inline code (must be before other formatting) \\
     text = text.replace(/`([^`]+)`/g, '<code class="px-1.5 py-0.5 rounded bg-muted text-sm font-mono">$1</code>')
