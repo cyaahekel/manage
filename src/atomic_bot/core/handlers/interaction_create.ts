@@ -1,5 +1,5 @@
 import { Client, Collection, Interaction, ThreadChannel, GuildMember, ButtonInteraction, AutocompleteInteraction } from "discord.js"
-import { Command }                                                     from "@shared/types/command"
+import { Command, MessageContextMenuCommand }                          from "@shared/types/command"
 import { can_use_command }                                             from "@shared/database/settings/command_permissions"
 import { log_error, handle_error_log_button }                          from "@shared/utils/error_logger"
 import {
@@ -506,6 +506,28 @@ export async function handle_interaction(
         guild   : autocomplete_interaction.guild?.name || "DM",
         channel : autocomplete_interaction.channel?.id,
       })
+    }
+    return
+  }
+
+  // - MESSAGE CONTEXT MENU COMMANDS - \\
+  if (interaction.isMessageContextMenuCommand()) {
+    const ctx_cmds = (client as any).message_context_menu_commands as Collection<string, MessageContextMenuCommand> | undefined
+    const ctx_cmd  = ctx_cmds?.get(interaction.commandName)
+    if (!ctx_cmd) return
+    try {
+      await ctx_cmd.execute(interaction)
+    } catch (error) {
+      await log_error(client, error as Error, `ContextMenu: ${interaction.commandName}`, {
+        user : interaction.user.tag,
+        guild: interaction.guild?.name || "DM",
+      })
+      const content = "There was an error executing this command."
+      if (interaction.replied || interaction.deferred) {
+        await interaction.followUp({ content, ephemeral: true })
+      } else {
+        await interaction.reply({ content, ephemeral: true })
+      }
     }
     return
   }

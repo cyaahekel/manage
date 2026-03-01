@@ -1,6 +1,8 @@
 import {
   AutocompleteInteraction,
   ChatInputCommandInteraction,
+  ContextMenuCommandBuilder,
+  MessageContextMenuCommandInteraction,
   SlashCommandBuilder,
   SlashCommandOptionsOnlyBuilder,
   SlashCommandSubcommandsOnlyBuilder,
@@ -10,4 +12,9 @@ export interface Command {
   data         : SlashCommandBuilder | SlashCommandOptionsOnlyBuilder | SlashCommandSubcommandsOnlyBuilder
   execute      : (interaction: ChatInputCommandInteraction) => Promise<void>
   autocomplete?: (interaction: AutocompleteInteraction) => Promise<void>
+}
+
+export interface MessageContextMenuCommand {
+  data   : ContextMenuCommandBuilder
+  execute: (interaction: MessageContextMenuCommandInteraction) => Promise<void>
 }
