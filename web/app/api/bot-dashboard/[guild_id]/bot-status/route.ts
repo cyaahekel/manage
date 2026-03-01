@@ -32,12 +32,19 @@ export async function GET(
 
   try {
     // - FETCH GUILD VIA BOT TOKEN: 200 = bot is member, 403/404 = not in guild - \\
-    const response = await fetch(`${__DISCORD_API}/guilds/${guild_id}`, {
+    const response = await fetch(`${__DISCORD_API}/guilds/${guild_id}?with_counts=true`, {
       headers : { Authorization: `Bot ${bot_token}` },
       next    : { revalidate: 0 },
     })
 
-    return NextResponse.json({ in_guild: response.ok, invite_url }, { status: 200 })
+    if (!response.ok) {
+      return NextResponse.json({ in_guild: false, invite_url }, { status: 200 })
+    }
+
+    const data = await response.json()
+    const member_count = data.approximate_member_count || data.member_count || 0
+
+    return NextResponse.json({ in_guild: true, invite_url, member_count }, { status: 200 })
   } catch (err) {
     console.error('[ - BOT STATUS API - ]', err)
     return NextResponse.json({ in_guild: false, invite_url }, { status: 200 })

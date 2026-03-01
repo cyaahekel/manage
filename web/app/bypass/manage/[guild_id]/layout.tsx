@@ -95,7 +95,12 @@ function AppSidebar({
                   </div>
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-medium">{guild?.name ?? guild_id}</span>
-                    <span className="truncate text-xs text-muted-foreground">Select server to manage</span>
+                    <span className="truncate text-xs text-muted-foreground">
+                      {guild?.member_count !== undefined 
+                        ? `${guild.member_count.toLocaleString()} members` 
+                        : 'Select server to manage'
+                      }
+                    </span>
                   </div>
                   <ChevronsUpDown className="ml-auto" />
                 </SidebarMenuButton>
@@ -270,6 +275,10 @@ export default function ManageLayout({ children }: { children: React.ReactNode }
       const data = await r.json()
       set_bot(data.in_guild)
       set_invite(data.invite_url ?? '')
+      
+      if (data.member_count !== undefined) {
+        set_guild(prev => prev ? { ...prev, member_count: data.member_count } : prev)
+      }
     } catch {
       // - non-critical, assume bot is present - \\
     } finally {

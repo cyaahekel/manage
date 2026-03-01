@@ -11,9 +11,10 @@ interface discord_user {
 }
 
 interface guild_info {
-  id   : string
-  name : string
-  icon : string | null
+  id           : string
+  name         : string
+  icon         : string | null
+  member_count?: number
 }
 
 interface manage_context_value {
