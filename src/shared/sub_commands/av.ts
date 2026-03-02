@@ -1,14 +1,14 @@
-import { Message, Client }    from "discord.js"
-import { SubCommand }         from "../types/sub_command"
-import { component }          from "../utils"
-import { log_error }          from "../utils/error_logger"
+import { Message, Client }             from "discord.js"
+import { SubCommand }                  from "../types/sub_command"
+import { component, container_component } from "../utils"
+import { log_error }                   from "../utils/error_logger"
 
 const av_command: SubCommand = {
   name       : "av",
   description: "Display avatar of a user",
 
   /**
-   * @description Show global and server avatar of the mentioned user (or self)
+   * @description Show server/global avatar with toggle buttons (if both exist)
    * @param message - The Discord message
    * @param args    - Parsed arguments (unused, relies on mentions)
    * @param client  - Discord client instance
@@ -16,7 +16,7 @@ const av_command: SubCommand = {
    */
   async execute(message: Message, args: string[], client: Client) {
     try {
-      const mentioned  = message.mentions.users.first()
+      const mentioned   = message.mentions.users.first()
       const target_user = mentioned || message.author
 
       const global_avatar = target_user.displayAvatarURL({
@@ -37,33 +37,38 @@ const av_command: SubCommand = {
         } catch {}
       }
 
-      const gallery_items = server_avatar
-        ? [
-            component.gallery_item(server_avatar, "Server avatar"),
-            component.gallery_item(global_avatar, "Global avatar"),
-          ]
-        : [component.gallery_item(global_avatar, "Global avatar")]
+      // - DEFAULT: show server avatar when available - \\
+      const display_url = server_avatar ?? global_avatar
 
-      const link_buttons = server_avatar
-        ? component.action_row(
-            component.link_button("Server Avatar", server_avatar),
-            component.link_button("Global Avatar", global_avatar),
-          )
-        : component.action_row(
-            component.link_button("Open Avatar", global_avatar),
-          )
+      const containers: component.container_component[] = [
+        component.container({
+          components: [
+            component.text(`## <@${target_user.id}>'s Avatar\n`),
+          ],
+        }),
+        component.container({
+          components: [
+            component.media_gallery([
+              component.gallery_item(display_url),
+            ]),
+          ],
+        }),
+      ]
 
-      const payload = component.build_message({
-        components: [
+      if (server_avatar) {
+        containers.push(
           component.container({
             components: [
-              component.media_gallery(gallery_items),
-              component.divider(),
-              link_buttons,
+              component.action_row(
+                component.secondary_button("Server Avatar", `av_server_${target_user.id}`, undefined, true),
+                component.secondary_button("Global Avatar", `av_global_${target_user.id}`),
+              ),
             ],
-          }),
-        ],
-      })
+          })
+        )
+      }
+
+      const payload = component.build_message({ components: containers })
 
       await message.reply(payload).catch(() => {})
     } catch (error) {

@@ -1,95 +1,249 @@
----
-trigger: always_on
----
+````md
+# Copilot Instructions — atomic_bot
 
----
-alwaysApply: true
----
+## Architecture
 
----
-applyTo: '**'
----
-## CODE RULES:
-- Code harus sneak case
-- Code harus rapih
-- = harus sejajar
-- : harus sejajar
-- from harus sejajar
-- kode harus terorganisir
-- jangan pake comment BERLEBIH, cukup kasih comment yang penting aja
-- mengikuti utility functions yang ada
-- jangan pake emoji
-- gunakan bahasa inggris untuk penamaan variable, function, class, file, dan folder
-- HINDARI ERROR COMPONENT V2
-Invalid Form Body
-components[0].components[0].accessory[BASE_TYPE_REQUIRED]: This field is required
-- PASTIKAN SEMUA ERROR LOG DENGAN DETAIL YANG CUKUP
-- PASTIKAN SEMUA SCRIPT TERHUBUNG KE "../utils/error_logger" UNTUK LOG ERROR
-- buat command yang penting connect ke database (biar kalo restart ga ilang kaya reminder, dan lain lai1)
+Three independent Discord bots sharing a `src/shared/` layer, plus a Next.js dashboard at `web/`.
 
-### PENTING:
-tolong buat function kayak
+| Entry Point | Bot |
+|---|---|
+| `src/startup/atomic_bot.ts` | Main server management (moderation, tickets, payments, reminders) |
+| `src/startup/jkt48_bot.ts` | JKT48 live stream notifications |
+| `src/startup/bypass_bot.ts` | Automatic link bypassing |
 
-function dalam shared/controller, kayak kalo command /reminder atau dari /reminder-cancel (yang berkaitan dengan fiturnya) dia ke -> /reminder_controller gitu
-
-tolong utamakan performance di setiap kode yang dibuat, dan tolong buat efisien sebisa mungkin (dari mulai biaya hosting, dan database harus efisien)
-
+**Path aliases** (tsconfig):  
+`@shared/*` → `src/shared/*`  
+`@atomic/*` → `src/atomic_bot/*`  
+`@jkt48/*` → `src/jkt48_bot/*`  
+`@bypass/*` → `src/bypass_bot/*`  
+`@startup/*` → `src/startup/*`
 
 ---
 
-buat command sesuai fungsinya di folder yang sesuai, misal command reminder di /commands/tools/reminder/reminder.ts
+## CRITICAL: Discord Cache is Always Empty
 
---- 
+`atomic_bot` uses `makeCache: () => new Collection()` — **all `.cache` properties are permanently empty**.  
+Always use REST fetches.
 
-sebelum end tolong double check apakah ada error kode merah
+```ts
+// WRONG — always returns false/empty
+guild.roles.cache.has(role_id)
+member.roles.cache.filter(...)
 
---- 
-
-jangan ada emoji di component/embed (kecuali emoji discord kaya <:emoji_name:emoji_id>)
-
----
-
-message wajib pake component v2 di utils/components
-
---- 
-
-buat style console: [ - TITLE - ] message 
-
-### DESIGN:
-- dark mode, jangan ada warna gradasi berlebih, shadcn original color
+// CORRECT
+const guild_roles = await guild.roles.fetch()
+const member      = await guild.members.fetch(user_id)
+````
 
 ---
 
-buat command persistence di database, biar kalo bot restart ga ilang data penting kaya reminder, afk, ticket, dan lain lain
+## Dev Workflows
+
+```bash
+# Build (required before deploy — also copies config/sub_commands/guide dirs)
+npm run build
+
+# Dev watch mode per bot
+npm run dev:atomic
+npm run dev:jkt48
+npm run dev:bypass
+npm run dev:all         # all three concurrently
+
+# Web dashboard
+cd web && npm run dev
+```
+
+`console.log` is suppressed in production (`NODE_ENV !== "development"`).
 
 ---
 
-kasih comment dengan design:
-// - COMMENT - \\ (1 LINE SAJA)
+## File / Folder Structure
 
+* Commands: `src/atomic_bot/modules/<feature>/<command_name>.ts`
+* Feature business logic (shared across related commands):
+  `src/atomic_bot/core/handlers/controllers/<feature>_controller.ts`
+* DB operations for a feature:
+  `src/shared/database/managers/<feature>_manager.ts`
+* Persistent state (reminders, AFK, tickets, quarantine) **must** be stored in DB so it survives restarts
 
-
----
-
-kasih @param atau @return dll di setiap function jsdoc style
-
---- 
-
-wajib build dan test sebelum PR
-
----
-
-kode wajib rapi dan terorganisir
-
---- 
-
-tolong ikuti struktur file/folder yang sudah ada di project
-
+Example:
+`/reminder` + `/reminder-cancel`
+→ `reminder_controller.ts`
+→ `reminder_manager.ts`
 
 ---
 
-constant harus di lower case, dan kalau lebih dari 1 kata harus pake underscore, contoh: `const __my_constant = "value";`
+## Database
+
+PostgreSQL via `pg` pool. Use the `db` object from `@shared/utils`.
+
+```ts
+import { db } from "@shared/utils"
+
+await db.find_one(__collection, { user_id })
+await db.find_many(__collection, {})
+await db.insert_one(__collection, record)
+await db.update_one(__collection, { user_id }, { $set: { ... } })
+await db.delete_one(__collection, { user_id, guild_id })
+```
+
+Module-level collection name **must** use double-underscore prefix:
+
+```ts
+const __collection = "reminders"
+```
 
 ---
 
-jika ada duplicate / dll tolong fix manual, jangan via powershell
+## Component V2 (Required for All Messages)
+
+Every bot reply **must** use Component V2 via `@shared/utils/components`.
+`flags: 32768` is set automatically by `build_message`.
+
+```ts
+import { component } from "@shared/utils"
+
+await interaction.reply({
+  ...component.build_message({
+    components: [
+      component.container([
+        component.text(["## Title", "Body text here"]),
+        component.divider(),
+        component.action_row(
+          component.primary_button("Confirm", "btn_confirm"),
+          component.danger_button("Cancel",  "btn_cancel"),
+        ),
+      ]),
+    ],
+  }),
+  ephemeral: true,
+})
+```
+
+Rules:
+
+* ❌ Never use plain `content`
+* ❌ Never use legacy embeds
+* ❌ No unicode emojis
+* ✅ Discord custom emojis only: `<:name:id>`
+
+**Avoid Component V2 error (`BASE_TYPE_REQUIRED`)**:
+Every `section` that has an `accessory` **must** include the full accessory object with all required fields.
+
+---
+
+## Error Logging
+
+Every `catch` block **must** call `log_error` from `@shared/utils/error_logger`.
+
+```ts
+import { log_error } from "@shared/utils/error_logger"
+
+} catch (err) {
+  await log_error(client, err as Error, "Descriptive Context Name", {
+    user_id,
+    guild_id,
+  }).catch(() => {})
+}
+```
+
+---
+
+## Code Style (STRICT)
+
+* **snake_case** for all identifiers, filenames, and folders — no camelCase
+* **Align vertically** within a declaration block:
+
+  * `=`
+  * `:`
+  * `from`
+* **IMPORT ALIGNMENT IS STRICT**
+  `from` **must be vertically aligned** within the same import block
+* **Comments**:
+
+  ```ts
+  // - comment - \\
+  ```
+
+  one line, lowercase unless acronym or proper noun
+* **JSDoc required** on every exported function:
+
+  * `@param`
+  * `@returns`
+  * `@description`
+* **Console**:
+
+  ```ts
+  console.log("[ - TITLE - ] message")
+  ```
+* **Constants**:
+
+  ```ts
+  const __my_constant = "value"
+  ```
+* Fix duplicates **manually** — never via shell scripts
+* Disable auto-formatters that break alignment:
+
+  * Prettier
+  * organizeImports
+
+---
+
+## Command Interfaces (`src/shared/types/command.ts`)
+
+```ts
+// Slash command
+export interface Command {
+  data         : SlashCommandBuilder
+               | SlashCommandOptionsOnlyBuilder
+               | SlashCommandSubcommandsOnlyBuilder
+  execute      : (interaction: ChatInputCommandInteraction) => Promise<void>
+  autocomplete?: (interaction: AutocompleteInteraction) => Promise<void>
+}
+
+// Message context menu (right-click → Apps)
+export interface MessageContextMenuCommand {
+  data   : ContextMenuCommandBuilder
+  execute: (interaction: MessageContextMenuCommandInteraction) => Promise<void>
+}
+```
+
+Export format **must** be:
+
+```ts
+export const command: Command = { ... }
+```
+
+---
+
+## Web Dashboard (`web/`)
+
+* Next.js 15 + shadcn/ui
+* Dark mode only
+* Use original shadcn colors
+* No excessive gradients
+
+Component folders:
+
+* `web/components/animations/`
+* `web/components/layout/`
+* `web/components/features/`
+* `web/components/demos/`
+* `web/components/ui/`
+
+---
+
+## Pre-completion Checklist
+
+* [ ] Run `npx tsc --noEmit` and confirm zero red errors
+* [ ] All messages use Component V2 (`component.build_message`)
+* [ ] All `catch` blocks call `log_error`
+* [ ] Persistent features (reminders, AFK, quarantine, tickets) read/write DB
+* [ ] No `.cache` access on roles/members — use `.fetch()` only
+
+---
+
+## Additional Notes
+* Prioritize performance and efficiency in all code, including hosting costs and database usage
+* Tolong agar kodingan lebih rapih, terorganisir, dan ikuti struktur file/folder yang sudah ada di project, dan manusiawi sebisa mungkin\
+* Commit message harus pake bahasa indonesia gaul, simple, dan jelas

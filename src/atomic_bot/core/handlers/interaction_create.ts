@@ -52,7 +52,7 @@ import * as loa_approve                  from "./buttons/loa/approve"
 import * as loa_reject                   from "./buttons/loa/reject"
 import * as loa_end                      from "./buttons/loa/end"
 import * as quarantine_release           from "./buttons/quarantine/release"
-
+import * as av_toggle                    from "./buttons/av/toggle"
 import * as payment_method_select        from "./select_menus/stats";
 import * as guide_select                 from "./select_menus/guide";
 import * as version_select               from "./select_menus/version/select";
@@ -446,6 +446,10 @@ export async function handle_interaction(
       }
       if (interaction.customId.startsWith("staff_info_")) {
         await handle_staff_info_button(interaction)
+        return
+      }
+      if (interaction.customId.startsWith("av_server_") || interaction.customId.startsWith("av_global_")) {
+        await av_toggle.handle_av_toggle(interaction)
         return
       }
     } catch (err) {
