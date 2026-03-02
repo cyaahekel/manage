@@ -3,7 +3,7 @@ import { component, api, format }              from "@shared/utils"
 import { http, env, logger }                   from "@shared/utils"
 import { remove_free_script_access }           from "@shared/database/managers/free_script_manager"
 import { track_and_check_hwid_reset, create_rate_limit_message } from "../../controllers/service_provider_controller"
-import { is_hwid_enabled }                     from "../../../../modules/setup/hwid_control"
+import { is_hwid_enabled }                     from "../../../../modules/setup/commands/hwid_control"
 
 const __log               = logger.create_logger("free_reset_hwid")
 const FREE_PROJECT_ID     = "cd7560b7384fd815dafd993828c40d2b"

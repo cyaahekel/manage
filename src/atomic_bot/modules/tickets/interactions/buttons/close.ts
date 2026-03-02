@@ -26,5 +26,5 @@ export async function handle(interaction: ButtonInteraction) {
 
 export const button: ButtonHandler = {
   custom_id: "priority_close",
-  execute: handle,
+  execute: async (interaction) => { await handle(interaction) },
 }

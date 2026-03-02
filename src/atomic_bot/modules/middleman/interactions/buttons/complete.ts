@@ -148,5 +148,5 @@ export async function handle_middleman_complete(interaction: ButtonInteraction):
 
 export const button: ButtonHandler = {
   custom_id: /^middleman_complete:/,
-  execute: handle_middleman_complete,
+  execute: async (interaction) => { await handle_middleman_complete(interaction) },
 }

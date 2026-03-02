@@ -23,6 +23,7 @@ export async function load_commands(client: extended_client) {
       const item_path = join(dir_path, item.name)
       
       if (item.isDirectory()) {
+        if (item.name === "interactions") continue
         await load_from_directory(item_path)
       } else if (item.isFile() && (item.name.endsWith(".ts") || item.name.endsWith(".js"))) {
         // - SKIP UTILITY AND HELPER FILES - \\

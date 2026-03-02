@@ -88,5 +88,5 @@ export async function handle(interaction: ButtonInteraction) {
 
 export const button: ButtonHandler = {
   custom_id: /^booster_claim_/,
-  execute: handle,
+  execute: async (interaction) => { await handle(interaction) },
 }

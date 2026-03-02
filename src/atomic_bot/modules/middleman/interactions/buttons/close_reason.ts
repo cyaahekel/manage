@@ -42,5 +42,5 @@ export async function handle_middleman_close_reason(interaction: ButtonInteracti
 
 export const button: ButtonHandler = {
   custom_id: /^middleman_close_reason:/,
-  execute: handle_middleman_close_reason,
+  execute: async (interaction) => { await handle_middleman_close_reason(interaction) },
 }

@@ -42,7 +42,7 @@ import * as download_all_staff_report    from "./buttons/work/download_all_staff
 import * as tempvoice_handlers           from "./buttons/tempvoice/handlers"
 import * as tempvoice_user_select        from "./select_menus/tempvoice/user_select"
 import * as tempvoice_region_select      from "./select_menus/tempvoice/region_select"
-import { handle_role_permission_select } from "../../modules/utility/utility/get_role_permission"
+import { handle_role_permission_select } from "../../modules/utility/commands/get_role_permission"
 import * as reminder_add_new             from "./buttons/reminder/add_new"
 import * as reminder_list                from "./buttons/reminder/list"
 import * as reminder_cancel              from "./buttons/reminder/cancel"

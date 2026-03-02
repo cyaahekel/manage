@@ -64,5 +64,5 @@ export async function handle_middleman_close(interaction: ButtonInteraction): Pr
 
 export const button: ButtonHandler = {
   custom_id: /^middleman_close:/,
-  execute: handle_middleman_close,
+  execute: async (interaction) => { await handle_middleman_close(interaction) },
 }

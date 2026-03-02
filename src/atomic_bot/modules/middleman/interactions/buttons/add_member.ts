@@ -52,5 +52,5 @@ export async function handle_middleman_add_member(interaction: ButtonInteraction
 
 export const button: ButtonHandler = {
   custom_id: /^middleman_add_member:/,
-  execute: handle_middleman_add_member,
+  execute: async (interaction) => { await handle_middleman_add_member(interaction) },
 }
