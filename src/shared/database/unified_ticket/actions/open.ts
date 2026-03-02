@@ -277,19 +277,24 @@ export async function open_ticket(options: OpenTicketOptions): Promise<void> {
             components: [
               component.container({
                 components: [
+                  component.text(`## <:ticket:1411878131366891580> - ${config.name} Ticket Opened\nYour ${config.name.toLowerCase()} ticket has been created!\n`),
+                ],
+              }),
+              component.container({
+                components: [
                   component.text([
-                    `## <:ticket:1411878131366891580> ${config.name} Ticket Opened`,
-                    ``,
-                    `Your ${config.name.toLowerCase()} ticket has been created!`,
-                    ``,
-                    `- **Ticket ID:** ${format.code(ticket_id)}`,
-                    `- **Opened:** ${time.full_date_time(timestamp)}`,
-                    ``,
-                    `Please check the ticket thread to continue.`,
+                    `- **Ticket UUID:** ${format.code(ticket_id)}`,
+                    `- **Opened at:** ${time.full_date_time(timestamp)}`,
+                    `- **Claimed by:** Not claimed`,
                   ]),
-                  component.action_row(
-                    component.link_button("View Ticket", format.channel_url(interaction.guildId!, thread.id))
-                  ),
+                ],
+              }),
+              component.container({
+                components: [
+                  component.section({
+                    content  : `Please check the ticket thread to continue.\n`,
+                    accessory: component.link_button("View Ticket", format.channel_url(interaction.guildId!, thread.id)),
+                  }),
                 ],
               }),
             ],
@@ -482,19 +487,24 @@ export async function open_ticket(options: OpenTicketOptions): Promise<void> {
           components: [
             component.container({
               components: [
+                component.text(`## <:ticket:1411878131366891580> - ${config.name} Ticket Opened\nYour ${config.name.toLowerCase()} ticket has been created!\n`),
+              ],
+            }),
+            component.container({
+              components: [
                 component.text([
-                  `## <:ticket:1411878131366891580> ${config.name} Ticket Opened`,
-                  ``,
-                  `Your ${config.name.toLowerCase()} ticket has been created!`,
-                  ``,
-                  `- **Ticket ID:** ${format.code(ticket_id)}`,
-                  `- **Opened:** ${time.full_date_time(timestamp)}`,
-                  ``,
-                  `Please check the ticket thread to continue.`,
+                  `- **Ticket UUID:** ${format.code(ticket_id)}`,
+                  `- **Opened at:** ${time.full_date_time(timestamp)}`,
+                  `- **Claimed by:** Not claimed`,
                 ]),
-                component.action_row(
-                  component.link_button("View Ticket", format.channel_url(interaction.guildId!, thread.id))
-                ),
+              ],
+            }),
+            component.container({
+              components: [
+                component.section({
+                  content  : `Please check the ticket thread to continue.\n`,
+                  accessory: component.link_button("View Ticket", format.channel_url(interaction.guildId!, thread.id)),
+                }),
               ],
             }),
           ],

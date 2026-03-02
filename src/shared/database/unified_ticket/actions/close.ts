@@ -213,23 +213,30 @@ export async function close_ticket(options: CloseTicketOptions): Promise<void> {
             components: [
               component.container({
                 components: [
+                  component.text(`## <:ticket:1411878131366891580> - ${config.name} Ticket Closed\nYour ${config.name.toLowerCase()} ticket has been closed.\n`),
+                ],
+              }),
+              component.container({
+                components: [
                   component.text([
-                    `## ${config.name} Ticket Closed`,
-                    ``,
-                    `Your ${config.name.toLowerCase()} ticket has been closed.`,
-                    ``,
-                    `- **Ticket ID:** ${format.code(ticket_id)}`,
+                    `- **Ticket UUID:** ${format.code(ticket_id)}`,
                     ...(issue_type ? [`- **Issue Type:** ${issue_type}`] : []),
                     `- **Closed by:** ${closed_by_text}`,
                     `- **Reason:** ${reason || "-"}`,
-                    `- **Closed:** ${time.full_date_time(timestamp)}`,
-                    ``,
-                    `Thank you for using our service!`,
+                    `- **Closed at:** ${time.full_date_time(timestamp)}`,
                   ]),
-                  component.action_row(
-                    component.link_button("View Ticket", `https://discord.com/channels/${thread.guildId}/${thread.id}`),
-                    ...dm_transcript_buttons
-                  ),
+                ],
+              }),
+              component.container({
+                components: [
+                  component.section({
+                    content  : `Thank you for using our service!\n`,
+                    accessory: component.link_button("View Ticket", `https://discord.com/channels/${thread.guildId}/${thread.id}`),
+                  }),
+                  ...(dm_transcript_buttons.length > 0 ? [
+                    component.divider(),
+                    component.action_row(...dm_transcript_buttons),
+                  ] : []),
                 ],
               }),
             ],
