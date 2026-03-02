@@ -203,7 +203,10 @@ export async function open_middleman_ticket(options: OpenMiddlemanTicketOptions)
       ],
     })
 
-    await api.send_components_v2(thread.id, token, welcome_message)
+    const welcome_response = await api.send_components_v2(thread.id, token, welcome_message)
+    if (welcome_response.id) {
+      api.pin_message(thread.id, welcome_response.id, token).catch(() => {})
+    }
 
     let log_message_id: string | undefined
 

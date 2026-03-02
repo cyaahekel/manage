@@ -139,7 +139,7 @@ export async function open_ticket(options: OpenTicketOptions): Promise<void> {
     }
   }
 
-  const ticket_channel = interaction.client.channels.cache.get(config.ticket_parent_id) as TextChannel
+  const ticket_channel = await interaction.client.channels.fetch(config.ticket_parent_id).catch(() => null) as TextChannel | null
   if (!ticket_channel) {
     await interaction.editReply({ content: "Ticket channel not found." })
     return
@@ -243,9 +243,12 @@ export async function open_ticket(options: OpenTicketOptions): Promise<void> {
         ],
       })
 
-      await api.send_components_v2(thread.id, token, cc_welcome_message)
+      const cc_welcome_response = await api.send_components_v2(thread.id, token, cc_welcome_message)
+      if (cc_welcome_response.id) {
+        api.pin_message(thread.id, cc_welcome_response.id, token).catch(() => {})
+      }
 
-      const log_channel = interaction.client.channels.cache.get(config.log_channel_id) as TextChannel
+      const log_channel = await interaction.client.channels.fetch(config.log_channel_id).catch(() => null) as TextChannel | null
       if (log_channel) {
         const log_message = build_ticket_log_message({
           config_name: config.name,
@@ -393,7 +396,10 @@ export async function open_ticket(options: OpenTicketOptions): Promise<void> {
       ],
     })
 
-    await api.send_components_v2(thread.id, token, welcome_message)
+    const welcome_response = await api.send_components_v2(thread.id, token, welcome_message)
+    if (welcome_response.id) {
+      api.pin_message(thread.id, welcome_response.id, token).catch(() => {})
+    }
   }
 
   // - PARALLEL OPERATIONS FOR SPEED - \\
@@ -446,7 +452,7 @@ export async function open_ticket(options: OpenTicketOptions): Promise<void> {
     parallel_tasks.push(api.send_components_v2(thread.id, token, payment_message))
   }
 
-  const log_channel = interaction.client.channels.cache.get(config.log_channel_id) as TextChannel
+  const log_channel = await interaction.client.channels.fetch(config.log_channel_id).catch(() => null) as TextChannel | null
   if (log_channel) {
     let description_block: string | null = null
     if (description) {
