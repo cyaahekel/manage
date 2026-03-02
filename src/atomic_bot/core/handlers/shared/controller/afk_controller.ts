@@ -10,12 +10,11 @@ export async function handle_afk_return(message: Message): Promise<void> {
   
   if (!afk_removed) return
 
-  const member = message.guild?.members.cache.get(message.author.id)
-  
-  if (member) {
-    try {
-      await member.setNickname(afk_removed.original_nickname)
-    } catch {}
+  if (message.guild) {
+    const member = await message.guild.members.fetch(message.author.id).catch(() => null)
+    if (member) {
+      await member.setNickname(afk_removed.original_nickname).catch(() => {})
+    }
   }
 
   const afk_timestamp = Math.floor(afk_removed.timestamp / 1000)

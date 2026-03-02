@@ -1,66 +1,18 @@
-import { Client } from "discord.js"
-import { component, time, db, api, logger } from "@shared/utils"
-import { log_error }                        from "@shared/utils/error_logger"
+import { Client }                                 from "discord.js"
+import { component, time, db, api, logger }      from "@shared/utils"
+import { log_error }                             from "@shared/utils/error_logger"
+import {
+  loa_data,
+  request_loa_options,
+  approve_loa_options,
+  reject_loa_options,
+  end_loa_options,
+} from "@models/loa.model"
+import { __loa_role_id, __loa_manager_roles } from "@constants/roles"
 
 const log           = logger.create_logger("loa_controller")
 const is_dev        = process.env.NODE_ENV === "development"
 const discord_token = is_dev ? process.env.DEV_DISCORD_TOKEN : process.env.DISCORD_TOKEN
-
-const loa_manager_roles = [
-  "1316021423206039596",
-  "1316022809868107827",
-  "1346622175985143908",
-  "1273229155151904852",
-]
-
-interface loa_data {
-  _id?              : any
-  message_id        : string
-  user_id           : string
-  user_tag          : string
-  start_date        : number
-  end_date          : number
-  type              : string
-  reason            : string
-  status            : "pending" | "approved" | "rejected" | "ended"
-  approved_by?      : string
-  rejected_by?      : string
-  original_nickname?: string
-  created_at        : number
-  guild_id?         : string
-  channel_id?       : string
-}
-
-interface request_loa_options {
-  user_id   : string
-  user_tag  : string
-  client    : Client
-  end_date  : string
-  type      : string
-  reason    : string
-  guild_id? : string
-  channel_id?: string
-}
-
-interface approve_loa_options {
-  message_id: string
-  approver_id: string
-  client    : Client
-  guild_id  : string
-}
-
-interface reject_loa_options {
-  message_id: string
-  rejector_id: string
-  client    : Client
-}
-
-interface end_loa_options {
-  message_id: string
-  ender_id  : string
-  client    : Client
-  guild_id  : string
-}
 
 export function get_loa_panel() {
   const now = Math.floor(Date.now() / 1000)
@@ -225,7 +177,7 @@ export async function approve_loa(options: approve_loa_options) {
       original_nickname = member.nickname || member.user.displayName || member.user.username
 
       await Promise.all([
-        member.roles.add("1274580813912211477"),
+        member.roles.add(__loa_role_id),
         member.setNickname(`[LOA] - ${original_nickname}`),
       ])
     } catch (role_err) {
@@ -403,7 +355,7 @@ export async function end_loa(options: end_loa_options) {
     if (guild) {
       const member = await guild.members.fetch(loa.user_id).catch(() => null)
       if (member) {
-        const role_ops: Promise<any>[] = [member.roles.remove("1274580813912211477").catch(() => {})]
+        const role_ops: Promise<any>[] = [member.roles.remove(__loa_role_id).catch(() => {})]
         if (loa.original_nickname) {
           role_ops.push(member.setNickname(loa.original_nickname).catch(() => {}))
         }
@@ -468,7 +420,7 @@ export async function end_loa(options: end_loa_options) {
 }
 
 export function has_loa_permission(member_roles: any): boolean {
-  return loa_manager_roles.some(role_id =>
+  return __loa_manager_roles.some(role_id =>
     member_roles.cache?.has(role_id) || member_roles.includes?.(role_id)
   )
 }

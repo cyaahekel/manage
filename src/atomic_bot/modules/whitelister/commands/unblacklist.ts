@@ -1,5 +1,6 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder, GuildMember, User } from "discord.js"
-import { Command }                                                            from "@shared/types/command"
+import { Command }          from "@shared/types/command"
+import { member_has_role }  from "@shared/utils/discord_api"
 import { delete_user_from_project, get_user_by_discord, unban_user }        from "../../../infrastructure/api/luarmor"
 import { component }                                                          from "@shared/utils"
 
@@ -28,7 +29,7 @@ export const command: Command = {
 
     const member = interaction.member as GuildMember
 
-    if (!member || !member.roles || !member.roles.cache.has(__allowed_role_id)) {
+    if (!member || !member.roles || member_has_role(member, __allowed_role_id) === false) {
       await interaction.reply({
         content  : "You don't have permission to use this command",
         ephemeral: true,

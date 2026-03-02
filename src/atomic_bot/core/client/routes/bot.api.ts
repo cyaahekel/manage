@@ -74,7 +74,7 @@ export function create_bot_router(client: Client | null, guild_id: string): Rout
       if (!client?.isReady()) return res.status(503).json({ error: "Bot not ready" })
 
       const guild      = client.guilds.cache.get(guild_id)
-      const bot_member = guild?.members.cache.get(client.user?.id || "")
+      const bot_member = guild ? await guild.members.fetch(client.user?.id || "").catch(() => null) : null
       const uptime     = process.uptime()
 
       res.status(200).json({
@@ -97,7 +97,7 @@ export function create_bot_router(client: Client | null, guild_id: string): Rout
       const guild        = client.guilds.cache.get(guild_id)
       if (!guild) return res.status(404).json({ error: "Main guild not found" })
 
-      const bot_member = guild.members.cache.get(client.user?.id || "")
+      const bot_member = await guild.members.fetch(client.user?.id || "").catch(() => null)
       if (bot_member) {
         await bot_member.setNickname(nickname || null)
         console.log(`[ - API BOT NICKNAME - ] Updated to: ${nickname}`)

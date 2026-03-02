@@ -7,11 +7,14 @@
     "rootDir": "./src",
     "baseUrl": "./src",
     "paths": {
-      "@shared/*":  ["shared/*"],
-      "@atomic/*":  ["atomic_bot/*"],
-      "@jkt48/*":   ["jkt48_bot/*"],
-      "@bypass/*":  ["bypass_bot/*"],
-      "@startup/*": ["startup/*"]
+      "@shared/*":    ["shared/*"],
+      "@atomic/*":    ["atomic_bot/*"],
+      "@jkt48/*":     ["jkt48_bot/*"],
+      "@bypass/*":    ["bypass_bot/*"],
+      "@startup/*":   ["startup/*"],
+      "@constants/*": ["shared/constants/*"],
+      "@enums/*":     ["shared/enums/*"],
+      "@models/*":    ["shared/models/*"]
     },
     "strict": true,
     "esModuleInterop": true,

@@ -33,7 +33,9 @@ export async function handle_afk_set(interaction: ChatInputCommandInteraction): 
 
   const raw_reason = interaction.options.getString("reason") || "AFK"
   const reason     = sanitize_afk_reason(raw_reason)
-  const member     = interaction.guild?.members.cache.get(interaction.user.id) as GuildMember | undefined
+  const member = interaction.guild
+    ? await interaction.guild.members.fetch(interaction.user.id).catch(() => null)
+    : null
 
   if (member) {
     const original_nickname = member.nickname

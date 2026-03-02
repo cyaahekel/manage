@@ -624,6 +624,20 @@ export function avatar_url(user_id: string, avatar_hash: string, format: string 
   return `https://cdn.discordapp.com/avatars/${user_id}/${avatar_hash}.${format}`
 }
 
+/**
+ * @description Check if a GuildMember has a specific role using raw role IDs.
+ * This is safe to use when the guild's role cache is disabled (makeCache: () => new Collection()).
+ * @param member - GuildMember (from REST fetch or interaction)
+ * @param role_id - The role ID to check
+ * @returns {boolean} true if member has the role
+ */
+export function member_has_role(member: { roles: any }, role_id: string): boolean {
+  // - DIRECT ACCESS: check raw _roles array when guild roles cache is empty - \\
+  const raw_roles = (member.roles as any)?._roles as string[] | undefined
+  if (raw_roles) return raw_roles.includes(role_id)
+  return member.roles?.cache?.has?.(role_id) ?? false
+}
+
 export function guild_icon_url(guild_id: string, icon_hash: string, format: string = "png"): string {
   return `https://cdn.discordapp.com/icons/${guild_id}/${icon_hash}.${format}`
 }

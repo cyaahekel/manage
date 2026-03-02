@@ -5,6 +5,7 @@ import {
   GuildMember,
 } from "discord.js"
 import { is_admin, is_staff }        from "@shared/database/settings/permissions"
+import { member_has_role }             from "@shared/utils/discord_api"
 import {
   get_ticket_config,
   get_ticket,
@@ -29,7 +30,7 @@ export async function claim_ticket(interaction: ButtonInteraction, ticket_type: 
   }
 
   const member = interaction.member as GuildMember
-  const is_helper = member.roles.cache.has(__helper_role_id)
+  const is_helper = member_has_role(member, __helper_role_id)
 
   if (ticket_type === "helper") {
     if (!is_admin(member) && !is_staff(member) && !is_helper) {

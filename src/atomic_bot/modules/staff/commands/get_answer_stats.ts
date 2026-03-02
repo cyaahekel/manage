@@ -1,7 +1,8 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder, GuildMember } from "discord.js"
 import { Command } from "@shared/types/command"
 import { component, api, db } from "@shared/utils"
-import { staff_role_id } from "@shared/database/settings/permissions"
+import { staff_role_id }  from "@shared/database/settings/permissions"
+import { member_has_role } from "@shared/utils/discord_api"
 
 const __collection_name = "answer_stats"
 
@@ -77,7 +78,7 @@ export async function build_staff_dropdown(
   guild_members: GuildMember[]
 ): Promise<component.message_payload> {
   const staff_members = guild_members
-    .filter(m => m.roles.cache.has(staff_role_id))
+    .filter(m => member_has_role(m, staff_role_id))
     .slice(0, 25)
 
   const options = staff_members.map(m => ({

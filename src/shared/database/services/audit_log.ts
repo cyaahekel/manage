@@ -285,7 +285,7 @@ export function register_audit_logs(client: Client): void {
               content: [
                 "### Member Left",
                 `- Member: <@${member.id}>`,
-                `- Roles: ${member.roles.cache.filter(r => r.name !== "@everyone").map(r => r.name).join(", ") || "None"}${kick_info}`,
+                `- Roles: ${(((member as any)._roles ?? []) as string[]).filter((id: string) => id !== member.guild.id).map((id: string) => `<@&${id}>`).join(", ") || "None"}${kick_info}`,
               ].join("\n"),
               thumbnail: avatar_url,
             }),
@@ -301,8 +301,8 @@ export function register_audit_logs(client: Client): void {
     if (old_member.partial) await old_member.fetch()
     if (new_member.partial) await new_member.fetch()
     
-    const old_roles = old_member.roles.cache.map(r => r.name).sort()
-    const new_roles = new_member.roles.cache.map(r => r.name).sort()
+    const old_roles = (((old_member as any)._roles ?? []) as string[]).sort()
+    const new_roles = (((new_member as any)._roles ?? []) as string[]).sort()
 
     if (JSON.stringify(old_roles) !== JSON.stringify(new_roles)) {
       const added   = new_roles.filter(r => !old_roles.includes(r))

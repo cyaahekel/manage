@@ -30,16 +30,14 @@ export async function handle_afk_mod_clearall(interaction: ChatInputCommandInter
   let cleared_count = 0
 
   for (const record of all_afk) {
-    const guild_member = guild.members.cache.get(record.user_id)
-    if (!guild_member) continue
-
     const removed = await remove_afk(record.user_id)
     if (!removed) continue
 
     cleared_count += 1
-    try {
-      await guild_member.setNickname(removed.original_nickname)
-    } catch {}
+    const guild_member = await guild.members.fetch(record.user_id).catch(() => null)
+    if (guild_member) {
+      await guild_member.setNickname(removed.original_nickname).catch(() => {})
+    }
   }
 
   const message = build_simple_message("## AFK Cleared", [`Removed AFK status for **${cleared_count}** members.`])

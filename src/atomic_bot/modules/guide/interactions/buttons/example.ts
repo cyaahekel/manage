@@ -1,5 +1,5 @@
 import { ButtonInteraction } from "discord.js"
-import { guide_buttons } from "../../../../modules/setup/guide_panel"
+import { guide_buttons } from "../../../../modules/setup/commands/guide_panel"
 import { api, component } from "@shared/utils"
 
 export async function handle_guide_button(interaction: ButtonInteraction) {

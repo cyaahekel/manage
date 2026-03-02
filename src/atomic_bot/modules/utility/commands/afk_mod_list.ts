@@ -33,7 +33,7 @@ export async function handle_afk_mod_list(interaction: ChatInputCommandInteracti
   let total_count   = 0
 
   for (const record of all_afk) {
-    if (!guild.members.cache.has(record.user_id)) continue
+    // - SKIP MEMBER CHECK: guild cache disabled, attempt fetch below - \\
     total_count += 1
 
     if (lines.length < MAX_ITEMS) {

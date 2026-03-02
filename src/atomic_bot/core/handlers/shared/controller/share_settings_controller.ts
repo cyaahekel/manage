@@ -10,6 +10,7 @@ import {
 import { api, component, db }    from "@shared/utils"
 import type { container_component, message_payload } from "@shared/utils"
 import { log_error }            from "@shared/utils/error_logger"
+import { member_has_role }      from "@shared/utils/discord_api"
 import { Cache }                from "@shared/utils/cache"
 import * as random              from "@shared/utils/random"
 
@@ -126,7 +127,7 @@ const __default_skin_list = [
  */
 export function can_use_share_settings(member: GuildMember | null): boolean {
   if (!member) return false
-  return member.roles.cache.has(__share_settings_role_id)
+  return member_has_role(member, __share_settings_role_id)
 }
 
 /**

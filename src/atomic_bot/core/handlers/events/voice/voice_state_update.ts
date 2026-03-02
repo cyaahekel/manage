@@ -1,5 +1,5 @@
 import { Events, VoiceState } from "discord.js"
-import { client }             from "@startup/atomic_bot"
+import { client }             from "../../../../../startup/atomic_bot"
 import * as tempvoice         from "@shared/database/services/tempvoice"
 import {
   on_voice_join,

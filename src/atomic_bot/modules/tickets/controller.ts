@@ -1,31 +1,10 @@
-import { GuildMember } from "discord.js"
-import { load_config } from "@shared/config/loader"
-import { db }          from "@shared/utils"
+import { GuildMember }                                from "discord.js"
+import { load_config }                               from "@shared/config/loader"
+import { db }                                        from "@shared/utils"
+import { purchase_ticket_data, priority_ticket_data } from "@models/ticket.model"
 
 const __purchase_tickets_collection = "purchase_tickets"
 const __priority_tickets_collection = "priority_tickets"
-
-interface purchase_ticket_data {
-  thread_id       : string
-  owner_id        : string
-  ticket_id       : string
-  open_time       : number
-  claimed_by?     : string
-  staff           : string[]
-  log_message_id? : string
-}
-
-interface priority_ticket_data {
-  thread_id       : string
-  owner_id        : string
-  ticket_id       : string
-  open_time       : number
-  claimed_by?     : string
-  staff           : string[]
-  log_message_id? : string
-  issue_type      : string
-  description     : string
-}
 
 const ticket_cfg = load_config<{
   ticket_category_id    : string
@@ -89,8 +68,13 @@ export function generate_ticket_id(): string {
   return `ATMC-${id}`
 }
 
+/**
+ * @description Check if member has priority role — uses resolved roles from GuildMember
+ * @param member - GuildMember fetched via REST (not from cache)
+ * @returns {boolean} true if member has priority role
+ */
 export function has_priority_role(member: GuildMember): boolean {
-  return member.roles.cache.has(priority_role_id)
+  return member.roles.resolve(priority_role_id) !== null
 }
 
 export async function save_purchase_ticket(thread_id: string): Promise<void> {

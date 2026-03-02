@@ -2,7 +2,7 @@ import { Message, Client }                   from "discord.js"
 import { SubCommand }                        from "../types/sub_command"
 import { set_afk, is_ignored_channel }       from "../../atomic_bot/infrastructure/cache/afk"
 import { component }                         from "../utils"
-import { sanitize_afk_reason }               from "../../atomic_bot/modules/utility/afk/afk_utils"
+import { sanitize_afk_reason }               from "../../atomic_bot/modules/utility/commands/afk_utils"
 
 const afk_command: SubCommand = {
   name       : "afk",

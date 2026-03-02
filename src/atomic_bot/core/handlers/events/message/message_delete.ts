@@ -1,5 +1,5 @@
 import { Events, Message, PartialMessage, TextChannel } from "discord.js"
-import { client }                                       from "@startup/atomic_bot"
+import { client }                                       from "../../../../../startup/atomic_bot"
 import { component, format, api, db, time }             from "@shared/utils"
 
 interface ghost_ping_entry {

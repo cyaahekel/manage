@@ -1,5 +1,6 @@
 import { Client }     from "discord.js"
-import { db, http }  from "../../utils"
+import { db, http }        from "../../utils"
+import { member_has_role } from "../../utils/discord_api"
 import { log_error } from "../../utils/error_logger"
 
 interface free_script_user {
@@ -86,7 +87,7 @@ export async function check_free_script_users_tags(client: Client): Promise<void
           
           await remove_free_script_access(user_data.user_id)
           
-          if (member.roles.cache.has(__free_script_role_id)) {
+          if (member_has_role(member, __free_script_role_id)) {
             await member.roles.remove(__free_script_role_id).catch((error) => {
               console.error(`[ - FREE SCRIPT - ] Failed to remove role from ${user.username}:`, error)
             })

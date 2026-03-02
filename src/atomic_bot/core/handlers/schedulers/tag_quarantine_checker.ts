@@ -21,8 +21,8 @@ export function start_tag_quarantine_checker(client: Client): void {
 
   const run_check = async () => {
     try {
-      const guild = client.guilds.cache.get(__target_guild_id)
-      if (!guild) return
+          const guild = await client.guilds.fetch(__target_guild_id).catch(() => null)
+          if (!guild) return
 
       const auto_quarantines = await get_auto_tag_quarantines(guild.id)
       if (auto_quarantines.length === 0) return
@@ -46,11 +46,14 @@ export function start_tag_quarantine_checker(client: Client): void {
           if (still_banned) continue
 
           // - TAG REMOVED, RELEASE QUARANTINE - \\
-          const managed_roles = member.roles.cache
-            .filter(r => r.managed || r.id === guild.id)
-            .map(r => r.id)
-
-          const valid_roles = entry.previous_roles.filter(rid => guild.roles.cache.has(rid))
+          // - FETCH ALL GUILD ROLES VIA REST TO CHECK VALIDITY - \\
+          const guild_roles   = await guild.roles.fetch().catch(() => null)
+          const managed_roles = guild_roles
+            ? [...guild_roles.values()].filter(r => r.managed || r.id === guild.id).map(r => r.id)
+            : []
+          const valid_roles = guild_roles
+            ? entry.previous_roles.filter(rid => guild_roles.has(rid))
+            : entry.previous_roles
           
           // - REMOVE QUARANTINE ROLE - \\
           const quarantine_role_id = "1265318689130024992"

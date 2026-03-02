@@ -11,24 +11,9 @@ import {
   get_quarantine_history,
   get_quarantine_count,
 }                                                        from "@shared/database/managers/quarantine_manager"
-
-interface quarantine_member_options {
-  client   : Client
-  guild    : Guild
-  executor : GuildMember
-  target   : GuildMember
-  days     : number
-  reason   : string
-}
-
-interface release_quarantine_options {
-  client   : Client
-  guild    : Guild
-  user_id  : string
-}
-
-const __quarantine_role_id  = "1265318689130024992"
-const __quarantine_log_id   = "1474186051366031380"
+import { quarantine_member_options, release_quarantine_options } from "@models/quarantine.model"
+import { __quarantine_role_id }                          from "@constants/roles"
+import { __quarantine_log_channel_id }                   from "@constants/channels"
 
 /**
  * @description Get quarantine role for a guild
@@ -156,7 +141,7 @@ export async function quarantine_member(options: quarantine_member_options) {
         ].join("\n"))
       : ["- No previous quarantine history"]
 
-    const log_channel = await guild.channels.fetch(__quarantine_log_id).catch(() => null) as TextChannel | null
+    const log_channel = await guild.channels.fetch(__quarantine_log_channel_id).catch(() => null) as TextChannel | null
     if (log_channel?.isTextBased()) {
       const log_msg = component.build_message({
         components: [

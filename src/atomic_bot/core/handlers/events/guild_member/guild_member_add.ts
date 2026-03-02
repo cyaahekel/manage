@@ -1,5 +1,5 @@
 import { Events, GuildMember }      from "discord.js"
-import { client }                   from "@startup/atomic_bot"
+import { client }                   from "../../../../../startup/atomic_bot"
 import { load_config }              from "@shared/config/loader"
 import { component, api, format }   from "@shared/utils"
 

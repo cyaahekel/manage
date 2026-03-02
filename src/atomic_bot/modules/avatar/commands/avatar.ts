@@ -21,7 +21,9 @@ export const command: Command = {
   async execute(interaction: ChatInputCommandInteraction) {
     try {
       const target_user = interaction.options.getUser("user") || interaction.user
-      const member      = interaction.guild?.members.cache.get(target_user.id)
+      const member      = interaction.guild
+        ? await interaction.guild.members.fetch(target_user.id).catch(() => null)
+        : null
 
       const default_avatar = target_user.displayAvatarURL({
         size     : 4096,

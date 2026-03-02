@@ -1,6 +1,4 @@
 import {
-  UserSelectMenuInteraction,
-  ModalSubmitInteraction,
   TextChannel,
   ChannelType,
   ThreadAutoArchiveDuration,
@@ -9,7 +7,6 @@ import {
   get_ticket_config,
   get_user_open_ticket,
   set_user_open_ticket,
-  remove_user_open_ticket,
   generate_ticket_id,
   set_ticket,
   save_ticket_immediate,
@@ -19,14 +16,15 @@ import {
   create_middleman_ticket,
   count_user_active_tickets,
 } from "@shared/database/managers/middleman_manager"
-import { component, time, api, format } from "@shared/utils"
-import { log_error } from "@shared/utils/error_logger"
-
-interface TransactionRange {
-  label : string
-  range : string
-  fee   : string
-}
+import { component, time, api, format }                 from "@shared/utils"
+import { log_error }                                     from "@shared/utils/error_logger"
+import {
+  TransactionRange,
+  TransactionDetails,
+  OpenMiddlemanTicketOptions,
+  OpenMiddlemanTicketResult,
+} from "@models/middleman.model"
+import { __middleman_staff_ids, __midman_user_id } from "@constants/roles"
 
 const __transaction_ranges: Record<string, TransactionRange> = {
   "dVzaCndYpO": { label: "Rp 10.000 – Rp 50.000",   range: "Rp 10.000 – Rp 50.000",   fee: "Rp 1.500" },
@@ -40,27 +38,6 @@ const __fee_labels: Record<string, string> = {
   penjual: "Penjual",
   pembeli: "Pembeli",
   dibagi : "Dibagi Dua",
-}
-
-interface TransactionDetails {
-  penjual_id : string
-  pembeli_id : string
-  jenis      : string
-  harga      : string
-  fee_oleh   : string
-}
-
-interface OpenMiddlemanTicketOptions {
-  interaction  : UserSelectMenuInteraction | ModalSubmitInteraction
-  range_id     : string
-  partner_id   : string
-  transaction  : TransactionDetails
-}
-
-interface OpenMiddlemanTicketResult {
-  success : boolean
-  message?: string
-  error?  : string
 }
 
 /**
@@ -119,8 +96,7 @@ export async function open_middleman_ticket(options: OpenMiddlemanTicketOptions)
       await thread.members.add(member_id).catch(() => {})
     }
 
-    const staff_ids = ["1118453649727823974", "713377329623072822"]
-    for (const staff_id of staff_ids) {
+    for (const staff_id of __middleman_staff_ids) {
       try {
         await thread.members.add(staff_id)
       } catch (err) {
@@ -146,8 +122,7 @@ export async function open_middleman_ticket(options: OpenMiddlemanTicketOptions)
     set_ticket(thread.id, ticket_data)
     set_user_open_ticket(ticket_type, user_id, thread.id)
 
-    const __midman_id  = "713377329623072822"
-    const fee_label    = __fee_labels[transaction.fee_oleh] ?? transaction.fee_oleh
+    const fee_label = __fee_labels[transaction.fee_oleh] ?? transaction.fee_oleh
 
     const welcome_message = component.build_message({
       components: [
@@ -170,12 +145,12 @@ export async function open_middleman_ticket(options: OpenMiddlemanTicketOptions)
               `- Fee oleh : ${fee_label}`,
             ]),
             component.divider(2),
-            component.text(`<@${__midman_id}>  akan membantu memproses transaksi ini.`),
+            component.text(`<@${__midman_user_id}>  akan membantu memproses transaksi ini.`),
           ],
         }),
         component.container({
           components: [
-            component.text(`## BACA INI TERLEBIH DAHULU !\nJangan TF dulu sebelum <@${__midman_id}>  respon didalam tiket kamu`),
+            component.text(`## BACA INI TERLEBIH DAHULU !\nJangan TF dulu sebelum <@${__midman_user_id}>  respon didalam tiket kamu`),
           ],
         }),
         component.container({

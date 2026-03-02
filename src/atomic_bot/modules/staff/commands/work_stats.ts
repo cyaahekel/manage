@@ -1,5 +1,6 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder, GuildMember } from "discord.js"
-import { Command } from "@shared/types/command"
+import { Command }        from "@shared/types/command"
+import { member_has_role } from "@shared/utils/discord_api"
 import { component } from "@shared/utils"
 import { get_week_number } from "@shared/database/trackers/work_tracker"
 
@@ -17,7 +18,7 @@ export const command: Command = {
 
   async execute(interaction: ChatInputCommandInteraction) {
     const member       = interaction.member as GuildMember
-    const is_admin     = member.roles.cache.has(__admin_role_id)
+    const is_admin     = member_has_role(member, __admin_role_id)
     const staff_input  = interaction.options.getUser("staff")
     const staff        = staff_input || interaction.user
 

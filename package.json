@@ -15,9 +15,9 @@
     "start:bypass": "node dist/startup/bypass_bot.js",
     "start:all": "concurrently \"npm run start:atomic\" \"npm run start:jkt48\" \"npm run start:bypass\"",
     "dev": "nodemon --exec ts-node src/index.ts --ext ts",
-    "dev:atomic": "NODE_ENV=development nodemon --exec ts-node src/startup/atomic_bot.ts --ext ts",
-    "dev:jkt48": "nodemon --exec ts-node src/startup/jkt48_bot.ts --ext ts",
-    "dev:bypass": "nodemon --exec ts-node src/startup/bypass_bot.ts --ext ts",
+    "dev:atomic": "NODE_ENV=development nodemon --exec 'ts-node -r tsconfig-paths/register src/startup/atomic_bot.ts' --ext ts",
+    "dev:jkt48":  "NODE_ENV=development nodemon --exec 'ts-node -r tsconfig-paths/register src/startup/jkt48_bot.ts' --ext ts",
+    "dev:bypass": "NODE_ENV=development nodemon --exec 'ts-node -r tsconfig-paths/register src/startup/bypass_bot.ts' --ext ts",
     "dev:all": "concurrently \"npm run dev:atomic\" \"npm run dev:jkt48\" \"npm run dev:bypass\"",
     "heroku-postbuild": "npm run build"
   },
@@ -54,6 +54,7 @@
     "nodemon": "^3.1.11",
     "ts-node": "^10.9.2",
     "tsc-alias": "^1.8.16",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.3.2"
   }
 }

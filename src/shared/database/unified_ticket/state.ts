@@ -1,4 +1,5 @@
-import { GuildMember } from "discord.js"
+import { GuildMember }    from "discord.js"
+import { member_has_role } from "../../utils/discord_api"
 import { load_config } from "../../config/loader"
 import { db, component, format } from "../../utils"
 
@@ -80,7 +81,7 @@ export function generate_ticket_id(): string {
 export function has_required_role(member: GuildMember, ticket_type: string): boolean {
   const config = get_ticket_config(ticket_type)
   if (!config || !config.require_role) return true
-  return member.roles.cache.has(config.required_role_id)
+  return member_has_role(member, config.required_role_id)
 }
 
 export function get_ticket(thread_id: string): TicketData | undefined {

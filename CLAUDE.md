@@ -11,12 +11,17 @@ Three independent Discord bots sharing a `src/shared/` layer, plus a Next.js das
 | `src/startup/jkt48_bot.ts` | JKT48 live stream notifications |
 | `src/startup/bypass_bot.ts` | Automatic link bypassing |
 
-**Path aliases** (tsconfig):  
-`@shared/*` → `src/shared/*`  
-`@atomic/*` → `src/atomic_bot/*`  
-`@jkt48/*` → `src/jkt48_bot/*`  
-`@bypass/*` → `src/bypass_bot/*`  
-`@startup/*` → `src/startup/*`
+**Path aliases** (tsconfig):
+```
+@shared/*    → src/shared/*
+@atomic/*    → src/atomic_bot/*
+@jkt48/*     → src/jkt48_bot/*
+@bypass/*    → src/bypass_bot/*
+@startup/*   → src/startup/*
+@constants/* → src/shared/constants/*
+@enums/*     → src/shared/enums/*
+@models/*    → src/shared/models/*
+```
 
 ---
 
@@ -30,10 +35,15 @@ Always use REST fetches.
 guild.roles.cache.has(role_id)
 member.roles.cache.filter(...)
 
-// CORRECT
+// CORRECT: check member roles
+import { member_has_role } from "@shared/utils/discord_api"
+member_has_role(member, role_id)   // uses raw _roles array, cache-safe
+
+// CORRECT: fetch REST resources
 const guild_roles = await guild.roles.fetch()
 const member      = await guild.members.fetch(user_id)
-````
+const channel     = await guild.channels.fetch(channel_id)
+```
 
 ---
 
@@ -59,18 +69,34 @@ cd web && npm run dev
 
 ## File / Folder Structure
 
-* Commands: `src/atomic_bot/modules/<feature>/commands/<command_name>.ts`
-* Interactions: `src/atomic_bot/modules/<feature>/interactions/<type>/<file>.ts`
-* Feature business logic (shared across related commands):
-  `src/atomic_bot/modules/<feature>/controller.ts`
-* DB operations for a feature:
-  `src/shared/database/managers/<feature>_manager.ts`
-* Persistent state (reminders, AFK, tickets, quarantine) **must** be stored in DB so it survives restarts
+```
+src/shared/
+├── constants/      # Hardcoded IDs (channels.ts, roles.ts, custom_ids.ts)
+├── enums/          # TypeScript enums (ticket_type.ts, ticket_status.ts, loa_status.ts)
+├── models/         # DB interface definitions (reminder.model.ts, ticket.model.ts, etc.)
+├── types/          # Command/interaction interface types
+├── utils/          # Utility functions
+└── database/       # DB managers, services, unified_ticket
 
-Example:
-`/reminder` + `/reminder-cancel`
-→ `reminder_controller.ts`
-→ `reminder_manager.ts`
+src/atomic_bot/modules/<feature>/
+├── commands/           # STRICT: all slash commands here
+├── interactions/
+│   ├── buttons/        # export const button: ButtonHandler = { ... }
+│   ├── modals/         # export const modal: ModalHandler = { ... }
+│   └── select_menus/   # export const string_select / user_select
+└── controller.ts       # Business logic (import models from @models/*)
+```
+
+Example: `/reminder` + `/reminder-cancel`
+→ `modules/reminder/commands/reminder.ts`
+→ `modules/reminder/controller.ts` (imports `reminder_data` from `@models/reminder.model`)
+→ `shared/database/managers/reminder_manager.ts`
+
+**Rules:**
+* Import shared interfaces from `@models/*` (not inline inside controllers)
+* Import hardcoded IDs from `@constants/*`
+* Import TypeScript enums from `@enums/*`
+* Persistent state **must** be stored in DB so it survives restarts
 
 ---
 

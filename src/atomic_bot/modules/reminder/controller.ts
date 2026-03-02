@@ -1,38 +1,16 @@
-import { Client, ButtonInteraction, ChatInputCommandInteraction, ModalSubmitInteraction } from "discord.js"
-import { component, format, time, db, api } from "@shared/utils"
-import { log_error }                        from "@shared/utils/error_logger"
+import { Client }                                                         from "discord.js"
+import { component, time, db, api }                                      from "@shared/utils"
+import { log_error }                                                     from "@shared/utils/error_logger"
+import {
+  reminder_data,
+  reminder_list_options,
+  add_reminder_options,
+  cancel_reminder_options,
+} from "@models/reminder.model"
 
 const is_dev        = process.env.NODE_ENV === "development"
 const discord_token = is_dev ? process.env.DEV_DISCORD_TOKEN : process.env.DISCORD_TOKEN
 const max_minutes   = 10080
-
-interface reminder_data {
-  _id?       : any
-  user_id    : string
-  note       : string
-  remind_at  : number
-  created_at : number
-  guild_id?  : string
-}
-
-interface reminder_list_options {
-  user_id: string
-  client : Client
-}
-
-interface add_reminder_options {
-  user_id  : string
-  client   : Client
-  minutes  : number
-  note     : string
-  guild_id?: string
-}
-
-interface cancel_reminder_options {
-  user_id   : string
-  client    : Client
-  remind_at?: number
-}
 
 export async function get_reminder_list(options: reminder_list_options) {
   const { user_id, client } = options

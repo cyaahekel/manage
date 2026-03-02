@@ -12,7 +12,7 @@ import { Command }           from "@shared/types/command"
 import { component, db }     from "@shared/utils"
 import { is_admin_or_mod }   from "@shared/database/settings/permissions"
 import { close_ticket }      from "@shared/database/unified_ticket/close"
-import { client }            from "@startup/atomic_bot"
+import { client }            from "../../../../startup/atomic_bot"
 import {
   ticket_data,
   ticket_types,

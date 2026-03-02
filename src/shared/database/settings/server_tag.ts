@@ -1,6 +1,6 @@
-import { Client, User, PartialUser } from "discord.js"
-import { db, component }             from "../../utils"
-import { log_error }                 from "../../utils/error_logger"
+import { Client, User, PartialUser, Guild, GuildMember } from "discord.js"
+import { db, component }                                from "../../utils"
+import { log_error }                                    from "../../utils/error_logger"
 import {
   add_quarantine,
   remove_quarantine,
@@ -59,6 +59,27 @@ async function get_banned_tags(): Promise<Set<string>> {
 function __invalidate_banned_tags_cache(): void {
   __banned_tags_cache    = null
   __banned_tags_cache_at = 0
+}
+
+// - HELPER: GET MANAGED + PREVIOUS ROLES FROM MEMBER USING REST-FETCHED GUILD ROLES - \\
+async function get_member_roles(member: GuildMember, guild: Guild): Promise<{ managed: string[]; previous: string[] }> {
+  const guild_roles = await guild.roles.fetch().catch(() => null)
+  const raw_ids     = ((member as any)._roles ?? []) as string[]
+
+  if (!guild_roles) {
+    return { managed: [], previous: raw_ids.filter(id => id !== guild.id) }
+  }
+
+  const managed  = [...guild_roles.values()]
+    .filter(r => r.managed || r.id === guild.id)
+    .map(r => r.id)
+
+  const previous = raw_ids.filter(id => {
+    const role = guild_roles.get(id)
+    return role && !role.managed && id !== guild.id
+  })
+
+  return { managed, previous }
 }
 
 /**
@@ -131,12 +152,13 @@ async function handle_banned_tag_quarantine(
     const quarantine_data = await get_quarantine(new_user.id, target_guild.id)
     if (!quarantine_data || quarantine_data.quarantined_by !== __auto_tag_quarantine_by) return
 
-    const managed_roles = target_member.roles.cache
-      .filter(r => r.managed || r.id === target_guild.id)
-      .map(r => r.id)
+    const guild_roles_map = await target_guild.roles.fetch().catch(() => null)
+    const { managed: managed_roles } = await get_member_roles(target_member, target_guild)
 
-    const valid_roles = quarantine_data.previous_roles.filter(rid => target_guild.roles.cache.has(rid))
-    
+    const valid_roles = guild_roles_map
+      ? quarantine_data.previous_roles.filter(rid => guild_roles_map.has(rid))
+      : quarantine_data.previous_roles
+
     // - REMOVE QUARANTINE ROLE - \\
     const roles_to_set = [...managed_roles, ...valid_roles].filter(rid => rid !== __quarantine_role_id)
 
@@ -163,8 +185,10 @@ async function handle_banned_tag_quarantine(
       ],
     })
 
-    const server_tag_log_ch = target_guild.channels.cache.get(__server_tag_log_id)
-    const quarantine_log_ch = target_guild.channels.cache.get(__quarantine_log_id)
+    const [server_tag_log_ch, quarantine_log_ch] = await Promise.all([
+      target_guild.channels.fetch(__server_tag_log_id).catch(() => null),
+      target_guild.channels.fetch(__quarantine_log_id).catch(() => null),
+    ])
     if (server_tag_log_ch?.isTextBased()) await server_tag_log_ch.send(release_msg).catch(() => {})
     if (quarantine_log_ch?.isTextBased()) await quarantine_log_ch.send(release_msg).catch(() => {})
   }
@@ -179,20 +203,13 @@ async function handle_banned_tag_quarantine(
     const already = await is_quarantined(new_user.id, guild.id)
     if (already) return
 
-    const quarantine_role = guild.roles.cache.get(__quarantine_role_id) ||
-                            await guild.roles.fetch(__quarantine_role_id).catch(() => null)
+    const quarantine_role = await guild.roles.fetch(__quarantine_role_id).catch(() => null)
     if (!quarantine_role) {
       console.error("[ - SERVER TAG GUARD - ] Quarantine role not found")
       return
     }
 
-    const managed_roles = member.roles.cache
-      .filter(r => r.managed || r.id === guild.id)
-      .map(r => r.id)
-
-    const previous_roles = member.roles.cache
-      .filter(r => !r.managed && r.id !== guild.id)
-      .map(r => r.id)
+    const { managed: managed_roles, previous: previous_roles } = await get_member_roles(member, guild)
 
     await member.roles.set([...managed_roles, quarantine_role.id], `Auto-quarantined: banned server tag ${new_tag}`)
 
@@ -220,7 +237,7 @@ async function handle_banned_tag_quarantine(
         ].join("\n"))
       : ["- No previous quarantine history"]
 
-    const quarantine_log_channel = guild.channels.cache.get(__quarantine_log_id)
+    const quarantine_log_channel = await guild.channels.fetch(__quarantine_log_id).catch(() => null)
     if (quarantine_log_channel?.isTextBased()) {
       const q_log_msg = component.build_message({
         components: [
@@ -252,7 +269,7 @@ async function handle_banned_tag_quarantine(
 
     console.log(`[ - SERVER TAG GUARD - ] Quarantined ${new_user.username} for tag: ${new_tag}`)
 
-    const log_channel = guild.channels.cache.get(__server_tag_log_id)
+    const log_channel = await guild.channels.fetch(__server_tag_log_id).catch(() => null)
     if (log_channel?.isTextBased()) {
       const log_msg = component.build_message({
         components: [
@@ -353,7 +370,7 @@ export async function check_server_tag_change(
           console.log(`[ - SERVER TAG - ] DM sent successfully to ${new_user.username}`)
         }
         
-        const log_channel = guild?.channels.cache.get(__server_tag_log_id)
+        const log_channel = await guild?.channels.fetch(__server_tag_log_id).catch(() => null)
         if (log_channel?.isTextBased()) {
           const log_message = component.build_message({
             components: [
@@ -433,17 +450,10 @@ export async function scan_banned_tags_on_startup(client: Client): Promise<void>
 
         if (is_using_banned && !quarantine_data) {
           // - MEMBER HAS BANNED TAG BUT NOT QUARANTINED → QUARANTINE - \\
-          const quarantine_role = guild.roles.cache.get(__quarantine_role_id) ||
-                                  await guild.roles.fetch(__quarantine_role_id).catch(() => null)
+          const quarantine_role = await guild.roles.fetch(__quarantine_role_id).catch(() => null)
           if (!quarantine_role) continue
 
-          const managed_roles = member.roles.cache
-            .filter(r => r.managed || r.id === guild.id)
-            .map(r => r.id)
-
-          const previous_roles = member.roles.cache
-            .filter(r => !r.managed && r.id !== guild.id)
-            .map(r => r.id)
+          const { managed: managed_roles, previous: previous_roles } = await get_member_roles(member, guild)
 
           await member.roles.set([...managed_roles, quarantine_role.id], `Auto-quarantined on startup: banned tag ${cur_tag}`)
           await add_quarantine(
@@ -467,7 +477,7 @@ export async function scan_banned_tags_on_startup(client: Client): Promise<void>
               ].join("\n"))
             : ["- No previous quarantine history"]
 
-          const q_log_ch = guild.channels.cache.get(__quarantine_log_id)
+          const q_log_ch = await guild.channels.fetch(__quarantine_log_id).catch(() => null)
           if (q_log_ch?.isTextBased()) {
             await q_log_ch.send(component.build_message({
               components: [
@@ -497,12 +507,12 @@ export async function scan_banned_tags_on_startup(client: Client): Promise<void>
 
         } else if (!is_using_banned && quarantine_data?.quarantined_by === __auto_tag_quarantine_by) {
           // - MEMBER NO LONGER HAS BANNED TAG BUT STILL AUTO-QUARANTINED → RELEASE - \\
-          const managed_roles = member.roles.cache
-            .filter(r => r.managed || r.id === guild.id)
-            .map(r => r.id)
+          const guild_roles_map                 = await guild.roles.fetch().catch(() => null)
+          const { managed: managed_roles }      = await get_member_roles(member, guild)
+          const valid_roles = guild_roles_map
+            ? quarantine_data.previous_roles.filter(rid => guild_roles_map.has(rid))
+            : quarantine_data.previous_roles
 
-          const valid_roles = quarantine_data.previous_roles.filter(rid => guild.roles.cache.has(rid))
-          
           // - REMOVE QUARANTINE ROLE - \\
           const roles_to_set = [...managed_roles, ...valid_roles].filter(rid => rid !== __quarantine_role_id)
 

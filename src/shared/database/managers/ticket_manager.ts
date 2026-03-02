@@ -7,6 +7,7 @@ import {
 } from "discord.js"
 import { load_config } from "../../config/loader"
 import { component, api, time, logger } from "../../utils"
+import { member_has_role }               from "../../utils/discord_api"
 
 interface ticket_config {
   ticket_category_id: string
@@ -96,7 +97,7 @@ export async function send_ticket_log(
 }
 
 export function has_priority_role(member: GuildMember): boolean {
-  return member.roles.cache.has(priority_role_id)
+  return member_has_role(member, priority_role_id)
 }
 
 export async function close_ticket(

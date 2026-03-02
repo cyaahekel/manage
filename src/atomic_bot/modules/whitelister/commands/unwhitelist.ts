@@ -5,6 +5,7 @@ import {
   User,
 }                           from "discord.js"
 import { Command }          from "@shared/types/command"
+import { member_has_role }  from "@shared/utils/discord_api"
 import { unwhitelist }      from "../controller"
 
 const __allowed_role_id = "1277272542914281512"
@@ -31,7 +32,7 @@ export const command: Command = {
 
     const member = interaction.member as GuildMember
 
-    if (!member || !member.roles || !member.roles.cache.has(__allowed_role_id)) {
+    if (!member || !member.roles || member_has_role(member, __allowed_role_id) === false) {
       await interaction.reply({
         content  : "You don't have permission to use this command.",
         ephemeral: true,

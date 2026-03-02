@@ -1,6 +1,7 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder, GuildMember } from "discord.js"
 import { Command }                 from "@shared/types/command"
 import { update_project_settings } from "../../../infrastructure/api/luarmor"
+import { member_has_role }           from "@shared/utils/discord_api"
 import { component, db, logger }   from "@shared/utils"
 
 const __log              = logger.create_logger("schedule_hwid_less")
@@ -52,7 +53,7 @@ export const command: Command = {
     try {
       const member = interaction.member as GuildMember
 
-      if (!member.roles.cache.has(__required_role_id)) {
+      if (member_has_role(member, __required_role_id) === false) {
         await interaction.reply({
           content   : "You do not have permission to use this command.",
           ephemeral : true,

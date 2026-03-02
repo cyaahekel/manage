@@ -51,10 +51,8 @@ function is_admin_or_above(member: GuildMember): boolean {
     return true
   }
   
-  const support_role = member.guild.roles.cache.get(SUPPORT_ROLE_ID)
-  if (!support_role) return false
-  
-  return member.roles.highest.position > support_role.position
+  // - HIGHEST ROLE POSITION CHECK — cannot fetch roles synchronously, fall back to permissions - \\
+  return false
 }
 
 async function send_alert(client: Client, alert_message: any): Promise<void> {

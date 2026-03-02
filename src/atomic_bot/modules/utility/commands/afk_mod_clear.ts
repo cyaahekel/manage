@@ -34,11 +34,11 @@ export async function handle_afk_mod_clear(interaction: ChatInputCommandInteract
     return
   }
 
-  const guild_member = interaction.guild?.members.cache.get(target.id)
-  if (guild_member) {
-    try {
-      await guild_member.setNickname(removed.original_nickname)
-    } catch {}
+  if (interaction.guild) {
+    const guild_member = await interaction.guild.members.fetch(target.id).catch(() => null)
+    if (guild_member) {
+      await guild_member.setNickname(removed.original_nickname).catch(() => {})
+    }
   }
 
   const message = build_simple_message("## AFK Cleared", [`Removed AFK status for <@${target.id}>.`])

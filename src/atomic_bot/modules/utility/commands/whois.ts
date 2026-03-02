@@ -16,7 +16,7 @@ const whois: Command = {
 
   async execute(interaction: ChatInputCommandInteraction) {
     const target_user = interaction.options.getUser("user") || interaction.user
-    const member      = interaction.guild?.members.cache.get(target_user.id)
+    const member      = interaction.guild ? await interaction.guild.members.fetch(target_user.id).catch(() => null) : null
 
     if (!member) {
       await interaction.reply({
@@ -26,12 +26,19 @@ const whois: Command = {
       return
     }
 
-    const role_list = member.roles.cache
-      .filter(role => role.id !== interaction.guild?.id)
-      .sort((a, b) => b.position - a.position)
-      .map(role => `<@&${role.id}>`)
-    
-    const roles_display = role_list.length > 15 
+    // - FETCH GUILD ROLES VIA REST SINCE GUILD ROLE CACHE IS DISABLED - \\
+    const guild_roles = await interaction.guild!.roles.fetch().catch(() => null)
+    const raw_roles   = (member as any)._roles as string[] ?? []
+    const role_list   = guild_roles
+      ? raw_roles
+          .filter(id => id !== interaction.guild?.id)
+          .map(id => guild_roles.get(id))
+          .filter(Boolean)
+          .sort((a, b) => (b!.position ?? 0) - (a!.position ?? 0))
+          .map(role => `<@&${role!.id}>`)
+      : raw_roles.map(id => `<@&${id}>`)
+
+    const roles_display = role_list.length > 15
       ? `${role_list.slice(0, 15).join(" ")} +${role_list.length - 15} more`
       : role_list.join(" ") || "None"
 
@@ -43,7 +50,7 @@ const whois: Command = {
     ].join("\n")
 
     const roles_info = [
-      `- Roles [${member.roles.cache.size - 1}]:`,
+      `- Roles [${raw_roles.length}]:`,
       roles_display,
     ].join("\n")
 

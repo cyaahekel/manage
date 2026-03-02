@@ -2,7 +2,7 @@ import { ApplicationCommandType, Client, Collection, REST, Routes } from "discor
 import { Command, MessageContextMenuCommand }                        from "@shared/types/command";
 import { readdirSync }                                              from "fs";
 import { join }                                                     from "path";
-import { is_dev }                                                   from "@startup/atomic_bot";
+import { is_dev }                                                   from "../../../startup/atomic_bot";
 import { interactions }                                             from "@shared/utils";
 
 type extended_client = Client & {

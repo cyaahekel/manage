@@ -6,7 +6,7 @@ import { Command } from "@shared/types/command"
 import { join } from "path"
 import { file } from "@shared/utils"
 import { load_config as load_cfg } from "@shared/config/loader"
-import { update_price_panel } from "../../setup/script_price"
+import { update_price_panel } from "../../setup/commands/script_price"
 
 interface PricingConfig {
   channel_id:     string

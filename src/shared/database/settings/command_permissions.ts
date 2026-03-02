@@ -1,6 +1,7 @@
-import { GuildMember } from "discord.js"
-import { join } from "path"
-import { file, cache } from "../../utils"
+import { GuildMember }  from "discord.js"
+import { join }         from "path"
+import { file, cache }  from "../../utils"
+import { member_has_role } from "../../utils/discord_api"
 
 interface CommandPermission {
   role_ids:           string[] | null
@@ -59,16 +60,8 @@ function resolve_role_ids(permission: CommandPermission): string[] {
 }
 
 function get_highest_role_position(member: GuildMember, role_ids: string[]): number {
-  let highest = -1
-
-  for (const role_id of role_ids) {
-    const role = member.guild.roles.cache.get(role_id)
-    if (role && role.position > highest) {
-      highest = role.position
-    }
-  }
-
-  return highest
+  // - ROLES CACHE DISABLED: fall back to highest role position - \\
+  return member.roles.highest?.position ?? -1
 }
 
 export function can_use_command(member: GuildMember, command_name: string): boolean {
@@ -85,7 +78,7 @@ export function can_use_command(member: GuildMember, command_name: string): bool
   }
 
   for (const role_id of role_ids) {
-    if (member.roles.cache.has(role_id)) {
+    if (member_has_role(member, role_id)) {
       return true
     }
   }

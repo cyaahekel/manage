@@ -1,7 +1,8 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder, GuildMember, Role } from "discord.js"
-import { Command } from "@shared/types/command"
-import { is_admin } from "@shared/database/settings/permissions"
-import { api, component } from "@shared/utils"
+import { Command }         from "@shared/types/command"
+import { is_admin }        from "@shared/database/settings/permissions"
+import { api, component }  from "@shared/utils"
+import { member_has_role } from "@shared/utils/discord_api"
 
 export const command: Command = {
   data: new SlashCommandBuilder()
@@ -62,7 +63,7 @@ export const command: Command = {
       return
     }
 
-    if (member.roles.cache.has(role.id)) {
+    if (member_has_role(member, role.id)) {
       await api.edit_deferred_reply(interaction, {
         components: [
           component.container({

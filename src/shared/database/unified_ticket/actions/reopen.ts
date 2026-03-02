@@ -4,7 +4,8 @@ import {
   get_ticket_config,
   load_ticket,
 } from "../state"
-import { component, api } from "../../../utils"
+import { component, api }   from "../../../utils"
+import { member_has_role } from "../../../utils/discord_api"
 
 const __helper_role_id = "1357767950421065981"
 
@@ -19,7 +20,7 @@ export async function reopen_ticket(interaction: ButtonInteraction, ticket_type:
 
   const thread    = interaction.channel as ThreadChannel
   const member    = interaction.member as GuildMember
-  const is_helper = member.roles.cache.has(__helper_role_id)
+  const is_helper = member_has_role(member, __helper_role_id)
 
   if (!thread.isThread() || thread.parentId !== config.ticket_parent_id) {
     await interaction.editReply({ content: `This button can only be used in a ${config.name.toLowerCase()} ticket thread.` })
