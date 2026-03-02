@@ -336,7 +336,7 @@ export async function get_chart_data() {
       GROUP BY TO_CHAR(to_timestamp(last_work::numeric), 'Mon')
     `)
     
-    const salaryMap = {};
+    const salaryMap: Record<string, number> = {};
     salaryResult.rows.forEach(r => {
       salaryMap[r.month] = Number(r.salaries || 0);
     });
