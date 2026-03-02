@@ -32,6 +32,7 @@ FROM node:20-slim AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
+ENV NODE_OPTIONS="-r module-alias/register"
 
 # - COPY PRODUCTION NODE_MODULES (NO DEVDEPS) - \\
 COPY --from=deps-prod /app/node_modules ./node_modules
