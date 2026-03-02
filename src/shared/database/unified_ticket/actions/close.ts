@@ -229,10 +229,7 @@ export async function close_ticket(options: CloseTicketOptions): Promise<void> {
               }),
               component.container({
                 components: [
-                  component.section({
-                    content  : `Thank you for using our service!\n`,
-                    accessory: component.link_button("View Ticket", `https://discord.com/channels/${thread.guildId}/${thread.id}`),
-                  }),
+                  component.text(`Thank you for using our service!`),
                   ...(dm_transcript_buttons.length > 0 ? [
                     component.divider(),
                     component.action_row(...dm_transcript_buttons),
