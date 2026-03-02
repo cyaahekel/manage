@@ -11,7 +11,7 @@ import { load_close_requests }                                           from ".
 import { load_all_tickets, flush_all_tickets }                           from "@shared/database/unified_ticket"
 import * as tempvoice                                                    from "@shared/database/services/tempvoice"
 import { register_audit_logs }                                           from "@shared/database/services/audit_log"
-import { handle_afk_return, handle_afk_mentions }                        from "../atomic_bot/core/handlers/shared/controller/afk_controller"
+import { handle_afk_return, handle_afk_mentions }                        from "@atomic/modules/utility/controller"
 import { load_afk_from_db, load_afk_ignored_channels_from_db }           from "../atomic_bot/infrastructure/cache/afk"
 import { check_server_tag_change, scan_banned_tags_on_startup }           from "@shared/database/settings/server_tag"
 import { start_free_script_checker }                                     from "@shared/database/managers/free_script_manager"
@@ -29,7 +29,7 @@ import { start_quarantine_scheduler }                                    from ".
 import { start_tag_quarantine_checker }                                  from "../atomic_bot/core/handlers/schedulers/tag_quarantine_checker"
 import { load_middleman_tickets_on_startup }                             from "../atomic_bot/core/handlers/schedulers/load_middleman_tickets"
 import { start_share_settings_forum_scheduler }                          from "../atomic_bot/core/handlers/schedulers/share_settings_forum"
-import * as share_settings                                               from "../atomic_bot/core/handlers/shared/controller/share_settings_controller"
+import * as share_settings                                               from "@atomic/modules/share_settings/controller"
 import { recover_active_sessions }                                       from "@shared/controllers/staff_voice_controller"
 
 config()

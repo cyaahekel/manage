@@ -1,27 +1,31 @@
+// - 提问员工模态框处理器 - \
+// - ask staff modal handler - \
+
 import { ModalSubmitInteraction } from "discord.js"
-import { ModalHandler }           from "@shared/types/interaction"
-import { api }                    from "@shared/utils"
-import { build_question_panel, ask_channel_id } from "@atomic/modules/ask/commands/ask"
+import { post_question }          from "@atomic/modules/ask/controller"
+import { ask_channel_id }         from "@atomic/modules/ask/commands/ask"
 
-export const modal: ModalHandler = {
-  custom_id: "ask_staff_modal",
-  async execute(interaction: ModalSubmitInteraction) {
-    await interaction.deferReply({ flags: 64 })
+export async function handle_ask_staff_modal(interaction: ModalSubmitInteraction): Promise<void> {
+  await interaction.deferReply({ ephemeral: true })
 
-    const question   = interaction.fields.getTextInputValue("ask_question").trim()
-    const user       = interaction.user
-    const user_avatar = user.displayAvatarURL({ extension: "png", size: 128 })
+  const question    = interaction.fields.getTextInputValue("question")
+  const user        = interaction.user
+  const user_avatar = user.displayAvatarURL({ extension: "png", size: 128 })
 
-    const message  = build_question_panel(user.id, user_avatar, question, true)
-    const response = await api.send_components_v2(ask_channel_id, api.get_token(), message)
+  const result = await post_question({
+    client       : interaction.client,
+    user_id      : user.id,
+    user_avatar,
+    question,
+    channel_id   : ask_channel_id,
+    show_buttons : true,
+  })
 
-    if (response.error || !response.id) {
-      await interaction.editReply({ content: "Failed to post your question. Please try again." })
-      return
-    }
-
-    await interaction.editReply({
-      content: "Your question has been posted! Staff will answer it shortly.",
+  if (result.success) {
+    await interaction.editReply({ 
+      content: "Your question has been sent! Staff can click 'Answer' to create a thread." 
     })
-  },
+  } else {
+    await interaction.editReply({ content: result.error || "Failed to send your question." })
+  }
 }

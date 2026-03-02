@@ -1,7 +1,7 @@
 import { Client }          from "discord.js"
 import { logger }          from "@shared/utils"
 import { log_error }       from "@shared/utils/error_logger"
-import * as share_settings from "@atomic/core/handlers/shared/controller/share_settings_controller"
+import * as share_settings from "@atomic/modules/share_settings/controller"
 
 const log                        = logger.create_logger("share_settings_forum")
 const __forum_update_interval_ms = 15000

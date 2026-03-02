@@ -21,7 +21,7 @@ export interface OpenMiddlemanTicketOptions {
   interaction  : UserSelectMenuInteraction | ModalSubmitInteraction
   range_id     : string
   partner_id   : string
-  transaction  : TransactionDetails
+  transaction? : TransactionDetails
 }
 
 // - OPEN MIDDLEMAN TICKET RESULT - \\

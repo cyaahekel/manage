@@ -63,7 +63,8 @@ export async function open_middleman_ticket(options: OpenMiddlemanTicketOptions)
   const user_id            = interaction.user.id
   const existing_thread_id = get_user_open_ticket(ticket_type, user_id)
 
-  const { penjual_id, pembeli_id } = transaction
+  const penjual_id = transaction?.penjual_id || user_id
+  const pembeli_id = transaction?.pembeli_id || partner_id
 
   // - CHECK MAX TICKET LIMIT PER USER (5 TICKETS) - \\
   const unique_parties = [...new Set([user_id, penjual_id, pembeli_id])]
@@ -122,7 +123,7 @@ export async function open_middleman_ticket(options: OpenMiddlemanTicketOptions)
     set_ticket(thread.id, ticket_data)
     set_user_open_ticket(ticket_type, user_id, thread.id)
 
-    const fee_label = __fee_labels[transaction.fee_oleh] ?? transaction.fee_oleh
+    const fee_label = transaction ? (__fee_labels[transaction.fee_oleh] ?? transaction.fee_oleh) : "-"
 
     const welcome_message = component.build_message({
       components: [
@@ -140,8 +141,8 @@ export async function open_middleman_ticket(options: OpenMiddlemanTicketOptions)
               ``,
               `- Penjual : <@${penjual_id}>`,
               `- Pembeli : <@${pembeli_id}>`,
-              `- Jenis Barang yang Dijual : ${transaction.jenis}`,
-              `- Harga Barang yang Dijual : Rp. ${transaction.harga}`,
+              `- Jenis Barang yang Dijual : ${transaction?.jenis ?? "-"}`,
+              `- Harga Barang yang Dijual : Rp. ${transaction?.harga ?? "-"}`,
               `- Fee oleh : ${fee_label}`,
             ]),
             component.divider(2),

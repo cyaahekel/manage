@@ -5,7 +5,7 @@ import {
 import { Command }        from "@shared/types/command"
 import { api }            from "@shared/utils"
 import { log_error }      from "@shared/utils/error_logger"
-import * as share_settings from "../../../core/handlers/shared/controller/share_settings_controller"
+import * as share_settings from "../controller"
 
 /**
  * - EXECUTE SETTINGS LEADERBOARD COMMAND - \\
