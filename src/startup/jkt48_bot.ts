@@ -1,22 +1,24 @@
 import { Client, Collection, GatewayIntentBits, ActivityType, REST, Routes } from "discord.js"
-import { config }                                                            from "dotenv"
-import { Command }                                                           from "@shared/types/command"
-import { log_error }                                                         from "@shared/utils/error_logger"
-import { db }                                                                from "@shared/utils"
-import { readdirSync }                                                       from "fs"
-import { join }                                                              from "path"
-import { start_idn_live_scheduler }                                          from "@jkt48/core/schedulers/idn_live_monitor"
-import { handle_check_on_live_button }                                       from "@jkt48/core/buttons/check_on_live"
-import { handle_history_live_button }                                        from "@jkt48/core/buttons/history_live"
+import { config } from "dotenv"
+import { Command } from "@shared/types/command"
+import { log_error } from "@shared/utils/error_logger"
+import { db } from "@shared/utils"
+import { readdirSync } from "fs"
+import { join } from "path"
+import { start_idn_live_scheduler } from "@jkt48/core/schedulers/idn_live_monitor"
+import { handle_check_on_live_button } from "@jkt48/core/buttons/check_on_live"
+import { handle_history_live_button } from "@jkt48/core/buttons/history_live"
+import { run_middleware } from "../middleware/runner"
+import { error_handler } from "../middleware/error_handler"
 
 config()
 
 const is_production = process.env.NODE_ENV === "production"
 if (is_production) {
-  console.log = () => {}
+  console.log = () => { }
 }
 
-const jkt48_token     = process.env.JKT48_DISCORD_TOKEN!
+const jkt48_token = process.env.JKT48_DISCORD_TOKEN!
 const jkt48_client_id = process.env.JKT48_CLIENT_ID!
 
 if (!jkt48_token || !jkt48_client_id) {
@@ -30,10 +32,10 @@ const client = new Client({
     GatewayIntentBits.GuildMessages,
   ],
   presence: {
-    status    : "dnd",
+    status: "dnd",
     activities: [{
-      name : "Atomic-7",
-      type : ActivityType.Custom,
+      name: "Atomic-7",
+      type: ActivityType.Custom,
       state: "Made with ❤️ by Atomic-7",
     }],
   },
@@ -43,7 +45,7 @@ client.commands = new Collection()
 
 let typing_interval: NodeJS.Timeout | null = null
 
-const __persistent_typing_channel_id  = "1257034070035267636"
+const __persistent_typing_channel_id = "1257034070035267636"
 const __persistent_typing_interval_ms = 8000
 
 /**
@@ -69,7 +71,7 @@ async function start_persistent_typing(): Promise<void> {
     } catch (error) {
       console.error("[ - JKT48 - ] Failed to send typing:", error)
       await log_error(client, error as Error, "persistent_typing_loop_jkt48", {
-        channel_id : __persistent_typing_channel_id,
+        channel_id: __persistent_typing_channel_id,
       })
     }
   }
@@ -92,8 +94,8 @@ async function load_jkt48_commands(): Promise<object[]> {
 
   for (const file of files) {
     const file_path = join(jkt48_path, file)
-    const imported  = await import(file_path)
-    const command   = imported.default || imported.command
+    const imported = await import(file_path)
+    const command = imported.default || imported.command
 
     if (!command?.data) {
       console.warn(`[ - JKT48 - ] Skipping ${file} - no valid command export`)
@@ -176,9 +178,9 @@ client.on("interactionCreate", async (interaction) => {
     } catch (error) {
       console.error("[ - JKT48 - ] Button error:", error)
       await log_error(client, error as Error, `JKT48 Button: ${interaction.customId}`, {
-        user    : interaction.user.tag,
-        guild   : interaction.guild?.name || "DM",
-        channel : interaction.channel?.id,
+        user: interaction.user.tag,
+        guild: interaction.guild?.name || "DM",
+        channel: interaction.channel?.id,
       })
     }
   }
@@ -188,40 +190,26 @@ client.on("interactionCreate", async (interaction) => {
   const command = client.commands.get(interaction.commandName)
   if (!command) return
 
-  try {
+  const ctx = { interaction, client }
+  await run_middleware([error_handler], ctx, async () => {
     await command.execute(interaction)
-  } catch (error) {
-    console.error("[ - JKT48 - ] Command error:", error)
-
-    await log_error(client, error as Error, `JKT48 Command: ${interaction.commandName}`, {
-      user    : interaction.user.tag,
-      guild   : interaction.guild?.name || "DM",
-      channel : interaction.channel?.id,
-    })
-
-    const content = "There was an error executing this command."
-    if (interaction.replied || interaction.deferred) {
-      await interaction.followUp({ content, ephemeral: true })
-    } else {
-      await interaction.reply({ content, ephemeral: true })
-    }
-  }
+  })
 })
 
 // - ERROR HANDLERS - \\
 client.on("error", (error) => {
   console.error("[ - JKT48 - ] Client error:", error)
-  log_error(client, error, "JKT48 Client Error", {}).catch(() => {})
+  log_error(client, error, "JKT48 Client Error", {}).catch(() => { })
 })
 
 process.on("unhandledRejection", (error: Error) => {
   console.error("[ - JKT48 - ] Unhandled rejection:", error)
-  log_error(client, error, "JKT48 Unhandled Rejection", {}).catch(() => {})
+  log_error(client, error, "JKT48 Unhandled Rejection", {}).catch(() => { })
 })
 
 process.on("uncaughtException", (error: Error) => {
   console.error("[ - JKT48 - ] Uncaught exception:", error)
-  log_error(client, error, "JKT48 Uncaught Exception", {}).catch(() => {})
+  log_error(client, error, "JKT48 Uncaught Exception", {}).catch(() => { })
 })
 
 // - LOGIN - \\

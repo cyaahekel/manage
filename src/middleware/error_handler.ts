@@ -1,0 +1,45 @@
+import { log_error }                           from "@shared/utils/error_logger"
+import { component }                           from "@shared/utils"
+import { MiddlewareFunction, MiddlewareContext, NextFunction } from "./runner"
+
+/**
+ * @description Global error handling middleware for command executions
+ * @param {MiddlewareContext} ctx - Context containing interaction and client
+ * @param {NextFunction} next - Next middleware function
+ * @returns {Promise<void>}
+ */
+export const error_handler: MiddlewareFunction = async (ctx: MiddlewareContext, next: NextFunction): Promise<void> => {
+  const { interaction, client } = ctx
+
+  try {
+    await next()
+  } catch (error) {
+    console.error(`[ - COMMAND ERROR - ] Command: ${interaction.commandName} Error:`, error)
+
+    await log_error(client, error as Error, `Command: ${interaction.commandName}`, {
+      user   : interaction.user.tag,
+      guild  : interaction.guild?.name || "DM",
+      channel: interaction.channel?.id,
+    }).catch(() => {})
+
+    const err_message = component.build_message({
+      components: [
+        component.container({
+          components: [
+            component.text("There was an error executing this command."),
+          ],
+        }),
+      ],
+    })
+
+    try {
+      if (interaction.replied || interaction.deferred) {
+        await interaction.followUp({ ...err_message, ephemeral: true })
+      } else {
+        await interaction.reply({ ...err_message, ephemeral: true })
+      }
+    } catch (reply_err) {
+      console.error("[ - ERROR HANDLER - ] Failed to send error message to user:", reply_err)
+    }
+  }
+}

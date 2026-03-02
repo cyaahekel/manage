@@ -26,6 +26,9 @@ import {
   handle_ticket_user_select,
 }                                                            from "@shared/database/unified_ticket"
 
+import { run_middleware }                                    from "../../../middleware/runner"
+import { error_handler }                                     from "../../../middleware/error_handler"
+
 // - 字符串选择菜单处理器，按功能模块分组 - \\
 // - string select menu handlers, grouped by feature - \\
 import * as stats_select            from "@atomic/modules/stats/interactions/select_menus"
@@ -731,26 +734,8 @@ export async function handle_interaction(
     return
   }
 
-  try {
+  const ctx = { interaction, client }
+  await run_middleware([error_handler], ctx, async () => {
     await command.execute(interaction)
-  } catch (error) {
-    console.log("[ - COMMAND ERROR - ] error:", error)
-    await log_error(client, error as Error, `Command: ${interaction.commandName}`, {
-      user   : interaction.user.tag,
-      guild  : interaction.guild?.name || "DM",
-      channel: interaction.channel?.id,
-    })
-    const err_message = component.build_message({
-      components: [
-        component.container({
-          components: [component.text("There was an error executing this command.")],
-        }),
-      ],
-    })
-    if (interaction.replied || interaction.deferred) {
-      await interaction.followUp({ ...err_message, ephemeral: true })
-    } else {
-      await interaction.reply({ ...err_message, ephemeral: true })
-    }
-  }
+  })
 }

@@ -1,24 +1,26 @@
 import { Client, Collection, GatewayIntentBits, ActivityType, REST, Routes, Message, Partials } from "discord.js"
-import { config }                                                                    from "dotenv"
-import { Command }                                                                   from "@shared/types/command"
-import { log_error }                                                                 from "@shared/utils/error_logger"
-import { db }                                                                        from "@shared/utils"
-import { readdirSync }                                                               from "fs"
-import { join }                                                                      from "path"
-import { handle_auto_bypass, recover_stuck_bypass_sessions }                         from "@bypass/core/events/auto_bypass"
-import { handle_bypass_mobile_copy }                                                 from "@bypass/core/buttons/bypass_mobile_copy"
-import { handle_bypass_request_log }                                                 from "@bypass/core/buttons/bypass_request_log"
-import { handle_bypass_support_type_select }                                         from "@bypass/core/select_menus/bypass_support_type_select"
+import { config } from "dotenv"
+import { Command } from "@shared/types/command"
+import { log_error } from "@shared/utils/error_logger"
+import { db } from "@shared/utils"
+import { readdirSync } from "fs"
+import { join } from "path"
+import { handle_auto_bypass, recover_stuck_bypass_sessions } from "@bypass/core/events/auto_bypass"
+import { handle_bypass_mobile_copy } from "@bypass/core/buttons/bypass_mobile_copy"
+import { handle_bypass_request_log } from "@bypass/core/buttons/bypass_request_log"
+import { handle_bypass_support_type_select } from "@bypass/core/select_menus/bypass_support_type_select"
+import { run_middleware } from "../middleware/runner"
+import { error_handler } from "../middleware/error_handler"
 
 config()
 
 const is_production = process.env.NODE_ENV === "production"
 if (is_production) {
-  console.log = () => {}
+  console.log = () => { }
 }
 
-const bypass_token           = process.env.BYPASS_DISCORD_TOKEN!
-const bypass_client_id       = process.env.BYPASS_CLIENT_ID!
+const bypass_token = process.env.BYPASS_DISCORD_TOKEN!
+const bypass_client_id = process.env.BYPASS_CLIENT_ID!
 
 if (!bypass_token || !bypass_client_id) {
   console.warn("[ - BYPASS - ] Token not configured, skipping bypass bot startup")
@@ -40,10 +42,10 @@ const client = new Client({
     Partials.GuildMember,
   ],
   presence: {
-    status    : "dnd",
+    status: "dnd",
     activities: [{
-      name : "Atomic-7",
-      type : ActivityType.Custom,
+      name: "Atomic-7",
+      type: ActivityType.Custom,
       state: "Made with ❤️ by Atomic-7",
     }],
   },
@@ -56,8 +58,8 @@ client.commands = new Collection()
  * @returns Array of command data for registration
  */
 async function load_bypass_commands(client: Client & { commands: Collection<string, Command> }): Promise<object[]> {
-  const commands_data: object[]  = []
-  const modules_path             = join(__dirname, "../bypass_bot/modules")
+  const commands_data: object[] = []
+  const modules_path = join(__dirname, "../bypass_bot/modules")
 
   const items = readdirSync(modules_path, { withFileTypes: true })
 
@@ -65,8 +67,8 @@ async function load_bypass_commands(client: Client & { commands: Collection<stri
     if (!item.isFile() || (!item.name.endsWith(".ts") && !item.name.endsWith(".js"))) continue
 
     const item_path = join(modules_path, item.name)
-    const imported  = await import(item_path)
-    const command   = imported.default || imported.command
+    const imported = await import(item_path)
+    const command = imported.default || imported.command
 
     if (!command?.data) {
       console.warn(`[ - BYPASS - ] Skipping ${item.name} - no valid command export`)
@@ -135,9 +137,9 @@ client.on("interactionCreate", async (interaction) => {
     } catch (error) {
       console.error("[ - BYPASS - ] Button error:", error)
       await log_error(client, error as Error, `Bypass Button: ${interaction.customId}`, {
-        user    : interaction.user.tag,
-        guild   : interaction.guild?.name || "DM",
-        channel : interaction.channel?.id,
+        user: interaction.user.tag,
+        guild: interaction.guild?.name || "DM",
+        channel: interaction.channel?.id,
       })
     }
   }
@@ -152,9 +154,9 @@ client.on("interactionCreate", async (interaction) => {
     } catch (error) {
       console.error("[ - BYPASS - ] Select menu error:", error)
       await log_error(client, error as Error, `Bypass Select: ${interaction.customId}`, {
-        user    : interaction.user.tag,
-        guild   : interaction.guild?.name || "DM",
-        channel : interaction.channel?.id,
+        user: interaction.user.tag,
+        guild: interaction.guild?.name || "DM",
+        channel: interaction.channel?.id,
       })
     }
   }
@@ -165,24 +167,10 @@ client.on("interactionCreate", async (interaction) => {
   const command = client.commands.get(interaction.commandName)
   if (!command) return
 
-  try {
+  const ctx = { interaction, client }
+  await run_middleware([error_handler], ctx, async () => {
     await command.execute(interaction)
-  } catch (error) {
-    console.error("[ - BYPASS - ] Command error:", error)
-
-    await log_error(client, error as Error, `Bypass Command: ${interaction.commandName}`, {
-      user    : interaction.user.tag,
-      guild   : interaction.guild?.name || "DM",
-      channel : interaction.channel?.id,
-    })
-
-    const content = "There was an error executing this command."
-    if (interaction.replied || interaction.deferred) {
-      await interaction.followUp({ content, ephemeral: true })
-    } else {
-      await interaction.reply({ content, ephemeral: true })
-    }
-  }
+  })
 })
 
 // - MESSAGE CREATE EVENT (AUTO BYPASS) - \\
@@ -194,17 +182,17 @@ client.on("messageCreate", async (message: Message) => {
 // - ERROR HANDLERS - \\
 client.on("error", (error) => {
   console.error("[ - BYPASS - ] Client error:", error)
-  log_error(client, error, "Bypass Client Error", {}).catch(() => {})
+  log_error(client, error, "Bypass Client Error", {}).catch(() => { })
 })
 
 process.on("unhandledRejection", (error: Error) => {
   console.error("[ - BYPASS - ] Unhandled rejection:", error)
-  log_error(client, error, "Bypass Unhandled Rejection", {}).catch(() => {})
+  log_error(client, error, "Bypass Unhandled Rejection", {}).catch(() => { })
 })
 
 process.on("uncaughtException", (error: Error) => {
   console.error("[ - BYPASS - ] Uncaught exception:", error)
-  log_error(client, error, "Bypass Uncaught Exception", {}).catch(() => {})
+  log_error(client, error, "Bypass Uncaught Exception", {}).catch(() => { })
 })
 
 // - LOGIN - \\
