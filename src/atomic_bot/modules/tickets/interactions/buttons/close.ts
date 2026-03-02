@@ -1,5 +1,6 @@
 import { ButtonInteraction, ThreadChannel } from "discord.js"
-import { close_ticket } from "@shared/database/unified_ticket"
+import { close_ticket }  from "@shared/database/unified_ticket"
+import { ButtonHandler } from "@shared/types/interaction"
 
 export async function handle(interaction: ButtonInteraction) {
   if (interaction.customId !== "priority_close") return false
@@ -21,4 +22,9 @@ export async function handle(interaction: ButtonInteraction) {
 
   await interaction.editReply({ content: "Ticket closed." })
   return true
+}
+
+export const button: ButtonHandler = {
+  custom_id: "priority_close",
+  execute: handle,
 }

@@ -1,5 +1,6 @@
 import { ButtonInteraction }  from "discord.js"
 import { component, time, db } from "@shared/utils"
+import { ButtonHandler }        from "@shared/types/interaction"
 
 interface reminder_data {
   _id?       : any
@@ -79,4 +80,9 @@ export async function handle_reminder_cancel(interaction: ButtonInteraction): Pr
       ephemeral: true,
     }).catch(() => {})
   }
+}
+
+export const button: ButtonHandler = {
+  custom_id: "reminder_cancel",
+  execute: handle_reminder_cancel,
 }

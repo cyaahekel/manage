@@ -1,6 +1,7 @@
 import { ButtonInteraction } from "discord.js"
-import { modal } from "@shared/utils"
+import { modal }             from "@shared/utils"
 import { get_ticket_config } from "@shared/database/unified_ticket"
+import { ButtonHandler }     from "@shared/types/interaction"
 
 /**
  * @description Shows modal to input close reason for middleman ticket
@@ -37,4 +38,9 @@ export async function handle_middleman_close_reason(interaction: ButtonInteracti
 
   await interaction.showModal(close_modal)
   return true
+}
+
+export const button: ButtonHandler = {
+  custom_id: /^middleman_close_reason:/,
+  execute: handle_middleman_close_reason,
 }

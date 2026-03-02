@@ -1,5 +1,6 @@
-import { ButtonInteraction }         from "discord.js"
+import { ButtonInteraction }              from "discord.js"
 import { approve_loa, has_loa_permission } from "../../controller"
+import { ButtonHandler }                   from "@shared/types/interaction"
 
 export async function handle_loa_approve(interaction: ButtonInteraction): Promise<void> {
   if (!interaction.guild || !interaction.member) {
@@ -35,4 +36,9 @@ export async function handle_loa_approve(interaction: ButtonInteraction): Promis
   }
 
   await interaction.update(result.message!)
+}
+
+export const button: ButtonHandler = {
+  custom_id: "loa_approve",
+  execute: handle_loa_approve,
 }

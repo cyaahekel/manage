@@ -1,5 +1,6 @@
 import { ButtonInteraction } from "discord.js"
 import { modal }             from "@shared/utils"
+import { ButtonHandler }     from "@shared/types/interaction"
 
 export async function handle_loa_request(interaction: ButtonInteraction): Promise<void> {
   const loa_modal = modal.create_modal(
@@ -32,4 +33,9 @@ export async function handle_loa_request(interaction: ButtonInteraction): Promis
   )
 
   await interaction.showModal(loa_modal)
+}
+
+export const button: ButtonHandler = {
+  custom_id: "loa_request",
+  execute: handle_loa_request,
 }

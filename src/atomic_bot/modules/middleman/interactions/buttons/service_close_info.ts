@@ -1,5 +1,6 @@
 import { ButtonInteraction } from "discord.js"
-import { api, component } from "@shared/utils"
+import { api, component }    from "@shared/utils"
+import { ButtonHandler }     from "@shared/types/interaction"
 
 /**
  * Handle button click for middleman service close info
@@ -30,4 +31,9 @@ export async function handle_middleman_service_close_info(interaction: ButtonInt
   })
 
   await api.edit_deferred_reply(interaction, info_message)
+}
+
+export const button: ButtonHandler = {
+  custom_id: "midman_service_close_info",
+  execute: handle_middleman_service_close_info,
 }

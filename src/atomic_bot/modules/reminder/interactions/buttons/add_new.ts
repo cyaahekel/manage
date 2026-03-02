@@ -1,5 +1,6 @@
 import { ButtonInteraction } from "discord.js"
 import { modal }             from "@shared/utils"
+import { ButtonHandler }     from "@shared/types/interaction"
 
 export async function handle_reminder_add_new(interaction: ButtonInteraction): Promise<void> {
   const reminder_modal = modal.create_modal(
@@ -24,4 +25,9 @@ export async function handle_reminder_add_new(interaction: ButtonInteraction): P
   )
 
   await interaction.showModal(reminder_modal)
+}
+
+export const button: ButtonHandler = {
+  custom_id: "reminder_add_new",
+  execute: handle_reminder_add_new,
 }

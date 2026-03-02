@@ -1,6 +1,7 @@
 import { ButtonInteraction } from "discord.js"
 import * as booster_manager  from "@shared/database/managers/booster_manager"
 import { component, api }    from "@shared/utils"
+import { ButtonHandler }     from "@shared/types/interaction"
 
 export async function handle(interaction: ButtonInteraction) {
   if (!interaction.customId.startsWith("booster_claim_")) return false
@@ -83,4 +84,9 @@ export async function handle(interaction: ButtonInteraction) {
   })
 
   return true
+}
+
+export const button: ButtonHandler = {
+  custom_id: /^booster_claim_/,
+  execute: handle,
 }

@@ -1,5 +1,6 @@
-import { ButtonInteraction }       from "discord.js"
+import { ButtonInteraction }            from "discord.js"
 import { end_loa, has_loa_permission } from "../../controller"
+import { ButtonHandler }               from "@shared/types/interaction"
 
 export async function handle_loa_end(interaction: ButtonInteraction): Promise<void> {
   if (!interaction.guild || !interaction.member) {
@@ -40,4 +41,9 @@ export async function handle_loa_end(interaction: ButtonInteraction): Promise<vo
       ephemeral: true,
     }).catch(() => {})
   }
+}
+
+export const button: ButtonHandler = {
+  custom_id: "loa_end",
+  execute: handle_loa_end,
 }

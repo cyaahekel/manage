@@ -1,5 +1,6 @@
 import { ButtonInteraction }    from "discord.js"
 import { get_reminder_list } from "../../controller"
+import { ButtonHandler }     from "@shared/types/interaction"
 
 export async function handle_reminder_list(interaction: ButtonInteraction): Promise<void> {
   const result = await get_reminder_list({
@@ -19,4 +20,9 @@ export async function handle_reminder_list(interaction: ButtonInteraction): Prom
     ...result.message,
     flags: (result.message!.flags ?? 0) | 64,
   }).catch(() => {})
+}
+
+export const button: ButtonHandler = {
+  custom_id: "reminder_list",
+  execute: handle_reminder_list,
 }

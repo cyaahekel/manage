@@ -2,6 +2,7 @@ import { ButtonInteraction, ThreadChannel, TextChannel } from "discord.js"
 import { close_ticket, get_ticket_config } from "@shared/database/unified_ticket"
 import { cancel_middleman_ticket, get_middleman_ticket } from "@shared/database/managers/middleman_manager"
 import { api } from "@shared/utils"
+import { ButtonHandler } from "@shared/types/interaction"
 
 /**
  * @description Handles direct close for middleman ticket
@@ -59,4 +60,9 @@ export async function handle_middleman_close(interaction: ButtonInteraction): Pr
 
   await interaction.editReply({ content: "Ticket closed successfully." })
   return true
+}
+
+export const button: ButtonHandler = {
+  custom_id: /^middleman_close:/,
+  execute: handle_middleman_close,
 }

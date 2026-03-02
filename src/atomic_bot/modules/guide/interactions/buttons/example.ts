@@ -1,6 +1,7 @@
 import { ButtonInteraction } from "discord.js"
-import { guide_buttons } from "../../../../modules/setup/commands/guide_panel"
-import { api, component } from "@shared/utils"
+import { guide_buttons }     from "../../../../modules/setup/commands/guide_panel"
+import { api, component }    from "@shared/utils"
+import { ButtonHandler }     from "@shared/types/interaction"
 
 export async function handle_guide_button(interaction: ButtonInteraction) {
   const parts = interaction.customId.split("_")
@@ -30,4 +31,9 @@ export async function handle_guide_button(interaction: ButtonInteraction) {
   })
 
   await api.edit_deferred_reply(interaction, message)
+}
+
+export const button: ButtonHandler = {
+  custom_id: /^guide_btn_/,
+  execute: handle_guide_button,
 }

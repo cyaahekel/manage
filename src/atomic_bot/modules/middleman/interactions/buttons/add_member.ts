@@ -1,6 +1,7 @@
 import { ButtonInteraction, ThreadChannel } from "discord.js"
-import { component } from "@shared/utils"
-import { get_ticket_config } from "@shared/database/unified_ticket"
+import { component }          from "@shared/utils"
+import { get_ticket_config }  from "@shared/database/unified_ticket"
+import { ButtonHandler }      from "@shared/types/interaction"
 
 /**
  * @description Shows user select to add member to middleman ticket
@@ -47,4 +48,9 @@ export async function handle_middleman_add_member(interaction: ButtonInteraction
 
   await interaction.editReply(message)
   return true
+}
+
+export const button: ButtonHandler = {
+  custom_id: /^middleman_add_member:/,
+  execute: handle_middleman_add_member,
 }

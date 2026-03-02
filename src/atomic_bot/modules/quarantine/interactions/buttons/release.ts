@@ -1,6 +1,7 @@
 import { ButtonInteraction, GuildMember } from "discord.js"
 import { release_quarantine }             from "../../controller"
 import { component }                      from "@shared/utils"
+import { ButtonHandler }                  from "@shared/types/interaction"
 
 /**
  * @description Handle early release from quarantine button
@@ -66,4 +67,9 @@ export async function handle_quarantine_release(interaction: ButtonInteraction):
   })
 
   await interaction.update(release_message)
+}
+
+export const button: ButtonHandler = {
+  custom_id: /^quarantine_release:/,
+  execute: handle_quarantine_release,
 }

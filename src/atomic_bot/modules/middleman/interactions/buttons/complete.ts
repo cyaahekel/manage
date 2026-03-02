@@ -9,7 +9,8 @@ import {
   get_middleman_ticket,
 } from "@shared/database/managers/middleman_manager"
 import { component, time, api, db } from "@shared/utils"
-import { log_error } from "@shared/utils/error_logger"
+import { log_error }                 from "@shared/utils/error_logger"
+import { ButtonHandler }             from "@shared/types/interaction"
 
 interface TransactionRange {
   label : string
@@ -143,4 +144,9 @@ export async function handle_middleman_complete(interaction: ButtonInteraction):
 
   await interaction.editReply({ content: "✅ Transaction completed! Ticket closed." })
   return true
+}
+
+export const button: ButtonHandler = {
+  custom_id: /^middleman_complete:/,
+  execute: handle_middleman_complete,
 }
