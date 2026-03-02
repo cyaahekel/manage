@@ -187,7 +187,7 @@ export async function open_ticket(options: OpenTicketOptions): Promise<void> {
     }
   }
 
-  await thread.members.add(user_id)
+  await thread.members.add(user_id).catch(() => {})
 
   const ticket_id = generate_ticket_id()
   const timestamp = time.now()
@@ -306,7 +306,7 @@ export async function open_ticket(options: OpenTicketOptions): Promise<void> {
         })
         .catch(() => { })
 
-      await save_ticket_immediate(thread.id)
+      await save_ticket_immediate(thread.id).catch(() => {})
 
       const reply_message = component.build_message({
         components: [
@@ -324,7 +324,9 @@ export async function open_ticket(options: OpenTicketOptions): Promise<void> {
         ],
       })
 
-      api.edit_deferred_reply(interaction, reply_message)
+      await api.edit_deferred_reply(interaction, reply_message).catch(async () => {
+        await interaction.editReply({ content: `Ticket created! <#${thread.id}>` }).catch(() => {})
+      })
       return
     } catch {
       // - CC PARSE FAILED, SEND GENERIC WELCOME - \\
@@ -524,7 +526,7 @@ export async function open_ticket(options: OpenTicketOptions): Promise<void> {
   await Promise.allSettled(parallel_tasks)
 
   // - SAVE IMMEDIATELY TO PREVENT RACE CONDITION - \\
-  await save_ticket_immediate(thread.id)
+  await save_ticket_immediate(thread.id).catch(() => {})
 
   const reply_message = component.build_message({
     components: [
@@ -542,6 +544,7 @@ export async function open_ticket(options: OpenTicketOptions): Promise<void> {
     ],
   })
 
-  // - NO AWAIT FOR FASTER RESPONSE - \\
-  api.edit_deferred_reply(interaction, reply_message)
+  await api.edit_deferred_reply(interaction, reply_message).catch(async () => {
+    await interaction.editReply({ content: `Ticket created! <#${thread.id}>` }).catch(() => {})
+  })
 }

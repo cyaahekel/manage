@@ -460,6 +460,14 @@ export async function handle_interaction(
         await av_toggle.handle_av_toggle(interaction)
         return
       }
+
+      // - FALLBACK: UNKNOWN BUTTON - ALWAYS ACKNOWLEDGE TO PREVENT INTERACTION FAILED - \\
+      if (!interaction.replied && !interaction.deferred) {
+        await interaction.reply({
+          content  : "This button is no longer active. Please use the updated panel.",
+          ephemeral: true,
+        }).catch(() => {})
+      }
     } catch (err) {
       console.log("[button] Error:", err)
       await log_error(client, err as Error, "Button", {
@@ -467,7 +475,10 @@ export async function handle_interaction(
         user     : interaction.user.tag,
         guild    : interaction.guild?.name || "DM",
         channel  : interaction.channel?.id,
-      });
+      })
+      if (!interaction.replied && !interaction.deferred) {
+        await interaction.reply({ content: "An error occurred.", ephemeral: true }).catch(() => {})
+      }
     }
   }
 
