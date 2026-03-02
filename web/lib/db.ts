@@ -293,3 +293,119 @@ export async function delete_bypass_logs(guild_id: string): Promise<number> {
 export function get_pool(): Pool {
   return pool
 }
+
+export async function get_dashboard_stats() {
+  const client = await pool.connect()
+  try {
+    const salaries_result = await client.query('SELECT SUM(total_salary) as total FROM work_reports')
+    const total_salaries = Number(salaries_result.rows[0]?.total ?? 0)
+    const earnings_result = await client.query('SELECT SUM(amount) as total FROM work_logs')
+    const total_earnings = Number(earnings_result.rows[0]?.total ?? 0)
+    const work_logs_result = await client.query('SELECT COUNT(*) as total FROM work_logs')
+    const total_work_logs = Number(work_logs_result.rows[0]?.total ?? 0)
+    const transcripts_result = await client.query('SELECT COUNT(*) as total FROM ticket_transcripts')
+    const total_transcripts = Number(transcripts_result.rows[0]?.total ?? 0)
+    return { total_salaries, total_earnings, total_work_logs, total_transcripts }
+  } catch (error) {
+    return { total_salaries: 0, total_earnings: 0, total_work_logs: 0, total_transcripts: 0 }
+  } finally {
+    client.release()
+  }
+}
+
+export async function get_chart_data() {
+  const client = await pool.connect()
+  try {
+    const result = await client.query(`
+      SELECT TO_CHAR(to_timestamp(created_at::numeric), 'Mon') as month,
+             date_trunc('month', to_timestamp(created_at::numeric)) as sort_date,
+             COUNT(CASE WHEN type = 'ticket' THEN 1 END)::int as tickets,
+             COUNT(CASE WHEN type = 'whitelist' THEN 1 END)::int as whitelists
+      FROM work_logs
+      GROUP BY TO_CHAR(to_timestamp(created_at::numeric), 'Mon'), date_trunc('month', to_timestamp(created_at::numeric))
+      ORDER BY date_trunc('month', to_timestamp(created_at::numeric)) ASC
+      LIMIT 12
+    `)
+    
+    // As salaries (jumlah payout) is much smaller than ticket count,
+    // let's fetch it from work_reports separately so we can merge it.
+    const salaryResult = await client.query(`
+      SELECT TO_CHAR(to_timestamp(last_work::numeric), 'Mon') as month,
+             COUNT(*)::int as salaries
+      FROM work_reports
+      GROUP BY TO_CHAR(to_timestamp(last_work::numeric), 'Mon')
+    `)
+    
+    const salaryMap = {};
+    salaryResult.rows.forEach(r => {
+      salaryMap[r.month] = Number(r.salaries || 0);
+    });
+
+    return result.rows.map((row) => ({
+      month: row.month,
+      tickets: Number(row.tickets || 0),
+      whitelists: Number(row.whitelists || 0),
+      salaries: salaryMap[row.month] || 0
+    }))
+  } catch (error) {
+    return []
+  } finally {
+    client.release()
+  }
+}
+
+export async function get_top_staff() {
+  const client = await pool.connect()
+  try {
+    const result = await client.query(`
+      SELECT staff_name, SUM(amount::numeric) as total_earnings, COUNT(id) as total_jobs
+      FROM work_logs
+      GROUP BY staff_name
+      ORDER BY total_earnings DESC
+      LIMIT 5
+    `)
+    return result.rows.map(r => ({
+      ...r,
+      total_earnings: Number(r.total_earnings || 0),
+      total_jobs: Number(r.total_jobs || 0)
+    }))
+  } catch (error) {
+    return []
+  } finally {
+    client.release()
+  }
+}
+
+export interface WorkLogRow {
+  id: number
+  work_id: string
+  staff_id: string
+  staff_name: string
+  type: "ticket" | "whitelist"
+  thread_link: string
+  proof_link: string | null
+  amount: string
+  salary: string
+  week_number: number
+  year: number
+  date: string
+  created_at: string
+}
+
+export async function get_recent_work_logs(limit: number = 8): Promise<WorkLogRow[]> {
+  const client = await pool.connect()
+  try {
+    const result = await client.query(`
+      SELECT *
+      FROM work_logs
+      ORDER BY created_at::numeric DESC
+      LIMIT $1
+    `, [limit])
+    return result.rows || []
+  } catch (error) {
+    console.error("Error fetching work logs:", error)
+    return []
+  } finally {
+    client.release()
+  }
+}

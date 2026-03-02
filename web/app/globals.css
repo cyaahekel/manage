@@ -73,14 +73,13 @@
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
-  .theme {
-    --font-sans: var(--font-sans);
-  }
   * {
     @apply border-border outline-ring/50;
+    font-family: var(--font-geist-sans), GeistSans, ui-sans-serif, system-ui, sans-serif;
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-geist-sans), GeistSans, ui-sans-serif, system-ui, sans-serif;
   }
 }
 
