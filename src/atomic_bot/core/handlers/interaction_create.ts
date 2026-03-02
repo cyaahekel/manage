@@ -190,6 +190,10 @@ export async function handle_interaction(
         await middleman_select.handle_middleman_transaction_range_select(interaction)
         return
       }
+      if (interaction.customId.startsWith("middleman_fee_select:")) {
+        await middleman_select.handle_middleman_fee_select(interaction)
+        return
+      }
       if (interaction.customId.startsWith("share_settings_select:")) {
         await share_settings_select.handle_share_settings_select(interaction)
         return
@@ -218,7 +222,8 @@ export async function handle_interaction(
   if (interaction.isUserSelectMenu()) {
     try {
       if (await handle_ticket_user_select(interaction)) return
-      if (await middleman_select.handle_middleman_partner_select(interaction)) return
+      if (await middleman_select.handle_middleman_seller_select(interaction)) return
+      if (await middleman_select.handle_middleman_buyer_select(interaction)) return
       if (await middleman_select.handle_middleman_member_select(interaction)) return
       if (await tempvoice_user_select.handle_tempvoice_user_select(interaction)) return
     } catch (err) {

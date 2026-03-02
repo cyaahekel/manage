@@ -218,7 +218,7 @@ export async function approve_loa(options: approve_loa_options) {
     let original_nickname: string | null = null
 
     try {
-      const guild  = client.guilds.cache.get(guild_id)
+      const guild = await client.guilds.fetch(guild_id).catch(() => null)
       if (!guild) throw new Error("Guild not found")
 
       const member = await guild.members.fetch(loa.user_id)
@@ -399,7 +399,7 @@ export async function end_loa(options: end_loa_options) {
       }
     }
 
-    const guild = client.guilds.cache.get(guild_id)
+    const guild = await client.guilds.fetch(guild_id).catch(() => null)
     if (guild) {
       const member = await guild.members.fetch(loa.user_id).catch(() => null)
       if (member) {

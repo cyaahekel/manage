@@ -111,31 +111,24 @@ import "../atomic_bot/core/handlers/events/message/message_delete"
 /**
  * - JOIN VOICE CHANNEL WITH AUTO-RECONNECT - \\
  */
-function join_voice_channel(): void {
+async function join_voice_channel(): Promise<void> {
   const voice_channel_id = "1427737274983907408"
   const guild_id         = "1250337227582472243"
-  
+
   try {
     console.log(`[ - VOICE - ] Attempting to join voice channel ${voice_channel_id}`)
-    
-    const guild = client.guilds.cache.get(guild_id)
+
+    const guild = await client.guilds.fetch(guild_id).catch(() => null)
     if (!guild) {
       console.error(`[ - VOICE - ] Guild ${guild_id} not found!`)
-      setTimeout(() => join_voice_channel(), 5000)
+      setTimeout(() => { void join_voice_channel() }, 5000)
       return
     }
-    
-    const voice_channel = guild.channels.cache.get(voice_channel_id)
-    if (!voice_channel) {
-      console.error(`[ - VOICE - ] Voice channel ${voice_channel_id} not found!`)
-      setTimeout(() => join_voice_channel(), 5000)
-      return
-    }
-    
+
     if (voice_connection) {
       voice_connection.destroy()
     }
-    
+
     voice_connection = joinVoiceChannel({
       channelId      : voice_channel_id,
       guildId        : guild_id,
@@ -143,25 +136,25 @@ function join_voice_channel(): void {
       selfDeaf       : true,
       selfMute       : false,
     })
-    
-    voice_connection.on(VoiceConnectionStatus.Disconnected, async () => {
-      console.log(`[ - VOICE - ] Disconnected from voice channel, attempting to reconnect...`)
-      setTimeout(() => join_voice_channel(), 3000)
+
+    voice_connection.on(VoiceConnectionStatus.Disconnected, () => {
+      console.log(`[ - VOICE - ] Disconnected, reconnecting...`)
+      setTimeout(() => { void join_voice_channel() }, 3000)
     })
-    
+
     voice_connection.on(VoiceConnectionStatus.Destroyed, () => {
       console.log(`[ - VOICE - ] Connection destroyed`)
     })
-    
+
     voice_connection.on("error", (error) => {
       console.error(`[ - VOICE - ] Connection error:`, error)
-      setTimeout(() => join_voice_channel(), 3000)
+      setTimeout(() => { void join_voice_channel() }, 3000)
     })
-    
-    console.log(`[ - VOICE - ] Successfully joined voice channel ${voice_channel.name} (${voice_channel_id})`)
+
+    console.log(`[ - VOICE - ] Successfully joined voice channel ${voice_channel_id}`)
   } catch (error) {
     console.error("[ - VOICE - ] Failed to join voice channel:", error)
-    setTimeout(() => join_voice_channel(), 5000)
+    setTimeout(() => { void join_voice_channel() }, 5000)
   }
 }
 
@@ -262,7 +255,7 @@ client.once("ready", async () => {
     console.error("[PostgreSQL] Connection error:", error)
   }
 
-  join_voice_channel()
+  void join_voice_channel()
   await start_persistent_typing()
 
   update_presence()
@@ -279,9 +272,14 @@ client.once("ready", async () => {
 
   try {
     start_roblox_update_checker(client)
-    for (const guild of client.guilds.cache.values()) {
-      await tempvoice.reconcile_tempvoice_guild(guild)
-      await tempvoice.load_saved_settings_from_db(guild.id)
+    const all_guilds = await client.guilds.fetch().catch(() => null)
+    if (all_guilds) {
+      for (const [guild_id] of all_guilds) {
+        const guild = await client.guilds.fetch(guild_id).catch(() => null)
+        if (!guild) continue
+        await tempvoice.reconcile_tempvoice_guild(guild)
+        await tempvoice.load_saved_settings_from_db(guild.id)
+      }
     }
     register_audit_logs(client)
     await start_invite_logger(client)

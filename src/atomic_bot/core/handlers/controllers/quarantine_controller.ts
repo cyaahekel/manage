@@ -36,10 +36,7 @@ const __quarantine_log_id   = "1474186051366031380"
  * @returns Promise<Role | null>
  */
 async function get_quarantine_role(guild: Guild): Promise<Role | null> {
-  const quarantine_role = guild.roles.cache.get(__quarantine_role_id) || 
-                          await guild.roles.fetch(__quarantine_role_id).catch(() => null)
-  
-  return quarantine_role
+  return guild.roles.fetch(__quarantine_role_id).catch(() => null)
 }
 
 /**
@@ -142,9 +139,12 @@ export async function quarantine_member(options: quarantine_member_options) {
     // - RECORD HISTORY AND SEND LOG - \\
     await add_quarantine_history(fresh_target.id, guild.id, reason, executor.id, days)
 
-    const avatar_url   = fresh_target.user.displayAvatarURL({ size: 512 })
-    const total_count  = await get_quarantine_count(fresh_target.id, guild.id)
-    const history      = await get_quarantine_history(fresh_target.id, guild.id)
+    const avatar_url = fresh_target.user.displayAvatarURL({ size: 512 })
+
+    const [total_count, history] = await Promise.all([
+      get_quarantine_count(fresh_target.id, guild.id),
+      get_quarantine_history(fresh_target.id, guild.id),
+    ])
     const prev_history = history.slice(1)
 
     const history_lines = prev_history.length > 0
@@ -156,7 +156,7 @@ export async function quarantine_member(options: quarantine_member_options) {
         ].join("\n"))
       : ["- No previous quarantine history"]
 
-    const log_channel = guild.channels.cache.get(__quarantine_log_id) as TextChannel | undefined
+    const log_channel = await guild.channels.fetch(__quarantine_log_id).catch(() => null) as TextChannel | null
     if (log_channel?.isTextBased()) {
       const log_msg = component.build_message({
         components: [

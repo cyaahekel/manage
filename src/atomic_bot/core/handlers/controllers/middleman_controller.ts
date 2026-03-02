@@ -36,12 +36,18 @@ const __transaction_ranges: Record<string, TransactionRange> = {
   "PIMLKDohan": { label: "≥ Rp 300.000",            range: "≥ Rp 300.000",            fee: "5% dari total transaksi" },
 }
 
+const __fee_labels: Record<string, string> = {
+  penjual: "Penjual",
+  pembeli: "Pembeli",
+  dibagi : "Dibagi Dua",
+}
+
 interface TransactionDetails {
-  penjual  : string
-  pembeli  : string
-  jenis    : string
-  harga    : string
-  fee_oleh : string
+  penjual_id : string
+  pembeli_id : string
+  jenis      : string
+  harga      : string
+  fee_oleh   : string
 }
 
 interface OpenMiddlemanTicketOptions {
@@ -80,25 +86,22 @@ export async function open_middleman_ticket(options: OpenMiddlemanTicketOptions)
   const user_id            = interaction.user.id
   const existing_thread_id = get_user_open_ticket(ticket_type, user_id)
 
+  const { penjual_id, pembeli_id } = transaction
+
   // - CHECK MAX TICKET LIMIT PER USER (5 TICKETS) - \\
-  const user_ticket_count = await count_user_active_tickets(user_id)
-  const partner_ticket_count = await count_user_active_tickets(partner_id)
-  
-  if (user_ticket_count >= 5) {
-    return {
-      success: false,
-      error  : "You have reached the maximum limit of 5 active middleman tickets. Please close some tickets first.",
-    }
-  }
-  
-  if (partner_ticket_count >= 5) {
-    return {
-      success: false,
-      error  : "The partner has reached the maximum limit of 5 active middleman tickets. Please ask them to close some tickets first.",
+  const unique_parties = [...new Set([user_id, penjual_id, pembeli_id])]
+  const ticket_counts  = await Promise.all(unique_parties.map(id => count_user_active_tickets(id)))
+
+  for (let i = 0; i < unique_parties.length; i++) {
+    if (ticket_counts[i] >= 5) {
+      return {
+        success: false,
+        error  : `<@${unique_parties[i]}> sudah memiliki 5 tiket aktif. Harap tutup beberapa tiket terlebih dahulu.`,
+      }
     }
   }
 
-  const ticket_channel = interaction.client.channels.cache.get(config.ticket_parent_id) as TextChannel
+  const ticket_channel = await interaction.client.channels.fetch(config.ticket_parent_id).catch(() => null) as TextChannel | null
   if (!ticket_channel) {
     return { success: false, error: "Ticket channel not found." }
   }
@@ -110,8 +113,11 @@ export async function open_middleman_ticket(options: OpenMiddlemanTicketOptions)
       autoArchiveDuration: ThreadAutoArchiveDuration.OneWeek,
     })
 
-    await thread.members.add(user_id)
-    await thread.members.add(partner_id)
+    // - ADD ALL PARTIES TO THREAD - \\
+    const thread_members = [...new Set([user_id, penjual_id, pembeli_id])]
+    for (const member_id of thread_members) {
+      await thread.members.add(member_id).catch(() => {})
+    }
 
     const staff_ids = ["1118453649727823974", "713377329623072822"]
     for (const staff_id of staff_ids) {
@@ -122,11 +128,9 @@ export async function open_middleman_ticket(options: OpenMiddlemanTicketOptions)
       }
     }
 
-    const ticket_id   = generate_ticket_id()
-    const timestamp   = time.now()
-    const avatar_url  = interaction.user.displayAvatarURL({ size: 128 })
-    const partner     = await interaction.client.users.fetch(partner_id)
-    const token       = api.get_token()
+    const ticket_id  = generate_ticket_id()
+    const timestamp  = time.now()
+    const token      = api.get_token()
 
     const ticket_data: TicketData = {
       thread_id  : thread.id,
@@ -136,19 +140,20 @@ export async function open_middleman_ticket(options: OpenMiddlemanTicketOptions)
       open_time  : timestamp,
       staff      : [],
       issue_type : range_id,
-      description: `Partner: <@${partner_id}>`,
+      description: `Penjual: <@${penjual_id}> | Pembeli: <@${pembeli_id}>`,
     }
 
     set_ticket(thread.id, ticket_data)
     set_user_open_ticket(ticket_type, user_id, thread.id)
 
-    const __midman_id = "713377329623072822"
+    const __midman_id  = "713377329623072822"
+    const fee_label    = __fee_labels[transaction.fee_oleh] ?? transaction.fee_oleh
 
     const welcome_message = component.build_message({
       components: [
         component.container({
           components: [
-            component.text(`## Middleman Ticket \nHalo <@${user_id}> dan <@${partner_id}>`),
+            component.text(`## Middleman Ticket \nHalo <@${penjual_id}> dan <@${pembeli_id}>`),
             component.divider(2),
             component.text([
               `### Detail transaksi:`,
@@ -158,11 +163,11 @@ export async function open_middleman_ticket(options: OpenMiddlemanTicketOptions)
             component.divider(2),
             component.text([
               ``,
-              `- Penjual : ${transaction.penjual}`,
-              `- Pembeli : ${transaction.pembeli}`,
+              `- Penjual : <@${penjual_id}>`,
+              `- Pembeli : <@${pembeli_id}>`,
               `- Jenis Barang yang Dijual : ${transaction.jenis}`,
               `- Harga Barang yang Dijual : Rp. ${transaction.harga}`,
-              `- Fee oleh : ${transaction.fee_oleh}`,
+              `- Fee oleh : ${fee_label}`,
             ]),
             component.divider(2),
             component.text(`<@${__midman_id}>  akan membantu memproses transaksi ini.`),
@@ -177,21 +182,21 @@ export async function open_middleman_ticket(options: OpenMiddlemanTicketOptions)
           components: [
             component.text("## Metode Pembayaran\nSilakan pilih metode pembayaran yang tersedia melalui dropdown di bawah.\n"),
             component.select_menu("payment_method_select", "Pilih metode pembayaran", [
-              { label: "QRIS",          value: "qris",      description: "All banks & e-wallets" },
-              { label: "Dana/OVO/GoPay", value: "dana",     description: "085763794032 — Daniel Yedija Laowo" },
-              { label: "Bank Jago",     value: "bank_jago", description: "107329884762 — Daniel Yedija Laowo" },
-              { label: "Seabank",       value: "seabank",   description: "901996695987 — Daniel Yedija Laowo" },
-              { label: "BRI",           value: "bri",       description: "817201005576534 — Daniel Yedija Laowo" },
+              { label: "QRIS",           value: "qris",      description: "All banks & e-wallets" },
+              { label: "Dana/OVO/GoPay", value: "dana",      description: "085763794032 — Daniel Yedija Laowo" },
+              { label: "Bank Jago",      value: "bank_jago", description: "107329884762 — Daniel Yedija Laowo" },
+              { label: "Seabank",        value: "seabank",   description: "901996695987 — Daniel Yedija Laowo" },
+              { label: "BRI",            value: "bri",       description: "817201005576534 — Daniel Yedija Laowo" },
             ]),
           ],
         }),
         component.container({
           components: [
             component.action_row(
-              component.danger_button("Close",             `middleman_close:${thread.id}`),
+              component.danger_button("Close",                `middleman_close:${thread.id}`),
               component.secondary_button("Close with Reason", `middleman_close_reason:${thread.id}`),
-              component.primary_button("Add Member",       `middleman_add_member:${thread.id}`),
-              component.success_button("Complete",         `middleman_complete:${thread.id}`)
+              component.primary_button("Add Member",          `middleman_add_member:${thread.id}`),
+              component.success_button("Complete",            `middleman_complete:${thread.id}`)
             ),
           ],
         }),
@@ -202,7 +207,7 @@ export async function open_middleman_ticket(options: OpenMiddlemanTicketOptions)
 
     let log_message_id: string | undefined
 
-    const log_channel = interaction.client.channels.cache.get(config.log_channel_id) as TextChannel
+    const log_channel = await interaction.client.channels.fetch(config.log_channel_id).catch(() => null) as TextChannel | null
     if (log_channel) {
       const log_message = component.build_message({
         components: [
@@ -215,8 +220,9 @@ export async function open_middleman_ticket(options: OpenMiddlemanTicketOptions)
               component.divider(2),
               component.text([
                 `- Ticket ID: **${ticket_id}**`,
-                `- Requester: <@${user_id}>`,
-                `- Partner: <@${partner_id}>`,
+                `- Dibuka oleh: <@${user_id}>`,
+                `- Penjual: <@${penjual_id}>`,
+                `- Pembeli: <@${pembeli_id}>`,
                 `- Range: ${range_data.range}`,
                 `- Fee: ${range_data.fee}`,
               ]),
@@ -232,12 +238,14 @@ export async function open_middleman_ticket(options: OpenMiddlemanTicketOptions)
     }
 
     // - SAVE TO DATABASE FOR PERSISTENCE - \\
+    const penjual_user = await interaction.client.users.fetch(penjual_id).catch(() => null)
+
     await create_middleman_ticket({
       thread_id        : thread.id,
       ticket_id        : ticket_id,
       requester_id     : user_id,
-      partner_id       : partner_id,
-      partner_tag      : partner.tag,
+      partner_id       : penjual_id,
+      partner_tag      : penjual_user?.tag ?? penjual_id,
       transaction_range: range_data.range,
       fee              : range_data.fee,
       range_id         : range_id,
@@ -259,7 +267,8 @@ export async function open_middleman_ticket(options: OpenMiddlemanTicketOptions)
     console.error("[ - MIDDLEMAN TICKET - ] Error creating ticket:", error)
     await log_error(interaction.client, error as Error, "Middleman Controller - Create Ticket", {
       user_id   : user_id,
-      partner_id: partner_id,
+      penjual_id: penjual_id,
+      pembeli_id: pembeli_id,
       range_id  : range_id,
     })
     return {
