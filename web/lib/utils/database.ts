@@ -586,9 +586,21 @@ async function init_tables(): Promise<void> {
 
     await client.query(`
       ALTER TABLE staff_applications 
-      ADD COLUMN IF NOT EXISTS uuid VARCHAR(36),
-      ADD COLUMN IF NOT EXISTS past_cs_experience TEXT,
-      ADD COLUMN IF NOT EXISTS past_staff_experience TEXT,
+      ADD COLUMN IF NOT EXISTS uuid VARCHAR(36)
+    `).catch(() => {})
+
+    await client.query(`
+      ALTER TABLE staff_applications 
+      ADD COLUMN IF NOT EXISTS past_cs_experience TEXT
+    `).catch(() => {})
+
+    await client.query(`
+      ALTER TABLE staff_applications 
+      ADD COLUMN IF NOT EXISTS past_staff_experience TEXT
+    `).catch(() => {})
+
+    await client.query(`
+      ALTER TABLE staff_applications 
       ADD COLUMN IF NOT EXISTS active_other_hub TEXT
     `).catch(() => {})
 
