@@ -61,15 +61,23 @@ export async function handle_middleman_transaction_range_select(interaction: Str
     components: [
       component.container({
         components: [
-          component.text("## Pilih Penjual"),
-          component.divider(2),
+          component.text("## <:ticket:1411878131366891580> - Pilih Penjual\n"),
+        ],
+      }),
+      {
+        type: 17,
+        components: [
           component.text([
-            "Detail transaksi:",
-            `- Rentang transaksi: ${range_data.range}`,
+            `- Rentang Transaksi: ${range_data.range}`,
             `- Fee Rekber: ${range_data.fee}`,
-            "",
-            "Silakan pilih siapa yang menjadi Penjual dalam transaksi ini.",
           ]),
+        ],
+        spoiler: true,
+      },
+      {
+        type: 17,
+        components: [
+          component.text("Silakan pilih siapa yang menjadi Penjual dalam transaksi ini.\n"),
           {
             type: 1,
             components: [
@@ -82,8 +90,20 @@ export async function handle_middleman_transaction_range_select(interaction: Str
               },
             ],
           },
+          {
+            type: 14,
+            spacing: 2
+          },
+          component.action_row(
+            {
+              type: 2,
+              style: 2,
+              label: "Saya",
+              custom_id: `middleman_penjual_self:${selected_value}`,
+            } as any
+          )
         ],
-      }),
+      },
     ],
   }))
 }

@@ -50,13 +50,22 @@ export async function handle_middleman_seller_select(interaction: UserSelectMenu
       components: [
         component.container({
           components: [
-            component.text("## Pilih Pembeli"),
-            component.divider(2),
+            component.text("## <:ticket:1411878131366891580> - Pilih Pembeli"),
+          ],
+        }),
+        {
+          type: 17,
+          components: [
             component.text([
               `- Penjual: <@${seller_id}>`,
-              "",
-              "Silakan pilih siapa yang menjadi Pembeli dalam transaksi ini.",
             ]),
+          ],
+          spoiler: true,
+        },
+        {
+          type: 17,
+          components: [
+            component.text("Silakan pilih siapa yang menjadi Pembeli dalam transaksi ini."),
             {
               type: 1,
               components: [
@@ -69,8 +78,20 @@ export async function handle_middleman_seller_select(interaction: UserSelectMenu
                 },
               ],
             },
+            {
+              type: 14,
+              spacing: 2
+            },
+            component.action_row(
+              {
+                type: 2,
+                style: 2,
+                label: "Saya",
+                custom_id: `middleman_pembeli_self:${range_id}:${seller_id}`,
+              } as any
+            )
           ],
-        }),
+        },
       ],
     }),
     ephemeral: true,

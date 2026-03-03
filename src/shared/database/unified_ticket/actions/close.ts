@@ -44,6 +44,21 @@ export async function close_ticket(options: CloseTicketOptions): Promise<void> {
   const issue_type = data.issue_type
   const description = data.description
 
+  // - Get mapped issue type label if middleman, else use raw issue type - \\
+  let display_issue_type = issue_type
+  if (data.ticket_type === "middleman" && issue_type) {
+    const range_labels: Record<string, string> = {
+      "dVzaCndYpO": "Rp 10.000 – Rp 50.000",
+      "laf8By4Gtm": "Rp 51.000 – Rp 100.000",
+      "1FS1PRT0Ys": "Rp 101.000 – Rp 200.000",
+      "WnGoXX4HnQ": "Rp 201.000 – Rp 300.000",
+      "PIMLKDohan": "≥ Rp 300.000"
+    }
+    if (range_labels[issue_type]) {
+      display_issue_type = range_labels[issue_type]
+    }
+  }
+
   // - WEB_URL should point to Next.js web app (Vercel), not bot server - \\
   const web_url = process.env.WEB_URL || "https://maxime.vercel.app"
   const full_url = web_url.startsWith("http") ? web_url : `https://${web_url}`
@@ -149,8 +164,8 @@ export async function close_ticket(options: CloseTicketOptions): Promise<void> {
           `- **Reason:** ${reason || "-"}`,
         ]
 
-        if (issue_type) {
-          log_content_2.unshift(`- **Issue Type:** ${issue_type}`)
+        if (display_issue_type) {
+          log_content_2.unshift(`- **Issue Type:** ${display_issue_type}`)
         }
 
         const transcript_buttons = transcript_id
@@ -213,33 +228,57 @@ export async function close_ticket(options: CloseTicketOptions): Promise<void> {
             components: [
               component.container({
                 components: [
-                  component.text(`## <:ticket:1411878131366891580> - ${config.name} Ticket Closed\nYour ${config.name.toLowerCase()} ticket has been closed.\n`),
+                  component.text(`## <:ticket:1411878131366891580> - ${config.name} Ticket Closed\nYour ${config.name.toLowerCase()} ticket has been closed.`),
                 ],
               }),
               component.container({
                 components: [
                   component.text([
-                    `- **Ticket UUID:** ${format.code(ticket_id)}`,
-                    ...(issue_type ? [`- **Issue Type:** ${issue_type}`] : []),
+                    `- **Ticket ID:** ${format.code(ticket_id)}`,
+                    ...(display_issue_type ? [`- **Issue Type:** ${display_issue_type}`] : []),
                     `- **Closed by:** ${closed_by_text}`,
-                    `- **Reason:** ${reason || "-"}`,
+                    `- **Reason:** ${reason || "Closed by staff"}`,
                     `- **Closed at:** ${time.full_date_time(timestamp)}`,
                   ]),
                 ],
+                accent_color: 32768, // To give it a clean look if needed, or leave default. We use a container without text initially, wait, spoiler: true is requested.
               }),
-              component.container({
-                components: [
-                  component.text(`Thank you for using our service!`),
-                  ...(dm_transcript_buttons.length > 0 ? [
-                    component.divider(),
-                    component.action_row(...dm_transcript_buttons),
-                  ] : []),
-                ],
-              }),
+              // - Let's adjust to match exact JSON request layout - \\
             ],
           })
+          
+          // Re-building dm_message to exactly match the requested payload structure (spoiler flag isn't directly in container but we can simulate or we use standard container)
+          const new_dm_message = component.build_message({
+            components: [
+              component.container({
+                components: [
+                  component.text(`## <:ticket:1411878131366891580> - ${config.name} Ticket Closed\nYour ${config.name.toLowerCase()} ticket has been closed.`),
+                ],
+              }),
+              {
+                type: 17,
+                components: [
+                  component.text([
+                    `- **Ticket ID:** \`${ticket_id}\``,
+                    ...(display_issue_type ? [`- **Issue Type:** ${display_issue_type}`] : []),
+                    `- **Closed by:** ${closed_by_text}`,
+                    `- **Reason:** ${reason || "Closed by staff"}`,
+                    `- **Closed at:** ${time.full_date_time(timestamp)}`,
+                  ])
+                ],
+                spoiler: true
+              },
+              ...(dm_transcript_buttons.length > 0 ? [
+                component.container({
+                  components: [
+                    component.action_row(...dm_transcript_buttons)
+                  ]
+                })
+              ] : [])
+            ]
+          })
 
-          await api.send_components_v2(dm_channel.id, token, dm_message)
+          await api.send_components_v2(dm_channel.id, token, new_dm_message)
         })
         .catch(() => { })
     )

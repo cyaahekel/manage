@@ -377,6 +377,8 @@ export async function handle_interaction(
         await middleman_buttons.handle_middleman_service_close_info(interaction)
         return
       }
+      if (await middleman_buttons.handle_middleman_penjual_self(interaction)) return
+      if (await middleman_buttons.handle_middleman_pembeli_self(interaction)) return
 
       // - 社区/评论按钮 - \\
       // - community/review buttons - \\
