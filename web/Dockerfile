@@ -3,7 +3,7 @@ FROM node:20-alpine AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-COPY package.json package-lock.json* .npmrc ./
+COPY web/package.json web/package-lock.json* web/.npmrc ./
 RUN npm ci --legacy-peer-deps
 
 
@@ -12,7 +12,8 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 
 COPY --from=deps /app/node_modules ./node_modules
-COPY . .
+COPY web/ ./
+COPY src/shared/ ./src/shared/
 
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
