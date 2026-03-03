@@ -357,7 +357,7 @@ async function safe_json_parse(response: Response): Promise<any> {
 async function make_request<T>(
   url: string,
   options: {
-    method: "GET" | "POST" | "PATCH" | "DELETE"
+    method: "GET" | "POST" | "PATCH" | "DELETE" | "PUT"
     body?: any
     timeout?: number
     priority?: number
@@ -384,7 +384,7 @@ async function make_request<T>(
 async function make_request_internal<T>(
   url: string,
   options: {
-    method: "GET" | "POST" | "PATCH" | "DELETE"
+    method: "GET" | "POST" | "PATCH" | "DELETE" | "PUT"
     body?: any
     timeout?: number
   },
@@ -1024,6 +1024,76 @@ export async function link_discord(user_key: string, discord_id: string): Promis
   }
 
   return { success: false, error: data?.message || "Failed to link Discord" }
+}
+
+export interface luarmor_script {
+  script_name   : string
+  script_id     : string
+  script_version: string
+  ffa           : boolean
+  silent        : boolean
+}
+
+/**
+ * @description Fetches all scripts for the configured project
+ * @returns {Promise<luarmor_response<luarmor_script[]>>} Response with script list
+ */
+export async function get_project_scripts(): Promise<luarmor_response<luarmor_script[]>> {
+  const url = `${__base_url}/keys/${get_api_key()}`
+
+  const result = await make_request<any>(url, {
+    method : "GET",
+    timeout: __fast_timeout,
+  })
+
+  if (!result.success) {
+    return { success: false, error: result.error?.message || "Failed to fetch API key details" }
+  }
+
+  const data = result.data
+
+  const project = data?.projects?.find((p: any) => p.id === get_project_id())
+  if (!project) {
+    return { success: false, error: "Project not found in API key details" }
+  }
+
+  const scripts: luarmor_script[] = (project.scripts ?? []).map((s: any) => ({
+    script_name   : s.script_name    ?? "",
+    script_id     : s.script_id      ?? "",
+    script_version: s.script_version ?? "0000",
+    ffa           : s.ffa            ?? false,
+    silent        : s.silent         ?? false,
+  }))
+
+  return { success: true, data: scripts }
+}
+
+/**
+ * @description Updates a Luarmor script with new raw content
+ * @param {string} script_id - The script ID to update
+ * @param {string} script    - The raw script content
+ * @returns {Promise<luarmor_response<null>>} Response
+ */
+export async function update_script(script_id: string, script: string): Promise<luarmor_response<null>> {
+  const url = `${__base_url}/projects/${get_project_id()}/scripts/${script_id}`
+
+  const result = await make_request<any>(url, {
+    method : "PUT",
+    body   : { script },
+    timeout: __default_timeout,
+  })
+
+  if (!result.success) {
+    return { success: false, error: result.error?.message || "Failed to update script" }
+  }
+
+  const data = result.data
+
+  if (data?.success === true || data?.message?.toLowerCase().includes("success")) {
+    return { success: true, message: data.message || "Script updated successfully" }
+  }
+
+  return { success: false, error: data?.message || "Failed to update script" }
 }
 
 /**

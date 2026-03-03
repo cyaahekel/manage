@@ -63,6 +63,8 @@ import * as script_get_role           from "@atomic/modules/scripts/interactions
 import * as script_reset_hwid         from "@atomic/modules/scripts/interactions/buttons/reset_hwid"
 import * as script_get_stats          from "@atomic/modules/scripts/interactions/buttons/get_stats"
 import * as script_view_leaderboard   from "@atomic/modules/scripts/interactions/buttons/view_leaderboard"
+import { handle_script_update_btn,
+         handle_script_update_select } from "@atomic/modules/scripts/interactions/buttons/update_script"
 import * as free_get_script           from "@atomic/modules/free_scripts/interactions/buttons/get_script"
 import * as free_reset_hwid           from "@atomic/modules/free_scripts/interactions/buttons/reset_hwid"
 import * as free_get_stats            from "@atomic/modules/free_scripts/interactions/buttons/get_stats"
@@ -296,6 +298,10 @@ export async function handle_interaction(
         await reminder_cancel_select.handle_reminder_cancel_select(interaction)
         return
       }
+      if (interaction.customId.startsWith("script_update_select:")) {
+        await handle_script_update_select(interaction)
+        return
+      }
       if (interaction.customId.startsWith("middleman_fee_select:")) {
         await middleman_select.handle_middleman_fee_select(interaction)
         return
@@ -462,6 +468,9 @@ export async function handle_interaction(
       if (interaction.customId === "script_view_leaderboard") {
         await script_view_leaderboard.handle_view_leaderboard(interaction)
         return
+      }
+      if (interaction.customId.startsWith("script_update_btn:")) {
+        if (await handle_script_update_btn(interaction)) return
       }
 
       // - 脚本按钮（免费版） - \\
