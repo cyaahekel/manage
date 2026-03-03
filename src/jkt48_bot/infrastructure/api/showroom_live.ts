@@ -85,7 +85,8 @@ async function showroom_get_with_session(path: string, params: Record<string, an
   try {
     await ensure_showroom_session()
     return await showroom_get(path, params)
-  } catch (error) {
+  } catch (error: any) {
+    if (error?.response?.status === 404) return {}
     await refresh_showroom_session().catch(() => {})
     return await showroom_get(path, params)
   }
@@ -146,13 +147,20 @@ async function refresh_showroom_session(): Promise<void> {
  */
 async function showroom_get(path: string, params: Record<string, any> = {}): Promise<any> {
   const url = `${__showroom_web_base}${path}`
-  const response = await axios.get(url, {
-    timeout : 15000,
-    params  : params,
-    headers : get_showroom_headers(),
-  })
+  try {
+    const response = await axios.get(url, {
+      timeout : 15000,
+      params  : params,
+      headers : get_showroom_headers(),
+    })
 
-  return response.data
+    return response.data
+  } catch (error: any) {
+    if (error?.response?.status === 404) {
+      return {}
+    }
+    throw error
+  }
 }
 
 //
