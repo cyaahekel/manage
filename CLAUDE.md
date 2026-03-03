@@ -8,7 +8,7 @@ Three independent Discord bots sharing a `src/shared/` layer, plus a Next.js das
 | Entry Point | Bot |
 |---|---|
 | `src/startup/atomic_bot.ts` | Main server management (moderation, tickets, payments, reminders) |
-| `src/startup/jkt48_bot.ts` | JKT48 live stream notifications |
+| `src/startup/jkt48_bot.ts` | JKT48 live stream notifications |ac
 | `src/startup/bypass_bot.ts` | Automatic link bypassing |
 
 **Path aliases** (tsconfig):
