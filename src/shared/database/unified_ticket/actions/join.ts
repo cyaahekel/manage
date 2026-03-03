@@ -122,11 +122,11 @@ export async function join_ticket(interaction: ButtonInteraction, ticket_type: s
   const staff_mentions = data.staff.map((id: string) => `<@${id}>`)
   const log_message_id = data.log_message_id
 
+  // - FIRE-AND-FORGET: LOG UPDATE + SAVE — DO NOT BLOCK REPLY - \\
   if (log_message_id) {
     const log_channel = guild.channels.cache.get(config.log_channel_id) as TextChannel
     if (log_channel) {
-      try {
-        const owner = await guild.members.fetch(data.owner_id).catch(() => null)
+      guild.members.fetch(data.owner_id).catch(() => null).then(owner => {
         const avatar_url = owner?.displayAvatarURL({ size: 128 }) || format.default_avatar
 
         const description_block = data.description
@@ -134,22 +134,22 @@ export async function join_ticket(interaction: ButtonInteraction, ticket_type: s
           : data.issue_type ? `- **Issue Type:** ${data.issue_type}` : null
 
         const message = build_ticket_log_message({
-          config_name: config.name,
-          owner_id: data.owner_id,
-          claimed_by: data.claimed_by || null,
-          avatar_url: avatar_url,
-          description_block: description_block,
-          staff: data.staff,
-          open_time: data.open_time,
+          config_name   : config.name,
+          owner_id      : data.owner_id,
+          claimed_by    : data.claimed_by || null,
+          avatar_url    : avatar_url,
+          description_block,
+          staff         : data.staff,
+          open_time     : data.open_time,
           join_button_id: `${config.prefix}_join_${thread_id}`,
         })
 
-        await api.edit_components_v2(log_channel.id, log_message_id, api.get_token(), message)
-      } catch { }
+        return api.edit_components_v2(log_channel.id, log_message_id, api.get_token(), message)
+      }).catch(() => {})
     }
   }
 
-  await save_ticket(thread_id)
+  save_ticket(thread_id).catch(() => {})
 
   const reply_message = component.build_message({
     components: [

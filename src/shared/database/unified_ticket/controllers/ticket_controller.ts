@@ -28,6 +28,19 @@ export async function handle_ticket_button(interaction: ButtonInteraction): Prom
   const custom_id = interaction.customId
   const lock_key  = interaction.user.id
 
+  // - CHECK IF IT'S A TICKET BUTTON BEFORE TOUCHING THE LOCK - \\
+  const is_ticket_button = Object.values(ticket_types).some(({ prefix }) =>
+    custom_id === `${prefix}_open`         ||
+    custom_id === `${prefix}_close`        ||
+    custom_id === `${prefix}_close_reason` ||
+    custom_id === `${prefix}_claim`        ||
+    custom_id === `${prefix}_reopen`       ||
+    custom_id === `${prefix}_add_member`   ||
+    custom_id.startsWith(`${prefix}_join_`)
+  )
+
+  if (!is_ticket_button) return false
+
   if (__interaction_locks.has(lock_key)) {
     try {
       if (!interaction.replied && !interaction.deferred) {
