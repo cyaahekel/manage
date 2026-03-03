@@ -1,9 +1,38 @@
 // - 脚本模块控制器，处理 /push-script 的全部业务逻辑 - \
 // - scripts module controller, handles all business logic for /push-script - \
-import { component } from "@shared/utils"
-import * as luarmor  from "@atomic/infrastructure/api/luarmor"
+import { randomBytes }  from "crypto"
+import { component }    from "@shared/utils"
+import * as luarmor     from "@atomic/infrastructure/api/luarmor"
 
 // - - \\
+
+interface attachment_ref {
+  url      : string
+  filename : string
+}
+
+const __attachment_cache = new Map<string, attachment_ref>()
+
+/**
+ * @description Stores an attachment URL+filename in memory and returns a short key
+ * @param {string} url      - Discord attachment CDN URL
+ * @param {string} filename - Original filename
+ * @returns {string} Short 8-char hex key
+ */
+function store_attachment(url: string, filename: string): string {
+  const key = randomBytes(4).toString("hex")
+  __attachment_cache.set(key, { url, filename })
+  return key
+}
+
+/**
+ * @description Retrieves an attachment ref by its short key
+ * @param {string} key - The 8-char hex key
+ * @returns {attachment_ref | undefined}
+ */
+export function resolve_attachment(key: string): attachment_ref | undefined {
+  return __attachment_cache.get(key)
+}
 
 /**
  * @description Fetches text content from a URL and counts its lines
@@ -11,31 +40,31 @@ import * as luarmor  from "@atomic/infrastructure/api/luarmor"
  * @returns {Promise<{ content: string; line_count: number }>}
  */
 async function fetch_file_content(url: string): Promise<{ content: string; line_count: number }> {
-  const response = await fetch(url)
+  const response   = await fetch(url)
   if (!response.ok) throw new Error(`Failed to fetch attachment: ${response.status}`)
-  const content   = await response.text()
+  const content    = await response.text()
   const line_count = content.split("\n").length
   return { content, line_count }
 }
 
 /**
  * @description Builds the select menu component block shared by both message builders
- * @param {string} attachment_url  - Discord attachment URL
- * @param {string} filename        - Original filename for display
- * @param {string} placeholder     - Select menu placeholder text
- * @param {string} script_id       - Currently selected script_id (or "none")
- * @param {Array}  select_options  - Options array for the select menu
- * @returns {object[]} Array of components for the select container
+ * @param {string} ref_key       - Short attachment cache key
+ * @param {string} filename      - Original filename for display
+ * @param {number} line_count    - Number of lines in the file
+ * @param {string} placeholder   - Select menu placeholder text
+ * @param {string} script_id     - Currently selected script_id (or "none")
+ * @param {Array}  select_options - Options array for the select menu
+ * @returns {any[]} Array of components for the select container
  */
 function build_select_container(
-  attachment_url : string,
+  ref_key        : string,
   filename       : string,
   line_count     : number,
   placeholder    : string,
   script_id      : string,
   select_options : { label: string; value: string; description: string }[]
 ): any[] {
-  const encoded_ref = Buffer.from(`${attachment_url}|${filename}`).toString("base64")
 
   return [
     component.container({
@@ -60,7 +89,7 @@ function build_select_container(
           components: [
             {
               type       : 3,
-              custom_id  : `script_update_select:${encoded_ref}`,
+              custom_id  : `script_update_select:${ref_key}`,
               placeholder,
               min_values : 1,
               max_values : 1,
@@ -71,7 +100,7 @@ function build_select_container(
         component.divider(2),
         component.section({
           content  : "Update now: ",
-          accessory: component.secondary_button("Update", `script_update_btn:${encoded_ref}:${script_id}`),
+          accessory: component.secondary_button("Update", `script_update_btn:${ref_key}:${script_id}`),
         }),
       ],
     }),
@@ -85,8 +114,9 @@ function build_select_container(
  * @returns {Promise<object>} Component V2 message object
  */
 export async function build_update_script_message(attachment_url: string, filename: string): Promise<object> {
-  const { line_count }  = await fetch_file_content(attachment_url)
-  const scripts_result  = await luarmor.get_project_scripts()
+  const ref_key        = store_attachment(attachment_url, filename)
+  const { line_count } = await fetch_file_content(attachment_url)
+  const scripts_result = await luarmor.get_project_scripts()
 
   const select_options = scripts_result.success && scripts_result.data?.length
     ? scripts_result.data.map((s) => ({
@@ -98,7 +128,7 @@ export async function build_update_script_message(attachment_url: string, filena
 
   return component.build_message({
     components: build_select_container(
-      attachment_url,
+      ref_key,
       filename,
       line_count,
       "Select script",
@@ -110,17 +140,15 @@ export async function build_update_script_message(attachment_url: string, filena
 
 /**
  * @description Builds the message after a script is chosen from the dropdown
- * @param {string} encoded_ref - Base64 encoded "url|filename"
- * @param {string} script_id   - Selected Luarmor script ID
+ * @param {string} ref_key   - Short attachment cache key
+ * @param {string} script_id - Selected Luarmor script ID
  * @returns {Promise<object>} Component V2 message object
  */
-export async function build_select_update_message(encoded_ref: string, script_id: string): Promise<object> {
-  const decoded        = Buffer.from(encoded_ref, "base64").toString("utf-8")
-  const pipe_idx       = decoded.lastIndexOf("|")
-  const attachment_url = decoded.slice(0, pipe_idx)
-  const filename       = decoded.slice(pipe_idx + 1)
+export async function build_select_update_message(ref_key: string, script_id: string): Promise<object> {
+  const ref = resolve_attachment(ref_key)
+  if (!ref) throw new Error("Attachment reference expired. Please run the command again.")
 
-  const { line_count } = await fetch_file_content(attachment_url)
+  const { line_count } = await fetch_file_content(ref.url)
   const scripts_result = await luarmor.get_project_scripts()
 
   const selected    = scripts_result.data?.find((s) => s.script_id === script_id)
@@ -136,8 +164,8 @@ export async function build_select_update_message(encoded_ref: string, script_id
 
   return component.build_message({
     components: build_select_container(
-      attachment_url,
-      filename,
+      ref_key,
+      ref.filename,
       line_count,
       script_name,
       script_id,
@@ -156,21 +184,20 @@ export interface perform_update_result {
 
 /**
  * @description Fetches attachment content and PUTs it to Luarmor, then returns version diff
- * @param {string} encoded_ref - Base64 encoded "url|filename"
- * @param {string} script_id   - Luarmor script ID to update
+ * @param {string} ref_key   - Short attachment cache key
+ * @param {string} script_id - Luarmor script ID to update
  * @returns {Promise<perform_update_result>} Result with version info
  */
-export async function perform_script_update(encoded_ref: string, script_id: string): Promise<perform_update_result> {
-  const decoded        = Buffer.from(encoded_ref, "base64").toString("utf-8")
-  const pipe_idx       = decoded.lastIndexOf("|")
-  const attachment_url = decoded.slice(0, pipe_idx)
+export async function perform_script_update(ref_key: string, script_id: string): Promise<perform_update_result> {
+  const ref = resolve_attachment(ref_key)
+  if (!ref) throw new Error("Attachment reference expired. Please run the command again.")
 
   const scripts_before = await luarmor.get_project_scripts()
   const before         = scripts_before.data?.find((s) => s.script_id === script_id)
   const script_name    = before?.script_name    ?? script_id
   const old_version    = before?.script_version ?? "????"
 
-  const { content } = await fetch_file_content(attachment_url)
+  const { content } = await fetch_file_content(ref.url)
   const result      = await luarmor.update_script(script_id, content)
 
   if (!result.success) {
@@ -180,6 +207,8 @@ export async function perform_script_update(encoded_ref: string, script_id: stri
   const scripts_after = await luarmor.get_project_scripts()
   const after         = scripts_after.data?.find((s) => s.script_id === script_id)
   const new_version   = after?.script_version ?? old_version
+
+  __attachment_cache.delete(ref_key)
 
   return { success: true, error: undefined, script_name, old_version, new_version }
 }
