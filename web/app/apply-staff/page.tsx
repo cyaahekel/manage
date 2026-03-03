@@ -374,7 +374,7 @@ export default function StaffApplicationPage() {
         if (app_res.ok) {
           const app_data = await app_res.json()
           if (app_data.applied) {
-            // set_already_applied(true) // DISABLED FOR DEMO
+            set_already_applied(true)
           }
         }
 
@@ -604,20 +604,28 @@ export default function StaffApplicationPage() {
 
       {/* - ALREADY APPLIED MODAL - \\ */}
       <Dialog open={already_applied} onOpenChange={() => {}}>
-        <DialogContent className="sm:max-w-md [&>button]:hidden">
+        <DialogContent className="sm:max-w-md [&>button]:hidden bg-[#09090b] border-border/40">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+            <DialogTitle className="flex items-center gap-2 text-white">
               <CheckCircle2 className="h-5 w-5 text-green-500" />
-              Application Received
+              {form_lang === "Indonesia" ? "Kamu udah pernah daftar" : 
+               form_lang === "English" ? "You've already applied" :
+               form_lang === "Japan" ? "すでに応募済みです" :
+               "您已经申请过了"}
             </DialogTitle>
-            <DialogDescription className="pt-2">
-              You have already submitted a staff application. Please wait patiently for our team to review it.
-              We will contact you via Discord if you are selected for an interview.
+            <DialogDescription className="pt-2 text-muted-foreground/80">
+              {form_lang === "Indonesia" ? "Kamu udah pernah ngisi form ini sebelumnya. Tolong tunggu tim kita buat review aplikasinya ya. Kita bakal hubungin kamu via Discord DM kalau kamu lolos ke tahap interview." : 
+               form_lang === "English" ? "You have already submitted a staff application. Please wait patiently for our team to review it. We will contact you via Discord DM if you are selected for an interview." :
+               form_lang === "Japan" ? "すでにスタッフ応募を送信しています。チームの審査をお待ちください。面接に進む場合は Discord の DM でご連絡します。" :
+               "您已经提交过员工申请了。请耐心等待我们的团队进行审核。如果您被选中参加面试，我们将通过 Discord 私信联系您。"}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="mt-4">
-            <Button onClick={() => router.push("/dashboard")} className="w-full">
-              Return to Dashboard
+            <Button onClick={() => router.push("/")} className="w-full bg-white text-black hover:bg-white/90">
+              {form_lang === "Indonesia" ? "Kembali ke Beranda" : 
+               form_lang === "English" ? "Return to Home" :
+               form_lang === "Japan" ? "ホームに戻る" :
+               "返回首页"}
             </Button>
           </DialogFooter>
         </DialogContent>

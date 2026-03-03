@@ -229,11 +229,11 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // - CHECK IF ALREADY APPLIED (DISABLED FOR DEMO) - \\
+    // - CHECK IF ALREADY APPLIED - \\
     await connect()
-    // if (await has_user_applied(user.id)) {
-    //   return NextResponse.json({ error: "You have already submitted an application." }, { status: 403 })
-    // }
+    if (await has_user_applied(user.id)) {
+      return NextResponse.json({ error: "You have already submitted an application." }, { status: 403 })
+    }
 
     // - BUILD APPLICATION DATA - \\
     const application_uuid = randomUUID()
