@@ -16,45 +16,35 @@ export async function handle_middleman_penjual_self(interaction: ButtonInteracti
             component.text("## <:ticket:1411878131366891580> - Pilih Pembeli\n"),
           ],
         }),
-        {
-          type: 17,
+        component.container({
           components: [
             component.text([
               `- Penjual: <@${seller_id}>`,
             ]),
           ],
-          spoiler: true,
-        },
-        {
-          type: 17,
+          spoiler: false,
+        }),
+        component.container({
           components: [
             component.text("Silakan pilih siapa yang menjadi Pembeli dalam transaksi ini.\n"),
             {
               type: 1,
               components: [
                 {
-                  type       : 5,
-                  custom_id  : `middleman_pembeli_select:${range_id}:${seller_id}`,
-                  placeholder: "Pilih Pembeli",
-                  min_values : 1,
-                  max_values : 1,
-                },
+                  type      : 5,
+                  custom_id : `middleman_pembeli_select:${range_id}:${seller_id}`,
+                  min_values: 1,
+                  max_values: 1,
+                } as any,
               ],
             },
-            {
-              type: 14,
-              spacing: 2
-            },
-            component.action_row(
-              {
-                type: 2,
-                style: 2,
-                label: "Saya",
-                custom_id: `middleman_pembeli_self:${range_id}:${seller_id}`,
-              } as any
-            )
+            component.divider(2),
+            component.section({
+              content  : "Klik ini jika Pembelinya anda sendiri ->",
+              accessory: component.secondary_button("Saya", `middleman_pembeli_self:${range_id}:${seller_id}`),
+            }),
           ],
-        },
+        }),
       ],
     }),
     ephemeral: true,
