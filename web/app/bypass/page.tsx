@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useRef, useCallback, useEffect, useId } from 'react'
+import { useState, useRef, useCallback, useEffect, useId, useMemo } from 'react'
 import { Button as StatefulButton } from '@/components/ui/stateful-button'
 import { cn }                       from '@/lib/utils'
 import { BypassTopbar }  from '@/components/layout/bypass_topbar'
-import ShinyText          from '@/components/animations/shiny_text'
+import { TextShimmerWave } from '@/components/animations/text_shimmer_wave'
 import DarkVeil          from '@/components/animations/dark_veil'
 import CountUp            from '@/components/animations/count_up'
 import { FlipWords }      from '@/components/ui/flip-words'
@@ -194,16 +194,7 @@ export default function BypassPage() {
           {/* - LOADING - \\ */}
           {is_loading && (
             <div className="animate-in fade-in duration-200 px-1">
-              <ShinyText
-                text="Contacting bypass service..."
-                speed={2}
-                delay={0}
-                color="#6b7280"
-                shineColor="#e5e7eb"
-                spread={120}
-                direction="left"
-                className="text-sm"
-              />
+              <BypassLoadingText />
             </div>
           )}
 
@@ -338,6 +329,43 @@ function StatsGrid({ size = 20 }: { size?: number }) {
         />
       </div>
     </div>
+  )
+}
+
+// - LOADING PHRASES - \\
+const __loading_phrases = [
+  'Atomic is Thinking...',
+  'Cooking something up...',
+  'Cracking the link...',
+  'Hold on tight...',
+  'Slipping through the walls...',
+  'One moment please...',
+  'Fetching the goods...',
+  'Almost there...',
+  'Working some magic...',
+  'Bypassing the gates...',
+]
+
+/**
+ * @description Shows a random rotating shimmer-wave loading phrase while bypass is in progress.
+ * @returns Animated loading text component
+ */
+function BypassLoadingText() {
+  const phrase = useMemo(
+    () => __loading_phrases[Math.floor(Math.random() * __loading_phrases.length)],
+    []
+  )
+  return (
+    <TextShimmerWave
+      duration={1.2}
+      spread={1.2}
+      zDistance={8}
+      scaleDistance={1.08}
+      rotateYDistance={15}
+      className="text-sm"
+    >
+      {phrase}
+    </TextShimmerWave>
   )
 }
 
