@@ -1,7 +1,7 @@
 'use client'
 
 import { FloatingDock }                                                                        from '@/components/ui/floating-dock'
-import { IconLink, IconList, IconBrandDiscord, IconRobot, IconHeart } from '@tabler/icons-react'
+import { IconLink, IconList, IconBrandDiscord, IconRobot, IconHeart, IconShieldLock } from '@tabler/icons-react'
 
 const __discord_url    = process.env.NEXT_PUBLIC_DISCORD_URL    || 'https://discord.gg/getsades'
 const __bot_invite_url = 'https://discord.com/oauth2/authorize?client_id=1476977037070696612&permissions=4503599694556160&integration_type=0&scope=bot'
@@ -26,6 +26,11 @@ const __dock_items = [
     title : 'Invite Bot',
     icon  : <IconRobot className="h-full w-full text-neutral-500 dark:text-neutral-300" />,
     href  : __bot_invite_url,
+  },
+  {
+    title : 'Terms & Privacy',
+    icon  : <IconShieldLock className="h-full w-full text-neutral-500 dark:text-neutral-300" />,
+    href  : '/bypass/terms',
   },
   {
     title : 'Credits',

@@ -264,9 +264,14 @@ export default function BypassPage() {
 
           {/* - HINT FOOTER - \\ */}
           {state.status === 'idle' && (
-            <p className="text-center text-xs text-muted-foreground/40">
-              5 requests per minute per client
-            </p>
+            <div className="flex flex-col items-center gap-1">
+              <p className="text-center text-xs text-muted-foreground/40">
+                5 requests per minute per client
+              </p>
+              <a href="/bypass/terms" className="text-[10px] text-muted-foreground/30 hover:text-muted-foreground/80 transition-colors underline underline-offset-2">
+                Terms of Service & Privacy
+              </a>
+            </div>
           )}
           {/* - STATS CARDS - \ */}
           <div className="grid grid-cols-2 gap-3">
