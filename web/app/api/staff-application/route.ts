@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { randomUUID }                from "crypto"
-import { has_user_applied, submit_application, delete_application, staff_application } from "@/lib/database/managers/staff_application_manager"
+import { has_user_applied, submit_application, delete_application, staff_application, get_user_application_uuid } from "@/lib/database/managers/staff_application_manager"
 import { connect }                   from "@/lib/utils/database"
 
 export const dynamic = 'force-dynamic'
@@ -255,7 +255,9 @@ export async function GET(req: NextRequest) {
 
     await connect()
 
-    const is_owner = user.id === "1118453649727823974"
+    const is_localhost = req.headers.get("host")?.includes("localhost") || req.headers.get("host")?.includes("127.0.0.1")
+    const is_owner     = user.id === "1118453649727823974"
+    const can_bypass   = is_owner && is_localhost
 
     // - CHECK BLACKLIST ROLE (REALTIME: BOT API) - \\
     let blacklisted = false
@@ -285,8 +287,9 @@ export async function GET(req: NextRequest) {
       console.log("[ - BLACKLIST CHECK - ] error:", (e as Error).message)
     }
 
-    const applied = is_owner ? false : await has_user_applied(user.id)
-    return NextResponse.json({ applied, blacklisted })
+    const uuid    = can_bypass ? null : await get_user_application_uuid(user.id)
+    const applied = !!uuid
+    return NextResponse.json({ applied, blacklisted, uuid })
   } catch (error) {
     console.error("[ - STAFF APP CHECK API - ] Error:", error)
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
@@ -331,15 +334,18 @@ export async function POST(req: NextRequest) {
 
     await connect()
 
+    const is_localhost = req.headers.get("host")?.includes("localhost") || req.headers.get("host")?.includes("127.0.0.1")
+    const is_owner     = user.id === "1118453649727823974"
+    const can_bypass   = is_owner && is_localhost
+
     // - CHECK IF RECRUITMENT IS OPEN - \\
     const { get_recruitment_settings } = await import('@/lib/database/managers/recruitment_settings_manager')
     const settings = await get_recruitment_settings()
-    if (!settings.is_open) {
+    if (!settings.is_open && !can_bypass) {
       return NextResponse.json({ error: "Recruitment is currently closed." }, { status: 403 })
     }
 
-    const is_owner = user.id === "1118453649727823974"
-    if (!is_owner) {
+    if (!can_bypass) {
       const already_applied = await has_user_applied(user.id)
       if (already_applied) {
         return NextResponse.json({ error: "You have already submitted an application. Please wait for the results." }, { status: 409 })
@@ -438,7 +444,7 @@ export async function POST(req: NextRequest) {
 
     // - CHECK IF ALREADY APPLIED - \\
     await connect()
-    if (user.id !== "1118453649727823974") {
+    if (!can_bypass) {
       if (await has_user_applied(user.id)) {
         return NextResponse.json({ error: "You have already submitted an application." }, { status: 403 })
       }

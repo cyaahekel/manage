@@ -356,6 +356,7 @@ export default function StaffApplicationPage() {
   const [wave_number, set_wave_number]       = useState(1)
   const [is_open, set_is_open]               = useState(true)
   const [already_applied, set_already_applied] = useState(false)
+  const [applied_uuid, set_applied_uuid]       = useState<string | null>(null)
   const [blacklisted,  set_blacklisted]                = useState(false)
   const [success_uuid, set_success_uuid]               = useState<string | null>(null)
   const [form_lang, set_form_lang]                     = useState<keyof typeof __translations>("English")
@@ -453,7 +454,10 @@ export default function StaffApplicationPage() {
         const app_res = await fetch("/api/staff-application")
         if (app_res.ok) {
           const app_data = await app_res.json()
-          if (app_data.applied) set_already_applied(true)
+          if (app_data.applied) {
+            set_already_applied(true)
+            if (app_data.uuid) set_applied_uuid(app_data.uuid)
+          }
           if (app_data.blacklisted) {
             set_blacklisted(true)
             // - PERSIST FINGERPRINT TO DB SO IT SURVIVES CACHE CLEARS - \\
@@ -801,11 +805,20 @@ export default function StaffApplicationPage() {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="mt-4">
-            <Button onClick={() => router.push("/")} className="w-full bg-white text-black hover:bg-white/90">
-              {form_lang === "Indonesia" ? "Kembali ke Beranda" : 
-               form_lang === "English" ? "Return to Home" :
-               form_lang === "Japan" ? "ホームに戻る" :
-               "返回首页"}
+            <Button 
+              onClick={() => {
+                if (applied_uuid) {
+                  router.push(`/staff-form/application-data?id=${applied_uuid}`)
+                } else {
+                  router.push("/")
+                }
+              }} 
+              className="w-full bg-white text-black hover:bg-white/90"
+            >
+              {form_lang === "Indonesia" ? "Lihat Hasil Pendaftaran" : 
+               form_lang === "English" ? "View Application Result" :
+               form_lang === "Japan" ? "応募結果を見る" :
+               "查看申请结果"}
             </Button>
           </DialogFooter>
         </DialogContent>

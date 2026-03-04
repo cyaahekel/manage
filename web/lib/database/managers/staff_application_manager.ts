@@ -31,13 +31,22 @@ export interface staff_application {
 const __collection = "staff_applications"
 
 /**
+ * @description Check if a user has already applied for staff and return their UUID if they have
+ * @param discord_id The user's Discord ID
+ * @returns string UUID if applied, null otherwise
+ */
+export async function get_user_application_uuid(discord_id: string): Promise<string | null> {
+  const application = await db.find_one<staff_application>(__collection, { discord_id })
+  return application?.uuid || null
+}
+
+/**
  * @description Check if a user has already applied for staff
  * @param discord_id The user's Discord ID
  * @returns boolean True if applied, false otherwise
  */
 export async function has_user_applied(discord_id: string): Promise<boolean> {
-  const application = await db.find_one<staff_application>(__collection, { discord_id })
-  return !!application
+  return !!(await get_user_application_uuid(discord_id))
 }
 
 /**
