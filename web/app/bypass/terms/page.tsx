@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Globe, ShieldAlert, FileText, LucideIcon, Scale, UserX, AlertTriangle, Shield, EyeOff, Database, BarChart2 } from 'lucide-react'
+import { Scale, ShieldCheck, DangerTriangle, DocumentText, UserCross, FolderOpen, Database, EyeClosed, ShieldWarning, Global, Chart, AltArrowLeft } from '@solar-icons/react'
 import { useRouter } from 'next/navigation'
 import {
   Accordion,
@@ -38,7 +38,7 @@ const translations = {
         title: 'Acceptable Use',
         subtitle: 'Rules of usage',
         content: 'The service is provided strictly for educational and accessibility purposes. You agree not to use the service for any malicious, illegal, or unauthorized activities. This includes, but is not limited to, bypassing security measures for unlawful access, distributing malware, or launching Denial of Service (DDoS) attacks against target websites.',
-        icon: Shield,
+        icon: ShieldCheck,
         textColor: "text-emerald-500",
         bgColor: "bg-emerald-500/10",
       },
@@ -47,7 +47,7 @@ const translations = {
         title: 'Disclaimer of Warranties',
         subtitle: 'Service availability',
         content: 'The service is provided "as is" without any warranty of any kind. We do not guarantee that the service will be uninterrupted, secure, or error-free. The links you choose to bypass are processed entirely at your own risk.',
-        icon: AlertTriangle,
+        icon: DangerTriangle,
         textColor: "text-orange-400",
         bgColor: "bg-orange-400/10",
       },
@@ -56,7 +56,7 @@ const translations = {
         title: 'Limitation of Liability',
         subtitle: 'Protection of developers',
         content: 'Under no circumstances shall Atomic or its developers be liable for any direct, indirect, incidental, or consequential damages resulting from the use or inability to use the service, or the content accessed through the bypassed links.',
-        icon: FileText,
+        icon: DocumentText,
         textColor: "text-zinc-400",
         bgColor: "bg-zinc-400/10",
       },
@@ -65,7 +65,7 @@ const translations = {
         title: 'Service Abuse and Termination',
         subtitle: 'Ban policy',
         content: 'We reserve the right to monitor usage patterns. Any form of abuse, including but not limited to API scraping, botting, or exploiting vulnerabilities, will result in immediate termination of your access. We may ban specific Discord users or entire servers from using the bot without prior notice.',
-        icon: UserX,
+        icon: UserCross,
         textColor: "text-red-500",
         bgColor: "bg-red-500/10",
       },
@@ -74,7 +74,7 @@ const translations = {
         title: 'Open Source Declaration',
         subtitle: 'Transparency and trust',
         content: 'This entire project is fully Open Source. You can review, audit, and contribute to the source code on our public repository. This ensures transparency in how your data is handled and gives the community the power to improve the service together.',
-        icon: FileText,
+        icon: FolderOpen,
         textColor: "text-zinc-200",
         bgColor: "bg-zinc-800/50",
       }
@@ -97,7 +97,7 @@ const translations = {
         title: 'Data Usage',
         subtitle: 'How we use your data',
         content: 'The data collected is strictly used to provide, maintain, and improve the bypass service. URL logs are used solely for debugging technical issues and identifying potential service abuse or spam.',
-        icon: EyeOff,
+        icon: EyeClosed,
         textColor: "text-teal-400",
         bgColor: "bg-teal-400/10",
       },
@@ -106,7 +106,7 @@ const translations = {
         title: 'Data Retention and Security',
         subtitle: 'Storing your data securely',
         content: 'We do not retain bypassed URLs indefinitely; system logs are periodically cleared. We employ reasonable security measures to protect your data from unauthorized access. We explicitly do NOT sell, rent, or share your personal data or bypassed links with third parties.',
-        icon: ShieldAlert,
+        icon: ShieldWarning,
         textColor: "text-purple-400",
         bgColor: "bg-purple-400/10",
       },
@@ -115,7 +115,7 @@ const translations = {
         title: 'Third-Party Interactions',
         subtitle: 'External websites',
         content: 'Our service acts as a proxy to bypass link shorteners. When you use our service, you are ultimately interacting with third-party websites. We are not responsible for the privacy practices, tracking, or content of these external sites.',
-        icon: Globe,
+        icon: Global,
         textColor: "text-sky-400",
         bgColor: "bg-sky-400/10",
       },
@@ -124,7 +124,7 @@ const translations = {
         title: 'Analytics',
         subtitle: 'Aggregated metrics',
         content: 'We track aggregated and anonymized metrics, such as the total number of bypassed links globally, to monitor the health, performance, and usage limits of our infrastructure.',
-        icon: BarChart2,
+        icon: Chart,
         textColor: "text-rose-400",
         bgColor: "bg-rose-400/10",
       }
@@ -154,7 +154,7 @@ const translations = {
         title: 'Penggunaan yang Diizinkan',
         subtitle: 'Aturan pemakaian',
         content: 'Layanan ini disediakan semata-mata untuk tujuan edukasi dan aksesibilitas. Anda sepakat untuk tidak menggunakan layanan ini untuk aktivitas yang bersifat berbahaya, ilegal, atau tidak sah. Hal ini mencakup, namun tidak terbatas pada, menghindari sistem keamanan untuk akses ilegal, menyebarkan perangkat lunak berbahaya (malware), atau melancarkan serangan Denial of Service (DDoS) terhadap situs web target.',
-        icon: Shield,
+        icon: ShieldCheck,
         textColor: "text-emerald-500",
         bgColor: "bg-emerald-500/10",
       },
@@ -163,7 +163,7 @@ const translations = {
         title: 'Penafian Jaminan',
         subtitle: 'Ketersediaan layanan',
         content: 'Layanan ini disediakan "sebagaimana adanya" tanpa jaminan dalam bentuk apa pun. Kami tidak menjamin bahwa layanan akan beroperasi tanpa gangguan, aman, atau bebas dari kesalahan. Tautan yang Anda proses menggunakan layanan kami adalah sepenuhnya risiko Anda sendiri.',
-        icon: AlertTriangle,
+        icon: DangerTriangle,
         textColor: "text-orange-400",
         bgColor: "bg-orange-400/10",
       },
@@ -172,7 +172,7 @@ const translations = {
         title: 'Batasan Tanggung Jawab',
         subtitle: 'Perlindungan pengembang',
         content: 'Dalam keadaan apa pun, Atomic beserta para pengembangnya tidak bertanggung jawab atas kerugian langsung, tidak langsung, insidental, atau konsekuensial yang timbul akibat penggunaan atau ketidakmampuan menggunakan layanan ini, maupun atas konten yang diakses melalui tautan tersebut.',
-        icon: FileText,
+        icon: DocumentText,
         textColor: "text-zinc-400",
         bgColor: "bg-zinc-400/10",
       },
@@ -181,7 +181,7 @@ const translations = {
         title: 'Penyalahgunaan dan Pemutusan Akses',
         subtitle: 'Kebijakan blokir (ban)',
         content: 'Kami berhak memantau pola penggunaan layanan. Segala bentuk penyalahgunaan, termasuk namun tidak terbatas pada ekstraksi data API secara paksa (scraping), penggunaan bot otomatis, atau eksploitasi celah keamanan, akan mengakibatkan pemutusan akses seketika. Kami dapat memblokir pengguna Discord tertentu atau bahkan seluruh server tanpa pemberitahuan sebelumnya.',
-        icon: UserX,
+        icon: UserCross,
         textColor: "text-red-500",
         bgColor: "bg-red-500/10",
       },
@@ -190,7 +190,7 @@ const translations = {
         title: 'Deklarasi Sumber Terbuka (Open Source)',
         subtitle: 'Transparansi dan kepercayaan',
         content: 'Situs web dan bot ini sepenuhnya bersifat Open Source. Anda dapat meninjau, mengaudit, dan berkontribusi langsung pada kode sumber kami melalui repositori publik yang tersedia. Hal ini memastikan transparansi mutlak mengenai bagaimana data Anda ditangani serta memberikan kebebasan bagi komunitas untuk turut mengembangkan layanan ini bersama-sama.',
-        icon: FileText,
+        icon: FolderOpen,
         textColor: "text-zinc-200",
         bgColor: "bg-zinc-800/50",
       }
@@ -213,7 +213,7 @@ const translations = {
         title: 'Penggunaan Data',
         subtitle: 'Cara data digunakan',
         content: 'Data yang dikumpulkan digunakan secara eksklusif untuk menyediakan, memelihara, dan meningkatkan kualitas layanan bypass. Catatan log URL hanya digunakan untuk menelusuri masalah teknis dan mengidentifikasi potensi penyalahgunaan layanan atau spam.',
-        icon: EyeOff,
+        icon: EyeClosed,
         textColor: "text-teal-400",
         bgColor: "bg-teal-400/10",
       },
@@ -222,7 +222,7 @@ const translations = {
         title: 'Penyimpanan dan Keamanan Data',
         subtitle: 'Keamanan data Anda',
         content: 'Kami tidak menyimpan tautan URL yang diproses untuk jangka waktu yang tidak terbatas; log sistem akan dibersihkan secara berkala. Kami menerapkan langkah-langkah keamanan yang wajar untuk melindungi data Anda dari akses yang tidak sah. Kami secara tegas TIDAK menjual, menyewakan, atau membagikan data pribadi atau tautan Anda kepada pihak ketiga.',
-        icon: ShieldAlert,
+        icon: ShieldWarning,
         textColor: "text-purple-400",
         bgColor: "bg-purple-400/10",
       },
@@ -231,7 +231,7 @@ const translations = {
         title: 'Interaksi dengan Pihak Ketiga',
         subtitle: 'Situs web eksternal',
         content: 'Layanan kami bertindak sebagai perantara untuk melewati pemendek tautan. Saat menggunakan layanan kami, Anda pada dasarnya berinteraksi dengan situs web pihak ketiga. Kami tidak bertanggung jawab atas praktik privasi, pelacakan, atau konten dari situs eksternal tersebut.',
-        icon: Globe,
+        icon: Global,
         textColor: "text-sky-400",
         bgColor: "bg-sky-400/10",
       },
@@ -240,7 +240,7 @@ const translations = {
         title: 'Analitik',
         subtitle: 'Metrik anonim',
         content: 'Kami melacak metrik agregat yang dianonimkan, seperti jumlah total tautan yang berhasil diproses secara global, guna memantau kesehatan, kinerja, dan batas penggunaan infrastruktur layanan kami.',
-        icon: BarChart2,
+        icon: Chart,
         textColor: "text-rose-400",
         bgColor: "bg-rose-400/10",
       }
@@ -280,7 +280,7 @@ export default function BypassTerms() {
                 onClick={() => set_lang(lang === 'en' ? 'id' : 'en')}
                 className="h-8 gap-2 text-xs"
               >
-                <Globe className="w-3.5 h-3.5" />
+                <Global size={14} />
                 {t.lang}
               </Button>
             </CardHeader>
@@ -393,7 +393,7 @@ export default function BypassTerms() {
                   onClick={() => router.back()}
                   className="rounded-lg cursor-pointer h-9 shadow-xs text-sm"
                 >
-                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  <AltArrowLeft size={16} />
                   {t.btn_back}
                 </Button>
               </div>
