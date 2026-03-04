@@ -187,27 +187,27 @@ function ApplicationDataPageContent() {
             <BreadcrumbList>
               {__recruitment_steps.map((step, index) => (
                 <Fragment key={index}>
-                  <BreadcrumbItem>
+                  <BreadcrumbItem className="shrink-0">
                     {step.active ? (
                       <BreadcrumbPage className="flex flex-col items-center gap-1.5">
                         <div className="flex items-center justify-center w-9 h-9 rounded-full bg-primary/10 border border-primary/30 text-primary">
                           <step.icon className="w-4 h-4" />
                         </div>
-                        <span className="text-[11px] font-semibold text-primary">{step.label}</span>
+                        <span className="text-[11px] font-semibold text-primary whitespace-nowrap">{step.label}</span>
                       </BreadcrumbPage>
                     ) : (
                       <div className="flex flex-col items-center gap-1.5">
                         <div className="flex items-center justify-center w-9 h-9 rounded-full bg-muted/60 border border-border/40 text-muted-foreground/50">
                           <step.icon className="w-4 h-4" />
                         </div>
-                        <span className="text-[11px] font-medium text-muted-foreground/40">{step.label}</span>
+                        <span className="text-[11px] font-medium text-muted-foreground/40 whitespace-nowrap">{step.label}</span>
                       </div>
                     )}
                   </BreadcrumbItem>
                   {index !== __recruitment_steps.length - 1 && (
                     <li
                       aria-hidden="true"
-                      className="inline-block h-[2px] w-[48px] bg-border/40 mb-4 rounded-full"
+                      className="inline-block shrink-0 h-[2px] w-[48px] bg-border/40 mb-4 rounded-full"
                       role="presentation"
                     />
                   )}
