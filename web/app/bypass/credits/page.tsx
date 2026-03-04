@@ -5,7 +5,7 @@ import Image                                             from 'next/image'
 import dynamic                                           from 'next/dynamic'
 import { motion, AnimatePresence }                       from 'framer-motion'
 import { IconBrandGithub, IconBrandDiscord, IconX, IconCalendar, IconCrown } from '@tabler/icons-react'
-import { Tabs }                                          from '@/components/ui/tabs'
+import { Tabs, TabsList, TabsTrigger }                   from '@/components/ui/tabs'
 import { BypassTopbar }                                  from '@/components/layout/bypass_topbar'
 
 // - LAZY LOAD LIGHTRAYS - \\
@@ -46,9 +46,9 @@ const __stack = [
 ]
 
 const __tab_items = [
-  { title: 'Developer', value: 'developer' },
-  { title: 'Supporter', value: 'supporter' },
-  { title: 'Staff',     value: 'staff' },
+  { label: 'Developer', value: 'developer' },
+  { label: 'Supporter', value: 'supporter' },
+  { label: 'Staff',     value: 'staff' },
 ]
 
 // - TYPES - \\
@@ -463,12 +463,15 @@ export default function CreditsPage() {
 
         {/* - TABS - \\ */}
         <div className="mb-8 block max-w-fit">
-          <Tabs
-            tabs={__tab_items}
-            active={active_tab}
-            on_change={set_active_tab}
-            className="gap-1 border-b border-border/50 pb-2"
-          />
+          <Tabs value={active_tab} onValueChange={set_active_tab}>
+            <TabsList>
+              {__tab_items.map(tab => (
+                <TabsTrigger key={tab.value} value={tab.value}>
+                  {tab.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
         </div>
 
         {/* - CONTENT - \\ */}

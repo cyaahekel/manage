@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo }                         from 'react'
 import { cn }                                                   from '@/lib/utils'
 import { BypassTopbar }                                         from '@/components/layout/bypass_topbar'
-import { Tabs }                                                 from '@/components/ui/tabs'
+import { Tabs, TabsList, TabsTrigger }                          from '@/components/ui/tabs'
 import DarkVeil                                                 from '@/components/animations/dark_veil'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Skeleton }                                             from '@/components/ui/skeleton'
@@ -136,14 +136,16 @@ export default function SupportedPage() {
           )}
           {!loading && !error && types.length > 1 && (
             <div className="mt-6">
-              <Tabs
-                tabs={[
-                  { title: 'All', value: 'all' },
-                  ...types.map(t => ({ title: t.charAt(0).toUpperCase() + t.slice(1), value: t })),
-                ]}
-                active={tab}
-                on_change={set_tab}
-              />
+              <Tabs value={tab} onValueChange={set_tab}>
+                <TabsList>
+                  <TabsTrigger value="all">All</TabsTrigger>
+                  {types.map(t => (
+                    <TabsTrigger key={t} value={t}>
+                      {t.charAt(0).toUpperCase() + t.slice(1)}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </Tabs>
             </div>
           )}
         </div>
