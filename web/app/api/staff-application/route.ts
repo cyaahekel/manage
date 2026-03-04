@@ -329,6 +329,37 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid session" }, { status: 401 })
     }
 
+    await connect()
+
+    const is_owner = user.id === "1118453649727823974"
+    if (!is_owner) {
+      const already_applied = await has_user_applied(user.id)
+      if (already_applied) {
+        return NextResponse.json({ error: "You have already submitted an application. Please wait for the results." }, { status: 409 })
+      }
+    }
+
+    try {
+      const controller = new AbortController()
+      const timeout_id = setTimeout(() => controller.abort(), 3000)
+      const member_res = await fetch(`${__bot_url}/api/member/${user.id}`, { signal: controller.signal })
+      clearTimeout(timeout_id)
+      
+      if (member_res.ok) {
+        const member_data = JSON.parse(await member_res.text())
+        const roles: any[] = member_data.roles ?? []
+        const is_blacklisted = roles.some((r: any) =>
+          typeof r === 'string' ? r === __blacklist_role_id : r.id === __blacklist_role_id
+        )
+        if (is_blacklisted) {
+          return NextResponse.json({ error: "Your account is blacklisted." }, { status: 403 })
+        }
+      }
+    } catch (e) {
+      // Ignore network errors here to not block legitimate users if bot API is down, 
+      // but it's an extra layer of security.
+    }
+
     // - PARSE BODY - \\
     const body = await req.json()
     
