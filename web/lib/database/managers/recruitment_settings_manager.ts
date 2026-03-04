@@ -32,6 +32,6 @@ export async function get_recruitment_settings(): Promise<recruitment_settings> 
 
 export async function update_recruitment_settings(data: Partial<recruitment_settings>): Promise<boolean> {
   data.updated_at = Date.now()
-  await db.update_one(__collection, { id: "main" }, { $set: data })
+  await db.update_one(__collection, { id: "main" }, data)
   return true
 }

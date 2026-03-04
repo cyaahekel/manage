@@ -604,6 +604,15 @@ async function init_tables(): Promise<void> {
       ADD COLUMN IF NOT EXISTS active_other_hub TEXT
     `).catch(() => {})
 
+    // - STAFF APPLICATION REVIEWS MIGRATION - \\
+    await client.query(`
+      ALTER TABLE staff_applications 
+      ADD COLUMN IF NOT EXISTS note TEXT,
+      ADD COLUMN IF NOT EXISTS flag VARCHAR(50),
+      ADD COLUMN IF NOT EXISTS reviewed_by VARCHAR(255),
+      ADD COLUMN IF NOT EXISTS reviewed_at BIGINT
+    `).catch(() => {})
+
     await client.query(`
       CREATE INDEX IF NOT EXISTS idx_staff_applications_discord_id ON staff_applications(discord_id)
     `).catch(() => {})

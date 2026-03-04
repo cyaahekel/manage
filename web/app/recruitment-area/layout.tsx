@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Loader2 } from 'lucide-react'
 import { AppSidebar } from '@/components/shadcn-space/blocks/sidebar-01/app-sidebar'
-import { SidebarProvider } from '@/components/ui/sidebar'
+import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
+import { Toaster } from '@/components/ui/sonner'
 
 export default function RecruitmentLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
@@ -42,13 +43,20 @@ export default function RecruitmentLayout({ children }: { children: React.ReactN
       <SidebarProvider>
         <div className="flex min-h-screen w-full">
           <AppSidebar />
-          <div className="flex-1 min-w-0 overflow-y-auto">
-            <main className="container mx-auto px-4 py-8 max-w-6xl animate-in fade-in slide-in-from-bottom-2 duration-500">
-              {children}
+          <div className="flex-1 min-w-0 flex flex-col overflow-hidden">
+            <header className="flex h-14 items-center gap-4 border-b border-border/40 bg-zinc-950/50 px-6 lg:hidden">
+              <SidebarTrigger className="-ml-2 text-zinc-400 hover:text-white" />
+              <div className="font-semibold text-sm">Recruitment Area</div>
+            </header>
+            <main className="flex-1 overflow-y-auto">
+              <div className="container mx-auto px-4 py-8 max-w-6xl animate-in fade-in slide-in-from-bottom-2 duration-500">
+                {children}
+              </div>
             </main>
           </div>
         </div>
       </SidebarProvider>
+      <Toaster position="top-center" theme="dark" className="pointer-events-auto" />
     </div>
   )
 }

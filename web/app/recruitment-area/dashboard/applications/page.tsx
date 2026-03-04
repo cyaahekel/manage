@@ -13,6 +13,7 @@ import { Field, FieldLabel }                                                    
 import { Input }                                                                    from "@/components/ui/input"
 import { Textarea }                                                                 from "@/components/ui/textarea"
 import { ScrollArea }                                                               from "@/components/ui/scroll-area"
+import { toast }                                                                    from "sonner"
 
 interface staff_application {
   uuid                  : string
@@ -116,16 +117,22 @@ function ApplicationModal({ uuid, open, on_close, on_review_saved }: { uuid: str
   async function save_review() {
     if (!app?.uuid) return
     set_saving(true)
+    const tid = toast.loading("Saving review...")
     try {
-      await fetch(`/api/recruitment-applications/${app.uuid}`, {
+      const res = await fetch(`/api/recruitment-applications/${app.uuid}`, {
         method : 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body   : JSON.stringify({ note, flag })
       })
+      if (!res.ok) throw new Error("Failed to save review")
+      
       set_save_ok(true)
       setTimeout(() => set_save_ok(false), 2000)
       on_review_saved?.(app.uuid, flag, note)
-    } catch { /* silent */ }
+      toast.success(`Application marked as ${flag}`, { id: tid })
+    } catch (err) {
+      toast.error("Could not save review", { id: tid })
+    }
     set_saving(false)
   }
 
@@ -228,7 +235,7 @@ function ApplicationModal({ uuid, open, on_close, on_review_saved }: { uuid: str
                     {app.reviewed_by && (
                       <p className="text-xs text-zinc-600">
                         Last reviewed by <span className="text-zinc-400">@{app.reviewed_by}</span>
-                        {app.reviewed_at ? ` · ${new Date(app.reviewed_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}` : ''}
+                        {app.reviewed_at ? ` · ${new Date(Number(app.reviewed_at)).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}` : ''}
                       </p>
                     )}
                   </div>

@@ -11,6 +11,80 @@ const __blacklist_role_id  = "1266021026157035721"
 const __bot_url            = process.env.NEXT_PUBLIC_BOT_URL || 'https://atomicbot-production.up.railway.app'
 
 /**
+ * @description Sends a DM to the user after they successfully apply.
+ * @param discord_id - The user's Discord ID
+ */
+async function send_dm_notification(discord_id: string): Promise<void> {
+  const token = process.env.DISCORD_BOT_TOKEN
+  if (!token) return
+
+  try {
+    const channel_res = await fetch(`${__discord_api}/users/@me/channels`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bot ${token}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ recipient_id: discord_id })
+    })
+
+    if (!channel_res.ok) {
+      console.error("[ - STAFF APP DM - ] Failed to create DM:", await channel_res.text())
+      return
+    }
+
+    const channel_data = await channel_res.json()
+    
+    const message_body = {
+      flags: 32768,
+      components: [
+        {
+          type: 17,
+          components: [
+            {
+              type: 10,
+              content: "## Thank you for applying to be a staff member!"
+            }
+          ]
+        },
+        {
+          type: 17,
+          components: [
+            {
+              type: 10,
+              content: "Terima kasih banyak sudah mendaftarkan diri untuk menjadi bagian dari tim kami. Saat ini, formulir pendaftaran kamu sedang dalam proses review oleh tim kami. Kami benar-benar mengapresiasi waktu, usaha, dan niat baik yang sudah kamu berikan untuk bergabung bersama kami.\n\nJika kamu lolos ke tahap berikutnya, kami akan segera menghubungi kamu melalui discord ini. \n\nSekali lagi, terima kasih atas minat dan antusiasmenya karna mau menjadi bagian dari perjalanan tim kami. Semoga kita bisa segera bekerja sama dan berkembang bersama! 💙\n\nStay tuned yaa, dan makasih banyakkk! 🙌\n"
+            },
+            {
+              type: 14,
+              spacing: 2
+            },
+            {
+              type: 10,
+              content: "*~ Best Regads,\nOur Executive Director & RDoM*"
+            }
+          ]
+        }
+      ]
+    }
+
+    const msg_res = await fetch(`${__discord_api}/channels/${channel_data.id}/messages`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bot ${token}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(message_body)
+    })
+
+    if (!msg_res.ok) {
+      console.error("[ - STAFF APP DM - ] Failed to send DM:", await msg_res.text())
+    }
+  } catch (error) {
+    console.error("[ - STAFF APP DM - ] Error:", error)
+  }
+}
+
+/**
  * @description Sends a Component V2 formatted staff application embed to the designated Discord channel.
  * @param data - The submitted staff application data
  * @param uuid - The application UUID for the View data link
@@ -333,8 +407,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Database error: " + (db_err as Error).message }, { status: 500 })
     }
 
-    // - SEND DISCORD NOTIFICATION - \\
+    // - SEND DISCORD NOTIFICATIONS - \\
     await send_discord_notification(application_data, application_uuid).catch(() => {})
+    await send_dm_notification(user.id).catch(() => {})
 
     return NextResponse.json({ success: true, uuid: application_uuid, message: "Application submitted successfully!" }, { status: 201 })
   } catch (error) {
