@@ -40,9 +40,9 @@ let __active_requests                         = 0
 // - CIRCUIT BREAKER (EXTENDED TIMEOUT) - \\
 let __circuit_breaker_failures                = 0
 let __circuit_breaker_last_failure            = 0
-const __circuit_breaker_threshold             = 3
-const __circuit_breaker_timeout               = 60 * 1000
-const __circuit_breaker_half_open_timeout     = 30 * 1000
+const __circuit_breaker_threshold             = 10
+const __circuit_breaker_timeout               = 30 * 1000
+const __circuit_breaker_half_open_timeout     = 15 * 1000
 
 // - EXPONENTIAL BACKOFF CONFIGURATION - \\
 const __backoff_initial_delay                 = 1000
@@ -50,8 +50,8 @@ const __backoff_max_delay                     = 30000
 const __backoff_max_retries                   = 3
 
 // - PERFORMANCE OPTIMIZATION - \\
-const __default_timeout                       = 10000
-const __fast_timeout                          = 5000
+const __default_timeout                       = 15000
+const __fast_timeout                          = 8000
 
 // - HTTP ERROR CLASSIFICATION - \\
 enum error_type {
