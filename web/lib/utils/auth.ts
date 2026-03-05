@@ -1,4 +1,5 @@
 import { NextRequest } from 'next/server'
+import { decrypt_session } from './session'
 
 const __bot_url         = process.env.NEXT_PUBLIC_BOT_URL || 'https://atomicbot-production.up.railway.app'
 const __allowed_role_id = "1346622175985143908"
@@ -17,11 +18,11 @@ export interface auth_user {
  * @param req - Incoming Next.js request
  * @returns Parsed user object or null
  */
-function parse_session(req: NextRequest): auth_user | null {
+async function parse_session(req: NextRequest): Promise<auth_user | null> {
   try {
     const cookie = req.cookies.get('discord_user')
     if (!cookie?.value) return null
-    const user = JSON.parse(cookie.value)
+    const user = await decrypt_session(cookie.value)
     if (!user || typeof user.id !== 'string' || !user.id) return null
     return user as auth_user
   } catch {
@@ -64,7 +65,7 @@ async function has_staff_role(user: auth_user): Promise<boolean> {
  * @returns Authenticated user or null
  */
 export async function check_auth(req: NextRequest): Promise<auth_user | null> {
-  const user = parse_session(req)
+  const user = await parse_session(req)
   if (!user) return null
   const ok = await has_staff_role(user)
   return ok ? user : null
@@ -76,8 +77,8 @@ export async function check_auth(req: NextRequest): Promise<auth_user | null> {
  * @param req - Incoming Next.js request
  * @returns Authenticated user or null
  */
-export function check_session(req: NextRequest): auth_user | null {
-  return parse_session(req)
+export async function check_session(req: NextRequest): Promise<auth_user | null> {
+  return await parse_session(req)
 }
 
 /**

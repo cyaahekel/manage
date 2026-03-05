@@ -14,7 +14,7 @@ export async function GET(
   { params } : { params: Promise<{ uuid: string }> }
 ) {
   try {
-    const session = check_session(req)
+    const session = await check_session(req)
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
