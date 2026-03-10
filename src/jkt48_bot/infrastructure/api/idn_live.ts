@@ -469,20 +469,23 @@ async function fetch_live_detail(slug: string, client: Client): Promise<string |
       return stream_url
 
     } catch (error: any) {
-      const is_timeout = error?.code === "ECONNABORTED" || error?.message?.includes("timeout")
+      const status         = error?.response?.status as number | undefined
+      const is_timeout     = error?.code === "ECONNABORTED" || error?.message?.includes("timeout")
+      const is_server_err  = status !== undefined && status >= 500
 
       if (attempt < __detail_retry_max) {
-        console.warn(`[ - IDN LIVE - ] fetch_live_detail attempt ${attempt} failed for ${slug}, retrying...`)
+        console.warn(`[ - IDN LIVE - ] fetch_live_detail attempt ${attempt} failed for ${slug} (${status ?? error?.code ?? "unknown"}), retrying...`)
         await new Promise(resolve => setTimeout(resolve, __detail_retry_delay))
         continue
       }
 
       // - ALL ATTEMPTS EXHAUSTED - \\
       detail_failed_cache.set(slug, Date.now())
-      if (!is_timeout) {
-        await log_error(client, error as Error, "idn_live_fetch_detail_api", { slug, attempt })
+      if (is_timeout || is_server_err) {
+        // - TRANSIENT ERROR (TIMEOUT / 5XX), SKIP LOGGING TO AVOID NOISE - \\
+        console.warn(`[ - IDN LIVE - ] fetch_live_detail skipped for ${slug}: ${is_timeout ? "timeout" : `HTTP ${status}`}`)
       } else {
-        console.warn(`[ - IDN LIVE - ] fetch_live_detail timeout for slug: ${slug}`)
+        await log_error(client, error as Error, "idn_live_fetch_detail_api", { slug, attempt }).catch(() => {})
       }
       return null
     }

@@ -1,5 +1,5 @@
-// - 隔离功能的模块控制器 - \
-// - module controller for the quarantine feature - \
+// - 隔离功能的模块控制器 - \\
+// - module controller for the quarantine feature - \\
 import { Client, GuildMember, Guild, Role, TextChannel } from "discord.js"
 import { component, time }                               from "@shared/utils"
 import { log_error }                                     from "@shared/utils/error_logger"
@@ -51,7 +51,8 @@ export async function quarantine_member(options: quarantine_member_options) {
       }
     }
 
-    // - SKIP ROLE HIERARCHY CHECK FOR ADMINS - \\
+    // - 管理员跳过角色层级检查 - \\
+    // - skip role hierarchy check for admins - \\
     if (!executor_is_admin && executor.roles.highest.position <= target.roles.highest.position) {
       return {
         success : false,
@@ -59,7 +60,8 @@ export async function quarantine_member(options: quarantine_member_options) {
       }
     }
 
-    // - FORCE FRESH FETCH TO AVOID STALE CACHE ON MANAGEABLE CHECK - \\
+    // - 强制刷新拉取，避免 manageable 检查读到旧缓存 - \\
+    // - force fresh fetch to avoid stale cache on manageable check - \\
     const fresh_target = await guild.members.fetch({ user: target.id, force: true }).catch(() => null)
     if (!fresh_target) {
       return {
@@ -75,7 +77,8 @@ export async function quarantine_member(options: quarantine_member_options) {
       }
     }
 
-    // - CHECK IF ALREADY QUARANTINED - \\
+    // - 检查是否已被隔离 - \\
+    // - check if already quarantined - \\
     const already_quarantined = await is_quarantined(fresh_target.id, guild.id)
     if (already_quarantined) {
       return {
@@ -107,7 +110,8 @@ export async function quarantine_member(options: quarantine_member_options) {
       .filter(role => !role.managed && role.id !== guild.id)
       .map(role => role.id)
 
-    // - REMOVE ALL ROLES AND ADD QUARANTINE ROLE - \\
+    // - 移除全部角色并添加隔离角色 - \\
+    // - remove all roles and add quarantine role - \\
     await fresh_target.roles.set([...managed_roles, quarantine_role.id], reason)
 
     const now        = Math.floor(Date.now() / 1000)
@@ -123,7 +127,8 @@ export async function quarantine_member(options: quarantine_member_options) {
       days
     )
 
-    // - RECORD HISTORY AND SEND LOG - \\
+    // - 记录历史并发送日志 - \\
+    // - record history and send log - \\
     await add_quarantine_history(fresh_target.id, guild.id, reason, executor.id, days)
 
     const avatar_url = fresh_target.user.displayAvatarURL({ size: 512 })

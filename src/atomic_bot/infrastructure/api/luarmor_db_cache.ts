@@ -1,7 +1,6 @@
-// - Luarmor 数据库缓存层，减少 API 请求次数 - \
-// - luarmor DB cache layer to cut down on API calls - \
+// - luarmor database cache layer, reduces api request count - \\
 /**
- * - LUARMOR DATABASE CACHE LAYER - \\
+ * - luarmor database cache layer - \\
  * PostgreSQL caching for Luarmor user data to reduce API calls
  */
 
@@ -21,7 +20,7 @@ interface cached_user_record {
 }
 
 /**
- * - CHECK UNIQUE VIOLATION ERROR - \\
+ * - check unique violation error - \\
  * @param {unknown} error - Error object
  * @returns {boolean} True if unique constraint violation
  */
@@ -31,7 +30,7 @@ function is_unique_violation(error: unknown): boolean {
 }
 
 /**
- * - GET USER FROM DATABASE CACHE - \\
+ * - get user from database cache - \\
  * @param {string} discord_id - Discord ID
  * @param {boolean} allow_stale - Allow stale data if fresh data unavailable
  * @returns {Promise<luarmor_user | null>} Cached user data or null
@@ -51,12 +50,12 @@ export async function get_cached_user_from_db(discord_id: string, allow_stale: b
     const now       = Date.now()
     const cache_age = now - cached.cached_at
     
-    // - RETURN FRESH CACHE - \\
+    // - return fresh cache - \\
     if (cache_age <= CACHE_DURATION_MS) {
       return cached.user_data
     }
     
-    // - RETURN STALE CACHE IF ALLOWED - \\
+    // - return stale cache if allowed - \\
     if (allow_stale && cache_age <= STALE_DURATION_MS) {
       console.log("[ - DB CACHE - ] Returning stale cache for:", discord_id)
       return cached.user_data
@@ -70,7 +69,7 @@ export async function get_cached_user_from_db(discord_id: string, allow_stale: b
 }
 
 /**
- * - SAVE USER TO DATABASE CACHE - \\
+ * - save user to database cache - \\
  * @param {string} discord_id - Discord ID
  * @param {luarmor_user} user_data - User data
  * @returns {Promise<void>}
@@ -117,7 +116,7 @@ export async function save_user_to_db_cache(discord_id: string, user_data: luarm
 }
 
 /**
- * - DELETE USER FROM DATABASE CACHE - \\
+ * - delete user from database cache - \\
  * @param {string} discord_id - Discord ID
  * @returns {Promise<void>}
  */

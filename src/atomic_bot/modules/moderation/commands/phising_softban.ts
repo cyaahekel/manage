@@ -1,5 +1,4 @@
-// - 钓鱼链接软封禁命令，自动处理钓鱼消息的用户 - \
-// - phishing softban command, auto-handles users who send phishing links - \
+// - phishing softban command, auto-handles users who send phishing links - \\
 import {
   ApplicationCommandType,
   ContextMenuCommandBuilder,
@@ -12,7 +11,7 @@ import { component }                      from "@shared/utils"
 import { log_error }                      from "@shared/utils/error_logger"
 import { is_admin, is_staff }             from "@shared/database/settings/permissions"
 
-// - 1 DAY IN SECONDS - \\
+// - 1 day in seconds - \\
 const __softban_delete_seconds = 1 * 24 * 60 * 60
 
 /**
@@ -93,7 +92,7 @@ const phising_softban: MessageContextMenuCommand = {
     const __reason = "Phishing"
 
     try {
-      // - SEND DM BEFORE BAN - \\
+      // - send dm before ban - \\
       await target_user.send(
         build_message([
           `## You have been softbanned from ${guild.name}`,

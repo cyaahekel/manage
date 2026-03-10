@@ -1,9 +1,8 @@
-// - AFK 功能的工具函数 - \
-// - utility functions for the AFK feature - \
+// - utility functions for the afk feature - \\
 import { component } from "@shared/utils"
 
 /**
- * - BUILD SIMPLE MESSAGE - \\
+ * - build simple message - \\
  * @param {string} title - Message title
  * @param {string[]} lines - Message lines
  * @returns {object} Component v2 message
@@ -21,31 +20,31 @@ export function build_simple_message(title: string, lines: string[]): object {
 }
 
 /**
- * - SANITIZE AFK REASON - \\
+ * - sanitize afk reason - \\
  * @param {string} reason - Raw AFK reason from user input
  * @returns {string} Sanitized AFK reason
  */
 export function sanitize_afk_reason(reason: string): string {
-  // - REMOVE INVISIBLE/ZERO-WIDTH CHARACTERS - \\
+  // - remove invisible/zero-width characters - \\
   const invisible_chars = /[\u200B-\u200D\uFEFF\u00AD\u2060\u180E]/g
   let sanitized         = reason.replace(invisible_chars, "")
 
-  // - REPLACE NEWLINES AND TABS WITH SPACES - \\
+  // - replace newlines and tabs with spaces - \\
   sanitized = sanitized.replace(/[\n\r\t]+/g, " ")
 
-  // - COLLAPSE MULTIPLE SPACES - \\
+  // - collapse multiple spaces - \\
   sanitized = sanitized.replace(/\s+/g, " ")
 
-  // - TRIM WHITESPACE - \\
+  // - trim whitespace - \\
   sanitized = sanitized.trim()
 
-  // - LIMIT LENGTH TO 200 CHARACTERS - \\
+  // - limit length to 200 characters - \\
   const max_length = 200
   if (sanitized.length > max_length) {
     sanitized = sanitized.substring(0, max_length).trim() + "..."
   }
 
-  // - PREVENT EMPTY/WHITESPACE-ONLY MESSAGES - \\
+  // - prevent empty/whitespace-only messages - \\
   if (!sanitized || sanitized.length === 0) {
     sanitized = "AFK"
   }

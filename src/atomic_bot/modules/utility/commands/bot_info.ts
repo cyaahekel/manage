@@ -1,5 +1,4 @@
-// - /bot-info 斜杠命令，查看 bot 信息 - \
-// - /bot-info slash command, shows bot information - \
+// - /bot-info slash command, shows bot information - \\
 import { ChatInputCommandInteraction, SlashCommandBuilder, version as djsVersion } from "discord.js"
 import { Command }  from "@shared/types/command"
 import { component, time } from "@shared/utils"
@@ -13,7 +12,7 @@ export const command: Command = {
   async execute(interaction: ChatInputCommandInteraction) {
     const client = interaction.client
 
-    // - UPTIME CALCULATION - \\
+    // - uptime calculation - \\
     const uptime_seconds = Math.floor(client.uptime! / 1000)
     const days           = Math.floor(uptime_seconds / 86400)
     const hours          = Math.floor((uptime_seconds % 86400) / 3600)
@@ -21,11 +20,11 @@ export const command: Command = {
     const seconds        = uptime_seconds % 60
     const uptime_text    = `${days}d ${hours}h ${minutes}m ${seconds}s`
 
-    // - MEMORY USAGE - \\
+    // - memory usage - \\
     const used_memory    = (process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2)
     const total_memory   = (process.memoryUsage().heapTotal / 1024 / 1024).toFixed(2)
     
-    // - SYSTEM INFO - \\
+    // - system info - \\
     const platform       = os.platform()
     const arch           = os.arch()
     const node_version   = process.version
@@ -34,7 +33,7 @@ export const command: Command = {
     const locale         = Intl.DateTimeFormat().resolvedOptions().locale
     const server_loc     = `${os.hostname()} (${locale})`
     
-    // - BOT STATS - \\
+    // - bot stats - \\
     const guild_count    = client.guilds.cache.size
     const user_count     = client.users.cache.size
     const channel_count  = client.channels.cache.size
