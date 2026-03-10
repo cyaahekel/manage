@@ -9,13 +9,14 @@
 
 'use client'
 
-import { useState, useEffect, useCallback }              from 'react'
-import Image                                             from 'next/image'
-import dynamic                                           from 'next/dynamic'
-import { motion, AnimatePresence }                       from 'framer-motion'
+import { useState, useEffect, useCallback } from 'react'
+import Image                                from 'next/image'
+import dynamic                              from 'next/dynamic'
+import { motion, AnimatePresence }          from 'framer-motion'
 import { IconBrandGithub, IconBrandDiscord, IconX, IconCalendar, IconCrown } from '@tabler/icons-react'
-import { Tabs, TabsList, TabsTrigger }                   from '@/components/ui/tabs'
-import { BypassTopbar }                                  from '@/components/layout/bypass_topbar'
+import { Dialog, DialogPanel, DialogClose } from '@/components/animate-ui/components/headless/dialog'
+import { BypassTopbar }                     from '@/components/layout/bypass_topbar'
+import { cn }                               from '@/lib/utils'
 
 // - LAZY LOAD LIGHTRAYS - \\
 const LightRays = dynamic(() => import('@/components/animations/light_rays'), { ssr: false })
@@ -113,28 +114,14 @@ function CreditLink({ icon, label, href }: { icon: string; label: string; href: 
   )
 }
 
-function UserAvatar({ initials, avatar_url }: { initials: string; avatar_url: string | null }) {
-  if (avatar_url) {
-    return (
-      <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-border">
-        <Image src={avatar_url} alt={initials} fill className="object-cover" unoptimized />
-      </div>
-    )
-  }
-
-  return (
-    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-border bg-muted text-sm font-medium text-foreground">
-      {initials}
-    </div>
-  )
-}
-
-function MemberDetailPanel({ member_id, on_close }: { member_id: string; on_close: () => void }) {
+// - discord profile dialog - \\
+function ProfileDialog({ member_id, on_close }: { member_id: string | null; on_close: () => void }) {
   const [data,    set_data]    = useState<member_detail | null>(null)
-  const [loading, set_loading] = useState(true)
+  const [loading, set_loading] = useState(false)
   const [error,   set_error]   = useState(false)
 
   useEffect(() => {
+    if (!member_id) return
     set_data(null)
     set_loading(true)
     set_error(false)
@@ -149,167 +136,159 @@ function MemberDetailPanel({ member_id, on_close }: { member_id: string; on_clos
   }, [member_id])
 
   return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[100] flex items-center justify-end"
+    <Dialog open={!!member_id} onClose={on_close}>
+      <DialogPanel
+        className="p-0 gap-0 sm:max-w-sm overflow-hidden rounded-2xl flex flex-col max-h-[85svh]"
+        showCloseButton={false}
       >
-        <div
-          className="absolute inset-0 bg-background/90"
-          onClick={on_close}
-        />
-        
-        <motion.div
-           initial={{ x: '100%' }}
-           animate={{ x: 0 }}
-           exit={{ x: '100%' }}
-           transition={{ type: 'tween', ease: 'easeOut', duration: 0.25 }}
-           className="relative flex h-full w-full max-w-sm flex-col overflow-hidden border-l border-border bg-background shadow-2xl"
-        >
-          <div className="flex items-center justify-between border-b border-border px-5 py-4">
-            <p className="text-sm font-medium text-foreground">Personnel Record</p>
-            <button
-              onClick={on_close}
-              className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            >
-              <IconX size={16} />
-            </button>
-          </div>
-
-          <div className="flex-1 overflow-y-auto no-scrollbar">
-            {loading && (
-              <div className="space-y-4 p-5">
-                <div className="h-24 w-full animate-pulse rounded-lg bg-muted" />
-                <div className="flex items-end gap-3">
-                  <div className="h-16 w-16 animate-pulse rounded-lg bg-muted" />
-                  <div className="space-y-2 pb-1">
-                    <div className="h-4 w-32 animate-pulse rounded bg-muted" />
-                    <div className="h-3 w-20 animate-pulse rounded bg-muted" />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {error && (
-              <div className="flex h-40 items-center justify-center">
-                <p className="text-sm text-muted-foreground">Unable to fetch member data.</p>
-              </div>
-            )}
-
-            {data && !loading && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="pb-10">
-                <div className="relative mb-12">
-                  <div className="h-24 w-full bg-muted">
-                    {data.banner && (
-                      <Image src={data.banner} alt="banner" fill className="object-cover" unoptimized />
-                    )}
-                  </div>
-                  <div className="absolute -bottom-8 left-5">
-                    <Image
-                      src={data.avatar}
-                      alt={data.display_name}
-                      width={64} height={64}
-                      className="h-16 w-16 rounded-lg border-4 border-background bg-muted object-cover shadow-sm"
-                      unoptimized
-                    />
-                  </div>
-                </div>
-
-                <div className="px-5">
-                  <div className="mb-6">
-                    <h2 className="text-lg font-bold text-foreground">{data.display_name}</h2>
-                    <p className="text-sm text-muted-foreground">@{data.username}</p>
-                    {data.nickname && data.nickname !== data.display_name && (
-                      <p className="mt-1 text-xs text-muted-foreground">aka {data.nickname}</p>
-                    )}
-                  </div>
-
-                  <div className="mb-6 space-y-3">
-                     {data.joined_at && (
-                      <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                        <IconCalendar size={16} className="text-muted-foreground/50" />
-                        <span>Joined server <span className="text-foreground">{fmt_date(data.joined_at)}</span></span>
-                      </div>
-                    )}
-                    {data.created_at && (
-                      <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                        <IconCalendar size={16} className="text-muted-foreground/50" />
-                        <span>Registered <span className="text-foreground">{fmt_date(data.created_at)}</span></span>
-                      </div>
-                    )}
-                    {data.premium_since && (
-                      <div className="flex items-center gap-3 text-sm text-pink-400">
-                        <IconCrown size={16} className="text-pink-400/50" />
-                        <span>Boosting since {fmt_date(data.premium_since)}</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {data.roles.length > 0 && (
-                    <div className="space-y-2">
-                      <p className="text-xs font-semibold uppercase text-muted-foreground">Assigned Roles</p>
-                      <div className="flex flex-wrap gap-2">
-                        {data.roles.map((r) => (
-                          <span
-                            key={r.id}
-                            className="inline-flex items-center gap-1.5 rounded-md border border-border bg-muted/40 px-2 py-1 text-xs font-medium text-foreground"
-                          >
-                            {r.icon ? (
-                              <Image src={r.icon} alt="" width={12} height={12} className="h-3 w-3 rounded-sm" unoptimized />
-                            ) : (
-                              <span className="h-2 w-2 rounded-full" style={{ backgroundColor: r.color !== '#000000' ? r.color : 'var(--muted-foreground)' }} />
-                            )}
-                            {r.name}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </motion.div>
-            )}
-          </div>
-        </motion.div>
-      </motion.div>
-    </AnimatePresence>
-  )
-}
-
-// - DEV TAB CONTENT - \\
-function DeveloperTab({ avatar_map }: { avatar_map: Record<string, string | null> }) {
-  return (
-    <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 5 }} className="space-y-4">
-      {__credits.map((credit) => (
-        <div
-          key={credit.name}
-          className="flex flex-col sm:flex-row items-start gap-4 rounded-xl border border-border bg-card/40 p-5 transition-colors hover:bg-card/80"
-        >
-          <UserAvatar initials={credit.initials} avatar_url={avatar_map[credit.discord_id] ?? null} />
-          
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2">
-              <p className="text-base font-semibold text-foreground">{credit.name}</p>
-              <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium uppercase text-muted-foreground">
-                {credit.role}
-              </span>
-            </div>
-            
-            <p className="mt-0.5 text-sm text-muted-foreground">@{credit.handle}</p>
-            <p className="mt-2 text-sm text-foreground/80">{credit.description}</p>
-            
-            <div className="mt-4 flex flex-wrap gap-2">
-              {credit.links.map((link) => (
-                <CreditLink key={link.label} {...link} />
-              ))}
+        {/* - banner + avatar - \\ */}
+        <div className="relative h-28 w-full shrink-0 bg-muted/60">
+          {data?.banner && (
+            <Image src={data.banner} alt="banner" fill className="object-cover" unoptimized />
+          )}
+          {!data?.banner && loading && (
+            <div className="absolute inset-0 animate-pulse bg-muted" />
+          )}
+          <DialogClose className="absolute top-3 right-3 rounded-lg bg-background/70 p-1.5 text-muted-foreground backdrop-blur-sm transition-colors hover:bg-background hover:text-foreground">
+            <IconX size={14} />
+          </DialogClose>
+          <div className="absolute -bottom-8 left-5">
+            <div className="relative h-16 w-16 overflow-hidden rounded-2xl border-4 border-background bg-muted shadow-md">
+              {data?.avatar && (
+                <Image src={data.avatar} alt={data.display_name} fill className="object-cover" unoptimized />
+              )}
+              {loading && <div className="absolute inset-0 animate-pulse bg-muted" />}
             </div>
           </div>
         </div>
-      ))}
 
-      <div className="pt-6">
-        <p className="mb-3 text-xs font-semibold uppercase text-muted-foreground">Tech Stack</p>
+        {/* - fixed: name + dates - \\ */}
+        <div className="shrink-0 px-5 pt-12 pb-4">
+          {loading && (
+            <div className="space-y-3">
+              <div className="h-5 w-36 animate-pulse rounded bg-muted" />
+              <div className="h-3 w-24 animate-pulse rounded bg-muted" />
+              <div className="mt-5 space-y-2.5">
+                <div className="h-3 w-48 animate-pulse rounded bg-muted" />
+                <div className="h-3 w-40 animate-pulse rounded bg-muted" />
+              </div>
+            </div>
+          )}
+
+          {error && !loading && (
+            <p className="py-6 text-center text-sm text-muted-foreground">Unable to load profile.</p>
+          )}
+
+          {data && !loading && (
+            <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
+              <div className="mb-4">
+                <h2 className="text-lg font-bold text-foreground">{data.display_name}</h2>
+                <p className="text-sm text-muted-foreground">@{data.username}</p>
+                {data.nickname && data.nickname !== data.display_name && (
+                  <p className="mt-0.5 text-xs text-muted-foreground/60">aka {data.nickname}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                {data.joined_at && (
+                  <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
+                    <IconCalendar size={14} className="shrink-0 opacity-40" />
+                    <span>Joined <span className="text-foreground">{fmt_date(data.joined_at)}</span></span>
+                  </div>
+                )}
+                {data.created_at && (
+                  <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
+                    <IconCalendar size={14} className="shrink-0 opacity-40" />
+                    <span>Registered <span className="text-foreground">{fmt_date(data.created_at)}</span></span>
+                  </div>
+                )}
+                {data.premium_since && (
+                  <div className="flex items-center gap-2.5 text-sm text-pink-400">
+                    <IconCrown size={14} className="shrink-0 opacity-50" />
+                    <span>Boosting since {fmt_date(data.premium_since)}</span>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </div>
+
+        {/* - scrollable: roles - \\ */}
+        {data && !loading && data.roles.length > 0 && (
+          <div className="flex min-h-0 flex-col">
+            <div className="shrink-0 px-5 pt-3 pb-1">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Roles</p>
+            </div>
+            <div className="overflow-y-auto px-5 pb-5 no-scrollbar">
+              <div className="flex flex-wrap gap-1.5">
+                {data.roles.map((r) => (
+                  <span
+                    key={r.id}
+                    className="inline-flex items-center gap-1.5 rounded-md border border-border bg-muted/40 px-2 py-1 text-xs text-foreground"
+                  >
+                    {r.icon ? (
+                      <Image src={r.icon} alt="" width={12} height={12} className="h-3 w-3 rounded-sm" unoptimized />
+                    ) : (
+                      <span className="h-2 w-2 rounded-full" style={{ backgroundColor: r.color !== '#000000' ? r.color : 'var(--muted-foreground)' }} />
+                    )}
+                    {r.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+        {data && !loading && data.roles.length === 0 && <div className="pb-5" />}
+      </DialogPanel>
+    </Dialog>
+  )
+}
+
+// - developer tab - \\
+function DeveloperTab() {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 6 }}
+      transition={{ duration: 0.22 }}
+      className="space-y-10"
+    >
+
+      {/* - developer cards - \\ */}
+      <div className="space-y-3">
+        {__credits.map((credit) => (
+          <div
+            key={credit.name}
+            className="group relative overflow-hidden rounded-2xl border border-border bg-card/40 p-5 transition-colors hover:bg-card/70"
+          >
+            <div className="flex items-start gap-4">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-border bg-muted text-sm font-bold text-foreground">
+                {credit.initials}
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-[15px] font-semibold text-foreground">{credit.name}</span>
+                  <span className="rounded-md bg-muted px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                    {credit.role}
+                  </span>
+                </div>
+                <p className="mt-0.5 text-xs text-muted-foreground">@{credit.handle}</p>
+                <p className="mt-2 text-sm leading-relaxed text-foreground/75">{credit.description}</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {credit.links.map((link) => (
+                    <CreditLink key={link.label} {...link} />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* - tech stack - \\ */}
+      <div>
+        <p className="mb-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Tech Stack</p>
         <div className="flex flex-wrap gap-2">
           {__stack.map((tech) => (
             <a
@@ -317,18 +296,19 @@ function DeveloperTab({ avatar_map }: { avatar_map: Record<string, string | null
               href={tech.href}
               target="_blank"
               rel="noreferrer"
-              className="rounded-md border border-border bg-muted/40 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              className="rounded-lg border border-border bg-muted/40 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
             >
               {tech.label}
             </a>
           ))}
         </div>
       </div>
+
     </motion.div>
   )
 }
 
-// - MEMBER GRID TAB CONTENT - \\
+// - member grid - \\
 function MemberGrid({ members, loading, on_click }: { members: role_member[]; loading: boolean; on_click: (id: string) => void }) {
   if (loading) {
     return (
@@ -349,27 +329,27 @@ function MemberGrid({ members, loading, on_click }: { members: role_member[]; lo
   if (!members.length) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
-        <p className="text-sm font-medium text-muted-foreground">No personnel records found.</p>
+        <p className="text-sm text-muted-foreground">No records found.</p>
       </div>
     )
   }
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.22 }}
+      className="grid grid-cols-2 gap-3 sm:grid-cols-3"
+    >
       {members.map((m) => (
         <button
           key={m.id}
           onClick={() => on_click(m.id)}
-          className="flex items-center gap-3 rounded-xl border border-border bg-card/40 p-3 text-left transition-colors hover:border-foreground/30 hover:bg-card/80"
+          className="flex items-center gap-3 rounded-xl border border-border bg-card/40 p-3 text-left transition-colors hover:border-foreground/20 hover:bg-card/80"
         >
           <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-muted">
-            <Image
-              src={m.avatar_url}
-              alt={m.username}
-              fill
-              className="object-cover"
-              unoptimized
-            />
+            <Image src={m.avatar_url} alt={m.username} fill className="object-cover" unoptimized />
           </div>
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-medium text-foreground">{m.global_name || m.username}</p>
@@ -382,29 +362,15 @@ function MemberGrid({ members, loading, on_click }: { members: role_member[]; lo
 }
 
 export default function CreditsPage() {
-  const [active_tab,       set_active_tab]       = useState('developer')
-  const [avatar_map,       set_avatar_map]       = useState<Record<string, string | null>>({})
-  const [supporters,       set_supporters]       = useState<role_member[]>([])
-  const [staff,            set_staff]            = useState<role_member[]>([])
-  const [members_loading,  set_members_loading]  = useState(false)
-  const [members_fetched,  set_members_fetched]  = useState(false)
-  const [selected_member,  set_selected_member]  = useState<string | null>(null)
+  const [active_tab,      set_active_tab]      = useState('developer')
+  const [supporters,      set_supporters]      = useState<role_member[]>([])
+  const [staff,           set_staff]           = useState<role_member[]>([])
+  const [members_loading, set_members_loading] = useState(false)
+  const [members_fetched, set_members_fetched] = useState(false)
+  const [selected_member, set_selected_member] = useState<string | null>(null)
 
   const open_member  = useCallback((id: string) => set_selected_member(id), [])
   const close_member = useCallback(() => set_selected_member(null), [])
-
-  useEffect(() => {
-    for (const credit of __credits) {
-      fetch(`/api/discord-user/${credit.discord_id}`)
-        .then((r) => r.json())
-        .then((d) => {
-          if (d.avatar_url) {
-            set_avatar_map((prev) => ({ ...prev, [credit.discord_id]: d.avatar_url }))
-          }
-        })
-        .catch(() => {})
-    }
-  }, [])
 
   useEffect(() => {
     if ((active_tab === 'supporter' || active_tab === 'staff') && !members_fetched) {
@@ -421,7 +387,7 @@ export default function CreditsPage() {
         const staff_raw     : role_member[] = Array.isArray(data.staff)      ? data.staff      : []
 
         if (data.loading && attempts < 3) {
-          await new Promise(r => setTimeout(r, 6000))
+          await new Promise((r) => setTimeout(r, 6000))
           return fetch_members(attempts + 1)
         }
 
@@ -439,7 +405,7 @@ export default function CreditsPage() {
   return (
     <main className="relative min-h-screen bg-background text-foreground">
 
-      {/* - SUBTLE WEBGL RAYS - \\ */}
+      {/* - subtle background rays - \\ */}
       <div className="fixed inset-0 z-0 pointer-events-none opacity-20 mix-blend-screen">
         <LightRays
           raysOrigin="top-center"
@@ -459,50 +425,54 @@ export default function CreditsPage() {
 
       <BypassTopbar />
 
-      <div className="relative z-10 mx-auto max-w-2xl px-5 py-24 sm:py-32">
-        {/* - HERO HEADER - \\ */}
-        <div className="mb-10 text-left">
-          <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-            Credits
-          </h1>
-          <p className="mt-2 text-base text-muted-foreground">
-            The people who make this bypass network possible.
-          </p>
+      <div className="relative z-10 mx-auto max-w-2xl px-5 py-20 sm:py-28">
+
+        {/* - page header - \\ */}
+        <div className="mb-10">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">Credits</h1>
+          <p className="mt-2 text-base text-muted-foreground">The people behind this bypass network.</p>
         </div>
 
-        {/* - TABS - \\ */}
-        <div className="mb-8 block max-w-fit">
-          <Tabs value={active_tab} onValueChange={set_active_tab}>
-            <TabsList>
-              {__tab_items.map(tab => (
-                <TabsTrigger key={tab.value} value={tab.value}>
-                  {tab.label}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
+        {/* - animated tab switcher - \\ */}
+        <div className="relative mb-8 inline-flex h-9 w-full max-w-xs rounded-lg bg-muted p-[3px]">
+          <motion.div
+            className="absolute top-[3px] left-[3px] h-[calc(100%-6px)] rounded-md bg-black shadow-sm"
+            style={{ width: `calc(${100 / __tab_items.length}% - 3px)` }}
+            animate={{ x: `${__tab_items.findIndex(t => t.value === active_tab) * 100}%` }}
+            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+          />
+          {__tab_items.map((tab) => (
+            <button
+              key={tab.value}
+              onClick={() => set_active_tab(tab.value)}
+              className={cn(
+                'relative z-10 flex-1 inline-flex items-center justify-center rounded-md px-2 py-1 text-sm font-medium whitespace-nowrap transition-colors duration-200',
+                active_tab === tab.value ? 'text-white' : 'text-muted-foreground hover:text-foreground/70',
+              )}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
 
-        {/* - CONTENT - \\ */}
-        <div className="min-h-[400px]">
+        {/* - tab content - \\ */}
+        <div className="min-h-[420px]">
           <AnimatePresence mode="wait">
-            {active_tab === 'developer' && <DeveloperTab key="dev" avatar_map={avatar_map} />}
-            {active_tab === 'supporter' && <MemberGrid key="sup" members={supporters} loading={members_loading} on_click={open_member} />}
-            {active_tab === 'staff'     && <MemberGrid key="stf" members={staff}      loading={members_loading} on_click={open_member} />}
+            {active_tab === 'developer' && <DeveloperTab key="dev" />}
+            {active_tab === 'supporter' && <MemberGrid   key="sup" members={supporters} loading={members_loading} on_click={open_member} />}
+            {active_tab === 'staff'     && <MemberGrid   key="stf" members={staff}      loading={members_loading} on_click={open_member} />}
           </AnimatePresence>
         </div>
 
-        {/* - FOOTER - \\ */}
+        {/* - footer - \\ */}
         <div className="mt-16 border-t border-border pt-8 pb-10">
-          <p className="text-[11px] font-medium text-muted-foreground/60 uppercase tracking-widest">
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">
             Atomic Lancar Jaya
           </p>
         </div>
       </div>
 
-      {selected_member && (
-        <MemberDetailPanel member_id={selected_member} on_close={close_member} />
-      )}
+      <ProfileDialog member_id={selected_member} on_close={close_member} />
     </main>
   )
 }

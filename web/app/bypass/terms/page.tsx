@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button'
 import { Scale, ShieldCheck, DangerTriangle, DocumentText, UserCross, FolderOpen, Database, EyeClosed, ShieldWarning, Global, Chart, AltArrowLeft, Sun, Moon, ClockCircle, Refresh, TrashBin2, Letter, Forbidden, Link } from '@solar-icons/react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'motion/react'
-import { cn } from "@/lib/utils"
+import { cn }                from '@/lib/utils'
 
 const translations = {
   en: {
