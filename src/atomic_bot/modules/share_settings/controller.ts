@@ -37,8 +37,12 @@ const __rod_list_collection    = "rod_settings_rods"
 const __skin_list_collection   = "rod_settings_skins"
 const __forum_tag_popular       = "Most Popular"
 const __most_popular_min_likes  = 10
-const __forum_sticky_collection = "rod_settings_forum_sticky"
+const __forum_sticky_collection        = "rod_settings_forum_sticky"
 const __forum_thread_sticky_collection = "rod_settings_forum_thread_sticky"
+
+// - per-thread设置缓存，避免每条消息都查一次数据库 - \\
+// - per-thread settings cache, avoids db hit on every message in a thread (60s TTL) - \\
+const __thread_settings_cache = new Cache<rod_settings_record | null>(60_000, 500, null, "thread_settings")
 const sticky_lock             = new Set<string>()
 
 export interface rod_settings_record {
@@ -1369,8 +1373,13 @@ export async function list_settings_records(client: Client): Promise<rod_setting
  * @returns {Promise<rod_settings_record | null>} Record
  */
 export async function get_settings_by_forum_thread_id(client: Client, thread_id: string): Promise<rod_settings_record | null> {
+  const cached = __thread_settings_cache.get(thread_id)
+  if (cached !== undefined) return cached
+
   try {
-    return await db.find_one<rod_settings_record>(__settings_collection, { forum_thread_id: thread_id })
+    const record = await db.find_one<rod_settings_record>(__settings_collection, { forum_thread_id: thread_id })
+    __thread_settings_cache.set(thread_id, record)
+    return record
   } catch (error) {
     await log_error(client, error as Error, "share_settings_get_by_forum_thread", {
       thread_id : thread_id,

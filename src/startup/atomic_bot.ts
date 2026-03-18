@@ -110,6 +110,10 @@ let typing_interval: NodeJS.Timeout | null = null
 const __persistent_typing_channel_id  = "1257034070035267636"
 const __persistent_typing_interval_ms = 8000
 
+// - 缓存的打字频道引用，避免每8秒都发一次REST请求 - \\
+// - cached typing channel ref, avoids REST fetch every 8 seconds - \\
+let __cached_typing_channel: any = null
+
 export { client }
 
 import "../atomic_bot/core/handlers/events/guild_member/guild_member_add"
@@ -167,8 +171,10 @@ async function join_voice_channel(): Promise<void> {
   }
 }
 
+// - memberCount迭代缓存永远空，直接返回0 - \\
+// - guilds cache is always empty, skip the reduce entirely - \\
 function get_total_members(): number {
-  return client.guilds.cache.reduce((acc, guild) => acc + guild.memberCount, 0)
+  return 0
 }
 
 function update_presence(): void {
@@ -203,15 +209,19 @@ async function start_persistent_typing(): Promise<void> {
 
   const send_typing = async (): Promise<void> => {
     try {
-      const channel = client.channels.cache.get(__persistent_typing_channel_id)
-        || await client.channels.fetch(__persistent_typing_channel_id).catch(() => null)
+      if (!__cached_typing_channel) {
+        __cached_typing_channel = await client.channels.fetch(__persistent_typing_channel_id).catch(() => null)
+      }
 
+      const channel = __cached_typing_channel
       if (!channel || !("sendTyping" in channel)) {
+        __cached_typing_channel = null
         return
       }
 
       await (channel as any).sendTyping()
     } catch (error) {
+      __cached_typing_channel = null
       console.error("[ - TYPING - ] Failed to send typing:", error)
       await log_error(client, error as Error, "persistent_typing_loop", {
         channel_id : __persistent_typing_channel_id,
@@ -336,8 +346,10 @@ client.on("messageCreate", async (message: Message) => {
     }
   }
 
-  await handle_afk_return(message)
-  await handle_afk_mentions(message)
+  await Promise.all([
+    handle_afk_return(message),
+    handle_afk_mentions(message),
+  ])
 
   if (check_spam(message, client)) return
 

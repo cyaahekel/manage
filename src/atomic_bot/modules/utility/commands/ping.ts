@@ -65,7 +65,7 @@ export const command: Command = {
         components: [
           component.container({
             components: [
-              component.text("## Pong"),
+              component.text("## Pong!"),
               component.divider(),
               component.text([
                 `- WebSocket: ${ws_latency}ms`,

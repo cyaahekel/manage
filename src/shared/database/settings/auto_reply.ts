@@ -27,10 +27,19 @@ interface AutoReplyConfig {
 const channel_cooldowns = new Map<string, number>()
 const __cooldown_ms = 15000
 
+// - 启动时加载一次配置，避免每次消息都读磁盘 - \\
+// - loaded once at startup, avoids disk read on every message - \\
+let __cached_configs: AutoReplyConfig[] | null = null
+
 function load_auto_reply_configs(): AutoReplyConfig[] {
+  if (__cached_configs) return __cached_configs
+
   try {
     const auto_reply_dir = path.join(process.cwd(), "guide", "auto_reply")
-    if (!fs.existsSync(auto_reply_dir)) return []
+    if (!fs.existsSync(auto_reply_dir)) {
+      __cached_configs = []
+      return __cached_configs
+    }
 
     const files   = fs.readdirSync(auto_reply_dir).filter(f => f.endsWith(".cfg"))
     const configs: AutoReplyConfig[] = []
@@ -55,9 +64,11 @@ function load_auto_reply_configs(): AutoReplyConfig[] {
       }
     }
 
-    return configs
+    __cached_configs = configs
+    return __cached_configs
   } catch {
-    return []
+    __cached_configs = []
+    return __cached_configs
   }
 }
 
