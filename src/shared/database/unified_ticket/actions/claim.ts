@@ -27,9 +27,37 @@ import {
 }                                    from "@shared/database/unified_ticket/state"
 import { component, api, format }    from "@shared/utils"
 
-const __helper_role_id = "1357767950421065981"
+const __helper_role_id    = "1357767950421065981"
+
+// - per-thread mutex: blocks concurrent claims on the same ticket before any await - \\
+const __claiming_threads  = new Set<string>()
 
 export async function claim_ticket(interaction: ButtonInteraction, ticket_type: string): Promise<void> {
+  const thread_id = interaction.channelId
+
+  // - synchronous lock — JS single-thread guarantees no interleaving between has() and add() - \\
+  if (__claiming_threads.has(thread_id)) {
+    await interaction.reply({
+      ...component.build_message({
+        components: [
+          component.container({
+            components: [
+              component.text([
+                "## Claim In Progress",
+                "Another staff member is already claiming this ticket. Please wait a moment.",
+              ]),
+            ],
+          }),
+        ],
+      }),
+      flags: 64,
+    })
+    return
+  }
+
+  __claiming_threads.add(thread_id)
+
+  try {
   await interaction.deferReply({ flags: 64 })
 
   const config = get_ticket_config(ticket_type)
@@ -150,10 +178,15 @@ export async function claim_ticket(interaction: ButtonInteraction, ticket_type: 
     }
   }
 
-  // - NO AWAIT FOR FASTER RESPONSE - \\\\
+  // - no await for faster response - \\
   save_ticket(thread.id)
   interaction.editReply({ content: "You have claimed this ticket." })
 
-  // - WAIT FOR PARALLEL TASKS IN BACKGROUND - \\\\
+  // - wait for parallel tasks in background - \\
   Promise.allSettled(parallel_tasks).catch(() => { })
+
+  } finally {
+    // - release per-thread lock after claim resolves - \\
+    __claiming_threads.delete(thread_id)
+  }
 }
