@@ -98,10 +98,16 @@ export default function DarkVeil({
     const canvas = ref.current as HTMLCanvasElement;
     const parent = canvas.parentElement as HTMLElement;
 
-    const renderer = new Renderer({
-      dpr: Math.min(window.devicePixelRatio, 2),
-      canvas
-    });
+    let renderer: Renderer
+    try {
+      renderer = new Renderer({
+        dpr   : Math.min(window.devicePixelRatio, 2),
+        canvas,
+      })
+    } catch {
+      // - webgl context unavailable, skip animation - \\
+      return
+    }
 
     const gl = renderer.gl;
     const geometry = new Triangle(gl);

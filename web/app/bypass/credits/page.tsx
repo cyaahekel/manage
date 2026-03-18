@@ -362,6 +362,7 @@ function MemberGrid({ members, loading, on_click }: { members: role_member[]; lo
 }
 
 export default function CreditsPage() {
+  const [mounted,         set_mounted]         = useState(false)
   const [active_tab,      set_active_tab]      = useState('developer')
   const [supporters,      set_supporters]      = useState<role_member[]>([])
   const [staff,           set_staff]           = useState<role_member[]>([])
@@ -371,6 +372,8 @@ export default function CreditsPage() {
 
   const open_member  = useCallback((id: string) => set_selected_member(id), [])
   const close_member = useCallback(() => set_selected_member(null), [])
+
+  useEffect(() => { set_mounted(true) }, [])
 
   useEffect(() => {
     if ((active_tab === 'supporter' || active_tab === 'staff') && !members_fetched) {
@@ -435,19 +438,21 @@ export default function CreditsPage() {
 
         {/* - animated tab switcher - \\ */}
         <div className="relative mb-8 inline-flex h-9 w-full max-w-xs rounded-lg bg-muted p-[3px]">
-          <motion.div
-            className="absolute top-[3px] left-[3px] h-[calc(100%-6px)] rounded-md bg-black shadow-sm"
-            style={{ width: `calc(${100 / __tab_items.length}% - 3px)` }}
-            animate={{ x: `${__tab_items.findIndex(t => t.value === active_tab) * 100}%` }}
-            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-          />
+          {mounted && (
+            <motion.div
+              className="absolute top-[3px] left-[3px] h-[calc(100%-6px)] rounded-md bg-black shadow-sm"
+              style={{ width: `calc(${100 / __tab_items.length}% - 3px)` }}
+              animate={{ x: `${__tab_items.findIndex(t => t.value === active_tab) * 100}%` }}
+              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            />
+          )}
           {__tab_items.map((tab) => (
             <button
               key={tab.value}
               onClick={() => set_active_tab(tab.value)}
               className={cn(
                 'relative z-10 flex-1 inline-flex items-center justify-center rounded-md px-2 py-1 text-sm font-medium whitespace-nowrap transition-colors duration-200',
-                active_tab === tab.value ? 'text-white' : 'text-muted-foreground hover:text-foreground/70',
+                mounted && active_tab === tab.value ? 'text-white' : 'text-muted-foreground hover:text-foreground/70',
               )}
             >
               {tab.label}
