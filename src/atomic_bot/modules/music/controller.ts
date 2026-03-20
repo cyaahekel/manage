@@ -62,7 +62,12 @@ async function get_spotify_token(): Promise<string> {
 
   const client_id     = process.env.SPOTIFY_CLIENT_ID     ?? ""
   const client_secret = process.env.SPOTIFY_CLIENT_SECRET ?? ""
-  const creds         = Buffer.from(`${client_id}:${client_secret}`).toString("base64")
+
+  if (!client_id || !client_secret) {
+    throw new Error("Spotify credentials not configured (SPOTIFY_CLIENT_ID / SPOTIFY_CLIENT_SECRET missing)")
+  }
+
+  const creds = Buffer.from(`${client_id}:${client_secret}`).toString("base64")
 
   const res = await axios.post(
     "https://accounts.spotify.com/api/token",
@@ -82,21 +87,17 @@ async function get_spotify_token(): Promise<string> {
  * @returns {Promise<{ title: string; author: string } | null>}
  */
 async function fetch_spotify_track_info(url: string): Promise<{ title: string; author: string } | null> {
-  try {
-    const id    = url.match(/track\/([A-Za-z0-9]+)/)?.[1]
-    if (!id) return null
+  const id = url.match(/track\/([A-Za-z0-9]+)/)?.[1]
+  if (!id) return null
 
-    const token = await get_spotify_token()
-    const res   = await axios.get(`https://api.spotify.com/v1/tracks/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
+  const token = await get_spotify_token()
+  const res   = await axios.get(`https://api.spotify.com/v1/tracks/${id}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
 
-    const title  = res.data.name as string
-    const author = (res.data.artists as Array<{ name: string }>).map(a => a.name).join(", ")
-    return { title, author }
-  } catch {
-    return null
-  }
+  const title  = res.data.name as string
+  const author = (res.data.artists as Array<{ name: string }>).map(a => a.name).join(", ")
+  return { title, author }
 }
 
 /**
@@ -105,31 +106,27 @@ async function fetch_spotify_track_info(url: string): Promise<{ title: string; a
  * @returns {Promise<Array<{ title: string; author: string }>>}
  */
 async function fetch_spotify_album(url: string): Promise<Array<{ title: string; author: string }>> {
-  try {
-    const id    = url.match(/album\/([A-Za-z0-9]+)/)?.[1]
-    if (!id) return []
+  const id = url.match(/album\/([A-Za-z0-9]+)/)?.[1]
+  if (!id) return []
 
-    const token   = await get_spotify_token()
-    const results : Array<{ title: string; author: string }> = []
-    let   next    : string | null = `https://api.spotify.com/v1/albums/${id}/tracks?limit=50`
+  const token   = await get_spotify_token()
+  const results : Array<{ title: string; author: string }> = []
+  let   next    : string | null = `https://api.spotify.com/v1/albums/${id}/tracks?limit=50`
 
-    while (next && results.length < __max_queue_size) {
-      const page_url : string = next
-      const res               = await axios.get(page_url, { headers: { Authorization: `Bearer ${token}` } })
-      const items             = res.data.items as Array<{ name: string; artists: Array<{ name: string }> }>
+  while (next && results.length < __max_queue_size) {
+    const page_url : string = next
+    const res               = await axios.get(page_url, { headers: { Authorization: `Bearer ${token}` } })
+    const items             = res.data.items as Array<{ name: string; artists: Array<{ name: string }> }>
 
-      for (const track of items) {
-        results.push({ title: track.name, author: track.artists.map(a => a.name).join(", ") })
-        if (results.length >= __max_queue_size) break
-      }
-
-      next = results.length < __max_queue_size ? (res.data.next as string | null) : null
+    for (const track of items) {
+      results.push({ title: track.name, author: track.artists.map(a => a.name).join(", ") })
+      if (results.length >= __max_queue_size) break
     }
 
-    return results
-  } catch {
-    return []
+    next = results.length < __max_queue_size ? (res.data.next as string | null) : null
   }
+
+  return results
 }
 
 /**
@@ -138,32 +135,28 @@ async function fetch_spotify_album(url: string): Promise<Array<{ title: string; 
  * @returns {Promise<Array<{ title: string; author: string }>>}
  */
 async function fetch_spotify_playlist(url: string): Promise<Array<{ title: string; author: string }>> {
-  try {
-    const id    = url.match(/playlist\/([A-Za-z0-9]+)/)?.[1]
-    if (!id) return []
+  const id = url.match(/playlist\/([A-Za-z0-9]+)/)?.[1]
+  if (!id) return []
 
-    const token   = await get_spotify_token()
-    const results : Array<{ title: string; author: string }> = []
-    let   next    : string | null = `https://api.spotify.com/v1/playlists/${id}/tracks?limit=50`
+  const token   = await get_spotify_token()
+  const results : Array<{ title: string; author: string }> = []
+  let   next    : string | null = `https://api.spotify.com/v1/playlists/${id}/tracks?limit=50`
 
-    while (next && results.length < __max_queue_size) {
-      const page_url : string = next
-      const res               = await axios.get(page_url, { headers: { Authorization: `Bearer ${token}` } })
-      const items             = res.data.items as Array<{ track: { name: string; artists: Array<{ name: string }> } | null }>
+  while (next && results.length < __max_queue_size) {
+    const page_url : string = next
+    const res               = await axios.get(page_url, { headers: { Authorization: `Bearer ${token}` } })
+    const items             = res.data.items as Array<{ track: { name: string; artists: Array<{ name: string }> } | null }>
 
-      for (const item of items) {
-        if (!item.track) continue
-        results.push({ title: item.track.name, author: item.track.artists.map(a => a.name).join(", ") })
-        if (results.length >= __max_queue_size) break
-      }
-
-      next = results.length < __max_queue_size ? (res.data.next as string | null) : null
+    for (const item of items) {
+      if (!item.track) continue
+      results.push({ title: item.track.name, author: item.track.artists.map(a => a.name).join(", ") })
+      if (results.length >= __max_queue_size) break
     }
 
-    return results
-  } catch {
-    return []
+    next = results.length < __max_queue_size ? (res.data.next as string | null) : null
   }
+
+  return results
 }
 
 // ─── APPLE MUSIC SCRAPER ──────────────────────────────────────────────────────
