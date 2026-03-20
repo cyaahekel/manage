@@ -198,30 +198,27 @@ async function fetch_apple_music_info(url: string): Promise<{ title: string; aut
  * @returns {Promise<lavalink_track | null>}
  */
 async function resolve_track(identifier: string): Promise<lavalink_track | null> {
-  try {
-    const node   = get_shoukaku().getIdealNode()
-    if (!node) return null
+  const node = get_shoukaku().getIdealNode()
+  if (!node) throw new Error("No Lavalink nodes are connected. Make sure the Lavalink server is running.")
 
-    const result = await node.rest.resolve(identifier) as lavalink_response
+  const result = await node.rest.resolve(identifier) as lavalink_response
 
-    if (result.loadType === "search") {
-      const tracks = result.data as lavalink_track[]
-      return tracks[0] ?? null
-    }
-
-    if (result.loadType === "track") {
-      return result.data as lavalink_track
-    }
-
-    if (result.loadType === "playlist") {
-      const playlist = result.data as { tracks: lavalink_track[] }
-      return playlist.tracks[0] ?? null
-    }
-
-    return null
-  } catch {
-    return null
+  if (result.loadType === "search") {
+    const tracks = result.data as lavalink_track[]
+    return tracks[0] ?? null
   }
+
+  if (result.loadType === "track") {
+    return result.data as lavalink_track
+  }
+
+  if (result.loadType === "playlist") {
+    const playlist = result.data as { tracks: lavalink_track[] }
+    return playlist.tracks[0] ?? null
+  }
+
+  // - empty or error loadType - \\
+  return null
 }
 
 /**
@@ -230,18 +227,14 @@ async function resolve_track(identifier: string): Promise<lavalink_track | null>
  * @returns {Promise<lavalink_track[]>}
  */
 async function resolve_playlist(url: string): Promise<lavalink_track[]> {
-  try {
-    const node   = get_shoukaku().getIdealNode()
-    if (!node) return []
+  const node = get_shoukaku().getIdealNode()
+  if (!node) throw new Error("No Lavalink nodes are connected. Make sure the Lavalink server is running.")
 
-    const result = await node.rest.resolve(url) as lavalink_response
-    if (result.loadType !== "playlist") return []
+  const result = await node.rest.resolve(url) as lavalink_response
+  if (result.loadType !== "playlist") return []
 
-    const playlist = result.data as { tracks: lavalink_track[] }
-    return playlist.tracks.slice(0, __max_queue_size) ?? []
-  } catch {
-    return []
-  }
+  const playlist = result.data as { tracks: lavalink_track[] }
+  return playlist.tracks.slice(0, __max_queue_size) ?? []
 }
 
 // ─── QUEUE MANAGEMENT ─────────────────────────────────────────────────────────
@@ -612,7 +605,7 @@ export async function handle_play(options: {
     if (!first_resolved) {
       await interaction.editReply({
         ...component.build_message({
-          components: [component.container({ components: [component.text("Could not find matching tracks on YouTube.")] })],
+          components: [component.container({ components: [component.text("Spotify metadata was fetched but no matching tracks were found on YouTube. The tracks may be region-locked or unavailable.")] })],
         }),
       })
       return
@@ -825,7 +818,7 @@ export async function handle_play_prefix(options: {
     if (!first_resolved) {
       await loading_msg.edit({
         ...component.build_message({
-          components: [component.container({ components: [component.text("Could not find matching tracks on YouTube.")] })],
+          components: [component.container({ components: [component.text("Spotify metadata was fetched but no matching tracks were found on YouTube. The tracks may be region-locked or unavailable.")] })],
         }),
       })
       return
