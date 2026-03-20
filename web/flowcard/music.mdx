@@ -18,8 +18,8 @@ flowchart TD
     %% ========================= COMMAND INPUT ========================= %%
     subgraph Input [Command Input]
         I1{Input Method?}
-        I2[Slash Command\n/play query]:::command
-        I3[Prefix Command\na!play query]:::prefix
+        I2["Slash Command\n/play query"]:::command
+        I3["Prefix Command\na!play query"]:::prefix
 
         User --> I1
         I1 -- /play --> I2
@@ -73,7 +73,7 @@ flowchart TD
 
     %% ========================= APPLE MUSIC BRANCH ========================= %%
     subgraph Apple [Apple Music Scraper]
-        AM1[Scrape og:title & og:description]:::apple
+        AM1["Scrape og:title and og:description"]:::apple
         AM2[Parse Track Title & Artist]:::apple
 
         PD5 -- Yes --> AM1 --> AM2
@@ -152,11 +152,11 @@ flowchart TD
     %% ========================= CONTROL COMMANDS ========================= %%
     subgraph Controls [Control Commands]
         C1{Command?}:::command
-        C2[/skip or a!skip\nremove N tracks\nplayTrack next or stopTrack]:::command
-        C3[/stop or a!stop\nstopTrack + leaveVoiceChannel\nclear queue]:::command
-        C4[/pause or a!pause\nplayer.setPaused true]:::command
-        C5[/resume or a!resume\nplayer.setPaused false]:::command
-        C6[/queue or a!queue\nbuild_queue_message paginated]:::command
+        C2["/skip or a!skip\nremove N tracks\nplayTrack next or stopTrack"]:::command
+        C3["/stop or a!stop\nstopTrack + leaveVoiceChannel\nclear queue"]:::command
+        C4["/pause or a!pause\nplayer.setPaused true"]:::command
+        C5["/resume or a!resume\nplayer.setPaused false"]:::command
+        C6["/queue or a!queue\nbuild_queue_message paginated"]:::command
 
         User -->|other commands| C1
         C1 --> C2

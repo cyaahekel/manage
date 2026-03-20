@@ -534,14 +534,59 @@ export async function handle_play(options: {
       }
       return
     } else if (platform === "youtube_playlist") {
+      // - youtube playlist tracks are already resolved: use directly, no ytsearch needed - \\
       const lv_tracks = await resolve_playlist(query)
-      lv_tracks.forEach(t => metas.push({ title: t.info.title, author: t.info.author, source: query }))
+
+      if (lv_tracks.length === 0) {
+        await interaction.editReply({
+          ...component.build_message({
+            components: [component.container({ components: [component.text("Could not load that YouTube playlist. The link may be invalid or the playlist is private.")] })],
+          }),
+        })
+        return
+      }
+
+      let first_yt : track_data | null = null
+      let yt_count = 0
+
+      for (const lt of lv_tracks) {
+        const resolved: track_data = {
+          encoded     : lt.encoded,
+          title       : lt.info.title,
+          author      : lt.info.author,
+          duration    : lt.info.length,
+          uri         : lt.info.uri ?? "",
+          artwork_url : lt.info.artworkUrl,
+          requester_id: user_id,
+          source_url  : query,
+        }
+        await enqueue_and_play({ guild_id, resolved, voice_channel, text_chan_id, client })
+        if (!first_yt) first_yt = resolved
+        yt_count++
+      }
+
+      await interaction.editReply({
+        ...component.build_message({
+          components: [
+            component.container({
+              accent_color: component.from_hex("5865F2"),
+              components  : [
+                component.text([
+                  `## Added ${yt_count} tracks to queue`,
+                  `First: **${first_yt!.title}** — ${first_yt!.author}`,
+                ]),
+              ],
+            }),
+          ],
+        }),
+      })
+      return
     }
 
     if (metas.length === 0) {
       await interaction.editReply({
         ...component.build_message({
-          components: [component.container({ components: [component.text("Could not resolve any tracks from that link.")] })],
+          components: [component.container({ components: [component.text("Could not fetch track info from that link. Check your Spotify/Apple Music URL or try a search query instead.")] })],
         }),
       })
       return
@@ -702,14 +747,59 @@ export async function handle_play_prefix(options: {
       }
       return
     } else if (platform === "youtube_playlist") {
+      // - youtube playlist tracks are already resolved: use directly, no ytsearch needed - \\
       const lv_tracks = await resolve_playlist(query)
-      lv_tracks.forEach(t => metas.push({ title: t.info.title, author: t.info.author, source: query }))
+
+      if (lv_tracks.length === 0) {
+        await loading_msg.edit({
+          ...component.build_message({
+            components: [component.container({ components: [component.text("Could not load that YouTube playlist. The link may be invalid or the playlist is private.")] })],
+          }),
+        })
+        return
+      }
+
+      let first_yt : track_data | null = null
+      let yt_count = 0
+
+      for (const lt of lv_tracks) {
+        const resolved: track_data = {
+          encoded     : lt.encoded,
+          title       : lt.info.title,
+          author      : lt.info.author,
+          duration    : lt.info.length,
+          uri         : lt.info.uri ?? "",
+          artwork_url : lt.info.artworkUrl,
+          requester_id: user_id,
+          source_url  : query,
+        }
+        await enqueue_and_play({ guild_id, resolved, voice_channel, text_chan_id, client })
+        if (!first_yt) first_yt = resolved
+        yt_count++
+      }
+
+      await loading_msg.edit({
+        ...component.build_message({
+          components: [
+            component.container({
+              accent_color: component.from_hex("5865F2"),
+              components  : [
+                component.text([
+                  `## Added ${yt_count} tracks to queue`,
+                  `First: **${first_yt!.title}** — ${first_yt!.author}`,
+                ]),
+              ],
+            }),
+          ],
+        }),
+      })
+      return
     }
 
     if (metas.length === 0) {
       await loading_msg.edit({
         ...component.build_message({
-          components: [component.container({ components: [component.text("Could not resolve any tracks from that link.")] })],
+          components: [component.container({ components: [component.text("Could not fetch track info from that link. Check your Spotify/Apple Music URL or try a search query instead.")] })],
         }),
       })
       return
