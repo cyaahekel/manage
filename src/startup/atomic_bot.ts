@@ -40,6 +40,8 @@ import { load_middleman_tickets_on_startup }                             from ".
 import { start_share_settings_forum_scheduler }                          from "../atomic_bot/core/handlers/schedulers/share_settings_forum"
 import * as share_settings                                               from "@atomic/modules/share_settings/controller"
 import { recover_active_sessions }                                       from "@shared/controllers/staff_voice_controller"
+import { init_shoukaku }                                                 from "@atomic/modules/music/lavalink"
+import { handle_music_prefix_command }                                   from "@atomic/modules/music/prefix"
 
 config()
 
@@ -115,6 +117,12 @@ const __persistent_typing_interval_ms = 8000
 let __cached_typing_channel: any = null
 
 export { client }
+
+// - 初始化 Lavalink/Shoukaku 音乐客户端 - \\
+// - initialize Lavalink/Shoukaku music client - \\
+if (process.env.LAVALINK_HOST) {
+  init_shoukaku(client)
+}
 
 import "../atomic_bot/core/handlers/events/guild_member/guild_member_add"
 import "../atomic_bot/core/handlers/events/guild_member/guild_member_booster"
@@ -352,6 +360,11 @@ client.on("messageCreate", async (message: Message) => {
   ])
 
   if (check_spam(message, client)) return
+
+  // - music prefix commands (a!play, a!skip, a!stop, a!pause, a!resume, a!queue) - \\
+  if (message.content.startsWith("a!")) {
+    if (await handle_music_prefix_command(message, client)) return
+  }
 
   if (message.content.startsWith("?")) {
     const args         = message.content.slice(1).trim().split(/ +/)

@@ -681,6 +681,33 @@ async function init_tables(): Promise<void> {
       )
     `).catch(() => {})
 
+    // - STAFF INFORMATION TABLES - \\
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS staff_information_tabs (
+        id         VARCHAR(36) PRIMARY KEY,
+        title      VARCHAR(255) NOT NULL,
+        position   INTEGER NOT NULL DEFAULT 0,
+        created_at BIGINT NOT NULL,
+        updated_at BIGINT NOT NULL
+      )
+    `).catch(() => {})
+
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS staff_information_sections (
+        id         VARCHAR(36) PRIMARY KEY,
+        tab_id     VARCHAR(36) NOT NULL REFERENCES staff_information_tabs(id) ON DELETE CASCADE,
+        title      VARCHAR(255) NOT NULL,
+        content    TEXT NOT NULL DEFAULT '',
+        position   INTEGER NOT NULL DEFAULT 0,
+        created_at BIGINT NOT NULL,
+        updated_at BIGINT NOT NULL
+      )
+    `).catch(() => {})
+
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS idx_staff_info_sections_tab_id ON staff_information_sections(tab_id)
+    `).catch(() => {})
+
     await migrate_tables(client)
 
     console.log("[ - POSTGRESQL - ] Tables initialized")

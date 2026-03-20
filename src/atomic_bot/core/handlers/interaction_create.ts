@@ -95,6 +95,12 @@ import * as share_settings_star       from "@atomic/modules/share_settings/inter
 import * as share_settings_continue   from "@atomic/modules/share_settings/interactions/buttons/continue"
 import * as share_settings_pagination from "@atomic/modules/share_settings/interactions/buttons/pagination"
 import { handle_staff_info_button }   from "@atomic/modules/staff_info/interactions/buttons/handlers"
+import {
+  handle_music_skip,
+  handle_music_pause_resume,
+  handle_music_stop,
+  handle_music_queue,
+}                                     from "@atomic/modules/music/interactions/buttons/music_controls"
 
 // - 模态框处理器 - \\
 // - modal handlers - \\
@@ -643,6 +649,25 @@ export async function handle_interaction(
         interaction.customId.startsWith("av_global_")
       ) {
         await av_toggle.handle_av_toggle(interaction)
+        return
+      }
+
+      // - 音乐控制按钮 - \\
+      // - music control buttons - \\
+      if (interaction.customId === "music_skip") {
+        await handle_music_skip(interaction)
+        return
+      }
+      if (interaction.customId === "music_pause_resume") {
+        await handle_music_pause_resume(interaction)
+        return
+      }
+      if (interaction.customId === "music_stop") {
+        await handle_music_stop(interaction)
+        return
+      }
+      if (interaction.customId.startsWith("music_queue:")) {
+        await handle_music_queue(interaction)
         return
       }
     } catch (err) {

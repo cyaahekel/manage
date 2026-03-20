@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Logo from "@/assets/logo/logo";
 import { NavItem, NavMain } from "./nav-main";
-import { AlignStartVertical, PieChart, CircleUserRound, ClipboardList, Notebook, NotepadText, Table, Languages, Ticket } from "lucide-react";
+import { AlignStartVertical, PieChart, CircleUserRound, ClipboardList, Notebook, NotepadText, Table, Languages, Ticket, BookMarked } from "lucide-react";
 
 export const navData: NavItem[] = [
   // Dashboards Section
@@ -16,6 +16,10 @@ export const navData: NavItem[] = [
   // Logs Section
   { label: "Data & Logs", isSection: true },
   { title: "Applications", icon: ClipboardList, href: "/recruitment-area/dashboard/applications" },
+
+  // Tools Section
+  { label: "Tools", isSection: true },
+  { title: "Staff Information", icon: BookMarked, href: "/recruitment-area/dashboard/staff-information" },
 ];
 
 export function AppSidebar() {
