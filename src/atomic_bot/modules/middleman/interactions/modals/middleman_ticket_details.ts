@@ -29,14 +29,14 @@ export async function handle_middleman_ticket_details_modal(interaction: ModalSu
   const fee_oleh   = parts[4]
 
   if (!range_id || !penjual_id || !pembeli_id || !fee_oleh) {
-    await interaction.reply({ content: "Invalid submission. Please try again.", ephemeral: true })
+    await interaction.reply({ content: "Invalid submission. Please try again.", ephemeral: true})
     return true
   }
 
   const jenis = interaction.fields.getTextInputValue("jenis_barang")
   const harga = interaction.fields.getTextInputValue("harga_barang")
 
-  await interaction.deferReply({ ephemeral: true })
+  await interaction.deferReply({ flags: 64 })
 
   try {
     const result = await open_middleman_ticket({

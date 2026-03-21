@@ -100,8 +100,7 @@ export const command: Command = {
       }).catch(() => {})
 
       await interaction.reply({
-        content  : "Failed to clear reminders",
-        ephemeral: true,
+        content  : "Failed to clear reminders", ephemeral: true,
       })
     }
   },

@@ -28,13 +28,12 @@ export async function handle_edit_staff_info_modal(interaction: ModalSubmitInter
 
     if (!message_id || !content) {
       await interaction.reply({
-        content: "Message ID and content are required.",
-        ephemeral: true,
+        content: "Message ID and content are required.", ephemeral: true,
       })
       return true
     }
 
-    await interaction.deferReply({ ephemeral: true })
+    await interaction.deferReply({ flags: 64 })
 
     try {
       const message = await interaction.channel?.messages.fetch(message_id)
@@ -67,8 +66,7 @@ export async function handle_edit_staff_info_modal(interaction: ModalSubmitInter
 
     if (!interaction.replied) {
       await interaction.reply({
-        content: "Error updating staff information.",
-        ephemeral: true,
+        content: "Error updating staff information.", ephemeral: true,
       }).catch(() => {})
     }
 

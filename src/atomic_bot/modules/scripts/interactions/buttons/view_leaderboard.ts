@@ -21,7 +21,7 @@ import { get_execution_leaderboard } from "@atomic/modules/service_provider/cont
  * @param {ButtonInteraction} interaction - Discord button interaction
  */
 export async function handle_view_leaderboard(interaction: ButtonInteraction): Promise<void> {
-  await interaction.deferReply({ ephemeral: true })
+  await interaction.deferReply({ flags: 64 })
 
   const leaderboard_result = await get_execution_leaderboard({ client: interaction.client })
 

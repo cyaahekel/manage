@@ -59,8 +59,7 @@ export async function handle_download_all_staff_report(interaction: ButtonIntera
       })
 
       await interaction.followUp({
-        ...empty_message,
-        ephemeral : true,
+        ...empty_message, ephemeral: true,
       })
       return
     }
@@ -168,8 +167,7 @@ export async function handle_download_all_staff_report(interaction: ButtonIntera
 
     await interaction.followUp({
       ...message,
-      files     : [{ attachment: buffer, name: filename }],
-      ephemeral : true,
+      files     : [{ attachment: buffer, name: filename }], ephemeral: true,
     })
   } catch (error) {
     await log_error(interaction.client, error as Error, "Download All Staff Report", {
@@ -189,8 +187,7 @@ export async function handle_download_all_staff_report(interaction: ButtonIntera
     })
 
     await interaction.followUp({
-      ...error_message,
-      ephemeral : true,
+      ...error_message, ephemeral: true,
     }).catch(() => {})
   }
 }

@@ -62,8 +62,7 @@ export async function handle_ticket_button(interaction: ButtonInteraction): Prom
                 ],
               }),
             ],
-          }),
-          ephemeral: true,
+          }), ephemeral: true,
         })
       }
     } catch {}
@@ -267,7 +266,7 @@ export async function handle_ticket_modal(interaction: ModalSubmitInteraction): 
     if (custom_id === `${prefix}_issue_modal`) {
       const issue_description = interaction.fields.getTextInputValue("helper_issue")
 
-      await interaction.deferReply({ ephemeral: true })
+      await interaction.deferReply({ flags: 64 })
       await open_ticket({
         interaction: interaction as any,
         ticket_type: type_key,
@@ -291,7 +290,7 @@ export async function handle_ticket_modal(interaction: ModalSubmitInteraction): 
         reason,
       }
 
-      await interaction.deferReply({ ephemeral: true })
+      await interaction.deferReply({ flags: 64 })
       await open_ticket({
         interaction: interaction as any,
         ticket_type: type_key,
@@ -306,7 +305,7 @@ export async function handle_ticket_modal(interaction: ModalSubmitInteraction): 
       const issue_label = issue_labels[issue_type] || issue_type
       const description = interaction.fields.getTextInputValue("ticket_description")
 
-      await interaction.deferReply({ ephemeral: true })
+      await interaction.deferReply({ flags: 64 })
       await open_ticket({
         interaction: interaction as any,
         ticket_type: type_key,
@@ -331,8 +330,7 @@ export async function handle_ticket_select_menu(interaction: StringSelectMenuInt
 
       if (config.require_role && !has_required_role(member, type_key)) {
         await interaction.reply({
-          content: `You need the <@&${config.required_role_id}> role to create a ticket.`,
-          ephemeral: true,
+          content: `You need the <@&${config.required_role_id}> role to create a ticket.`, ephemeral: true,
         })
         return true
       }

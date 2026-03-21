@@ -57,8 +57,7 @@ export const command: Command = {
       })
 
       await interaction.reply({
-        ...error_message,
-        ephemeral: true,
+        ...error_message, ephemeral: true,
       })
       return
     }
@@ -75,13 +74,12 @@ export const command: Command = {
       })
 
       await interaction.reply({
-        ...error_message,
-        ephemeral: true,
+        ...error_message, ephemeral: true,
       })
       return
     }
 
-    await interaction.deferReply({ ephemeral: true })
+    await interaction.deferReply({ flags: 64 })
 
     try {
       const messages = await channel.messages.fetch({ limit: amount + 1 })

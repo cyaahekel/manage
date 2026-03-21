@@ -24,8 +24,7 @@ const invite_bot_command: Command = {
 
     if (!client_id) {
       await interaction.reply({
-        content   : "Failed to resolve bot client ID.",
-        ephemeral : true,
+        content   : "Failed to resolve bot client ID.", ephemeral: true,
       })
       return
     }

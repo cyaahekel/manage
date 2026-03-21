@@ -31,8 +31,7 @@ const whois: Command = {
 
     if (!member) {
       await interaction.reply({
-        content  : "User not found in this server.",
-        ephemeral: true,
+        content  : "User not found in this server.", ephemeral: true,
       })
       return
     }
@@ -111,7 +110,7 @@ const whois: Command = {
       ],
     })
 
-    await interaction.reply({ ...message, ephemeral: true })
+    await interaction.reply({ ...message, ephemeral: true})
   },
 }
 

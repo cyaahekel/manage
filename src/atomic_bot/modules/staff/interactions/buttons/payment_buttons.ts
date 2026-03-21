@@ -29,8 +29,7 @@ export const button: ButtonHandler = {
 
     if (!is_staff(member)) {
       await interaction.reply({
-        content  : "Only staff can use this button.",
-        ephemeral: true,
+        content  : "Only staff can use this button.", ephemeral: true,
       })
       return
     }
@@ -58,8 +57,7 @@ export const button: ButtonHandler = {
 
         if (!whitelist_result.success || !whitelist_result.data?.user_key) {
           await interaction.followUp({
-            content  : `Failed to whitelist customer: ${whitelist_result.error}`,
-            ephemeral: true,
+            content  : `Failed to whitelist customer: ${whitelist_result.error}`, ephemeral: true,
           })
           return
         }
@@ -140,8 +138,7 @@ export const button: ButtonHandler = {
           approver: interaction.user.id,
         })
         await interaction.followUp({
-          content  : "An error occurred while approving the payment. Please try again.",
-          ephemeral: true,
+          content  : "An error occurred while approving the payment. Please try again.", ephemeral: true,
         })
       }
     } else {

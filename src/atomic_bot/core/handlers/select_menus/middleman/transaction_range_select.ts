@@ -33,7 +33,7 @@ const __transaction_ranges: Record<string, TransactionRange> = {
  * @param {StringSelectMenuInteraction} interaction - The select menu interaction
  */
 export async function handle_middleman_transaction_range_select(interaction: StringSelectMenuInteraction): Promise<void> {
-  await interaction.deferReply({ ephemeral: true })
+  await interaction.deferReply({ flags: 64 })
 
   // - CHECK IF MIDDLEMAN SERVICE IS OPEN - \\
   const is_open = await is_middleman_service_open(interaction.guildId || "")

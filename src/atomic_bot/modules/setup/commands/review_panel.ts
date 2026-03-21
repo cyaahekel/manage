@@ -27,8 +27,7 @@ export const command: Command = {
   async execute(interaction: ChatInputCommandInteraction) {
     if (!is_admin(interaction.member as GuildMember)) {
       await interaction.reply({
-        content: "You don't have permission to use this command.",
-        ephemeral: true,
+        content: "You don't have permission to use this command.", ephemeral: true,
       })
       return
     }
@@ -50,8 +49,7 @@ export const command: Command = {
     await api.send_components_v2(channel.id, api.get_token(), message)
 
     await interaction.reply({
-      content: "Review panel sent!",
-      ephemeral: true,
+      content: "Review panel sent!", ephemeral: true,
     })
   },
 }

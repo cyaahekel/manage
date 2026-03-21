@@ -25,7 +25,7 @@ import * as share_settings from "../controller"
  * @returns {Promise<void>}
  */
 async function execute_add_rod(interaction: ChatInputCommandInteraction): Promise<void> {
-  await interaction.deferReply({ ephemeral: true })
+  await interaction.deferReply({ flags: 64 })
 
   try {
     const rod_name = interaction.options.getString("rod_name", true)

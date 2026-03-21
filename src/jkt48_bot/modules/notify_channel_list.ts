@@ -20,7 +20,7 @@ export const command: Command = {
     .setDescription("View JKT48 live notification channel settings") as SlashCommandBuilder,
 
   async execute(interaction: ChatInputCommandInteraction) {
-    await interaction.deferReply({ ephemeral: true })
+    await interaction.deferReply({ flags: 64 })
 
     try {
       if (!interaction.guild) {

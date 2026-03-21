@@ -57,7 +57,7 @@ export const command: Command = {
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild) as SlashCommandBuilder,
 
   async execute(interaction: ChatInputCommandInteraction) {
-    await interaction.deferReply({ ephemeral: true })
+    await interaction.deferReply({ flags: 64 })
 
     try {
       const sub = interaction.options.getSubcommand()

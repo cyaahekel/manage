@@ -54,29 +54,29 @@ const phising_softban: MessageContextMenuCommand = {
     const guild    = interaction.guild
 
     if (!guild) {
-      await interaction.reply({ ...build_message(["This command can only be used in a server."]), ephemeral: true })
+      await interaction.reply({ ...build_message(["This command can only be used in a server."]), ephemeral: true})
       return
     }
 
     if (!is_admin(executor) && !is_staff(executor) && !executor.permissions.has(PermissionFlagsBits.BanMembers)) {
-      await interaction.reply({ ...build_message(["You do not have permission to use this command."]), ephemeral: true })
+      await interaction.reply({ ...build_message(["You do not have permission to use this command."]), ephemeral: true})
       return
     }
 
     const target_user = interaction.targetMessage.author
 
     if (!target_user) {
-      await interaction.reply({ ...build_message(["Could not resolve the message author."]), ephemeral: true })
+      await interaction.reply({ ...build_message(["Could not resolve the message author."]), ephemeral: true})
       return
     }
 
     if (target_user.id === interaction.user.id) {
-      await interaction.reply({ ...build_message(["You cannot softban yourself."]), ephemeral: true })
+      await interaction.reply({ ...build_message(["You cannot softban yourself."]), ephemeral: true})
       return
     }
 
     if (target_user.id === guild.ownerId) {
-      await interaction.reply({ ...build_message(["You cannot softban the server owner."]), ephemeral: true })
+      await interaction.reply({ ...build_message(["You cannot softban the server owner."]), ephemeral: true})
       return
     }
 
@@ -86,17 +86,17 @@ const phising_softban: MessageContextMenuCommand = {
       const bot_member = await guild.members.fetchMe()
 
       if (target_member.roles.highest.position >= bot_member.roles.highest.position) {
-        await interaction.reply({ ...build_message(["I cannot softban this user due to role hierarchy."]), ephemeral: true })
+        await interaction.reply({ ...build_message(["I cannot softban this user due to role hierarchy."]), ephemeral: true})
         return
       }
 
       if (executor.id !== guild.ownerId && target_member.roles.highest.position >= executor.roles.highest.position) {
-        await interaction.reply({ ...build_message(["You cannot softban this user due to role hierarchy."]), ephemeral: true })
+        await interaction.reply({ ...build_message(["You cannot softban this user due to role hierarchy."]), ephemeral: true})
         return
       }
     }
 
-    await interaction.deferReply({ ephemeral: true })
+    await interaction.deferReply({ flags: 64 })
 
     const __reason = "Phishing"
 

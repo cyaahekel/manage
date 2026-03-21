@@ -21,8 +21,7 @@ export const button: ButtonHandler = {
 
     if (!thread.isThread()) {
       await interaction.reply({
-        content  : "This can only be used in a ticket thread.",
-        ephemeral: true,
+        content  : "This can only be used in a ticket thread.", ephemeral: true,
       })
       return
     }

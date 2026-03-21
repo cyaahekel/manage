@@ -19,7 +19,7 @@ export async function handle_redeem_key(interaction: ButtonInteraction): Promise
   const existing_user = await luarmor.get_user_by_discord(member.id)
   
   if (existing_user.success && existing_user.data) {
-    await interaction.deferReply({ ephemeral: true })
+    await interaction.deferReply({ flags: 64 })
 
     const message = component.build_message({
       components: [

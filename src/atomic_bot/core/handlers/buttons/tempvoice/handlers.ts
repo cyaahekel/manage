@@ -97,16 +97,14 @@ export async function handle_tempvoice_name(interaction: ButtonInteraction): Pro
 
   if (!channel || !tempvoice.is_temp_channel(channel.id)) {
     await interaction.reply({
-      ...create_not_in_channel_reply(guild_id, tempvoice.get_generator_channel_id()),
-      ephemeral: true,
+      ...create_not_in_channel_reply(guild_id, tempvoice.get_generator_channel_id()), ephemeral: true,
     })
     return
   }
 
   if (!tempvoice.is_channel_owner(channel.id, member.id)) {
     await interaction.reply({
-      ...create_not_owner_reply("Only the channel owner can rename the channel."),
-      ephemeral: true,
+      ...create_not_owner_reply("Only the channel owner can rename the channel."), ephemeral: true,
     })
     return
   }
@@ -134,16 +132,14 @@ export async function handle_tempvoice_limit(interaction: ButtonInteraction): Pr
 
   if (!channel || !tempvoice.is_temp_channel(channel.id)) {
     await interaction.reply({
-      ...create_not_in_channel_reply(guild_id, tempvoice.get_generator_channel_id()),
-      ephemeral: true,
+      ...create_not_in_channel_reply(guild_id, tempvoice.get_generator_channel_id()), ephemeral: true,
     })
     return
   }
 
   if (!tempvoice.is_channel_owner(channel.id, member.id)) {
     await interaction.reply({
-      ...create_not_owner_reply("Only the channel owner can set the user limit."),
-      ephemeral: true,
+      ...create_not_owner_reply("Only the channel owner can set the user limit."), ephemeral: true,
     })
     return
   }
@@ -172,21 +168,19 @@ export async function handle_tempvoice_privacy(interaction: ButtonInteraction): 
 
   if (!channel || !tempvoice.is_temp_channel(channel.id)) {
     await interaction.reply({
-      ...create_not_in_channel_reply(guild_id, tempvoice.get_generator_channel_id()),
-      ephemeral: true,
+      ...create_not_in_channel_reply(guild_id, tempvoice.get_generator_channel_id()), ephemeral: true,
     })
     return
   }
 
   if (!tempvoice.is_channel_owner(channel.id, member.id)) {
     await interaction.reply({
-      ...create_not_owner_reply("Only the channel owner can change privacy settings."),
-      ephemeral: true,
+      ...create_not_owner_reply("Only the channel owner can change privacy settings."), ephemeral: true,
     })
     return
   }
 
-  await interaction.deferReply({ ephemeral: true })
+  await interaction.deferReply({ flags: 64 })
 
   // - VALIDATE CHANNEL STILL EXISTS - \\
   const validated = await validate_voice_channel(member.guild, orig_chan_id)
@@ -218,21 +212,19 @@ export async function handle_tempvoice_waitingroom(interaction: ButtonInteractio
 
   if (!channel || !tempvoice.is_temp_channel(channel.id)) {
     await interaction.reply({
-      ...create_not_in_channel_reply(guild_id, tempvoice.get_generator_channel_id()),
-      ephemeral: true,
+      ...create_not_in_channel_reply(guild_id, tempvoice.get_generator_channel_id()), ephemeral: true,
     })
     return
   }
 
   if (!tempvoice.is_channel_owner(channel.id, member.id)) {
     await interaction.reply({
-      ...create_not_owner_reply("Only the channel owner can toggle waiting room."),
-      ephemeral: true,
+      ...create_not_owner_reply("Only the channel owner can toggle waiting room."), ephemeral: true,
     })
     return
   }
 
-  await interaction.deferReply({ ephemeral: true })
+  await interaction.deferReply({ flags: 64 })
 
   const is_enabled = await tempvoice.toggle_waiting_room(channel)
 
@@ -249,21 +241,19 @@ export async function handle_tempvoice_chat(interaction: ButtonInteraction): Pro
 
   if (!channel || !tempvoice.is_temp_channel(channel.id)) {
     await interaction.reply({
-      ...create_not_in_channel_reply(guild_id, tempvoice.get_generator_channel_id()),
-      ephemeral: true,
+      ...create_not_in_channel_reply(guild_id, tempvoice.get_generator_channel_id()), ephemeral: true,
     })
     return
   }
 
   if (!tempvoice.is_channel_owner(channel.id, member.id)) {
     await interaction.reply({
-      ...create_not_owner_reply("Only the channel owner can view the thread."),
-      ephemeral: true,
+      ...create_not_owner_reply("Only the channel owner can view the thread."), ephemeral: true,
     })
     return
   }
 
-  await interaction.deferReply({ ephemeral: true })
+  await interaction.deferReply({ flags: 64 })
 
   const existing = tempvoice.get_thread_id(channel.id)
   if (existing) {
@@ -287,16 +277,14 @@ export async function handle_tempvoice_trust(interaction: ButtonInteraction): Pr
 
   if (!channel || !tempvoice.is_temp_channel(channel.id)) {
     await interaction.reply({
-      ...create_not_in_channel_reply(guild_id, tempvoice.get_generator_channel_id()),
-      ephemeral: true,
+      ...create_not_in_channel_reply(guild_id, tempvoice.get_generator_channel_id()), ephemeral: true,
     })
     return
   }
 
   if (!tempvoice.is_channel_owner(channel.id, member.id)) {
     await interaction.reply({
-      ...create_not_owner_reply("Only the channel owner can trust users."),
-      ephemeral: true,
+      ...create_not_owner_reply("Only the channel owner can trust users."), ephemeral: true,
     })
     return
   }
@@ -312,7 +300,7 @@ export async function handle_tempvoice_trust(interaction: ButtonInteraction): Pr
     ],
   })
 
-  await interaction.reply({ ...reply, ephemeral: true })
+  await interaction.reply({ ...reply, ephemeral: true})
 }
 
 export async function handle_tempvoice_untrust(interaction: ButtonInteraction): Promise<void> {
@@ -322,16 +310,14 @@ export async function handle_tempvoice_untrust(interaction: ButtonInteraction): 
 
   if (!channel || !tempvoice.is_temp_channel(channel.id)) {
     await interaction.reply({
-      ...create_not_in_channel_reply(guild_id, tempvoice.get_generator_channel_id()),
-      ephemeral: true,
+      ...create_not_in_channel_reply(guild_id, tempvoice.get_generator_channel_id()), ephemeral: true,
     })
     return
   }
 
   if (!tempvoice.is_channel_owner(channel.id, member.id)) {
     await interaction.reply({
-      ...create_not_owner_reply("Only the channel owner can untrust users."),
-      ephemeral: true,
+      ...create_not_owner_reply("Only the channel owner can untrust users."), ephemeral: true,
     })
     return
   }
@@ -347,7 +333,7 @@ export async function handle_tempvoice_untrust(interaction: ButtonInteraction): 
     ],
   })
 
-  await interaction.reply({ ...reply, ephemeral: true })
+  await interaction.reply({ ...reply, ephemeral: true})
 }
 
 export async function handle_tempvoice_invite(interaction: ButtonInteraction): Promise<void> {
@@ -357,16 +343,14 @@ export async function handle_tempvoice_invite(interaction: ButtonInteraction): P
 
   if (!channel || !tempvoice.is_temp_channel(channel.id)) {
     await interaction.reply({
-      ...create_not_in_channel_reply(guild_id, tempvoice.get_generator_channel_id()),
-      ephemeral: true,
+      ...create_not_in_channel_reply(guild_id, tempvoice.get_generator_channel_id()), ephemeral: true,
     })
     return
   }
 
   if (!tempvoice.is_channel_owner(channel.id, member.id)) {
     await interaction.reply({
-      ...create_not_owner_reply("Only the channel owner can invite users."),
-      ephemeral: true,
+      ...create_not_owner_reply("Only the channel owner can invite users."), ephemeral: true,
     })
     return
   }
@@ -382,7 +366,7 @@ export async function handle_tempvoice_invite(interaction: ButtonInteraction): P
     ],
   })
 
-  await interaction.reply({ ...reply, ephemeral: true })
+  await interaction.reply({ ...reply, ephemeral: true})
 }
 
 export async function handle_tempvoice_kick(interaction: ButtonInteraction): Promise<void> {
@@ -392,16 +376,14 @@ export async function handle_tempvoice_kick(interaction: ButtonInteraction): Pro
 
   if (!channel || !tempvoice.is_temp_channel(channel.id)) {
     await interaction.reply({
-      ...create_not_in_channel_reply(guild_id, tempvoice.get_generator_channel_id()),
-      ephemeral: true,
+      ...create_not_in_channel_reply(guild_id, tempvoice.get_generator_channel_id()), ephemeral: true,
     })
     return
   }
 
   if (!tempvoice.is_channel_owner(channel.id, member.id)) {
     await interaction.reply({
-      ...create_not_owner_reply("Only the channel owner can kick users."),
-      ephemeral: true,
+      ...create_not_owner_reply("Only the channel owner can kick users."), ephemeral: true,
     })
     return
   }
@@ -417,7 +399,7 @@ export async function handle_tempvoice_kick(interaction: ButtonInteraction): Pro
     ],
   })
 
-  await interaction.reply({ ...reply, ephemeral: true })
+  await interaction.reply({ ...reply, ephemeral: true})
 }
 
 export async function handle_tempvoice_region(interaction: ButtonInteraction): Promise<void> {
@@ -427,16 +409,14 @@ export async function handle_tempvoice_region(interaction: ButtonInteraction): P
 
   if (!channel || !tempvoice.is_temp_channel(channel.id)) {
     await interaction.reply({
-      ...create_not_in_channel_reply(guild_id, tempvoice.get_generator_channel_id()),
-      ephemeral: true,
+      ...create_not_in_channel_reply(guild_id, tempvoice.get_generator_channel_id()), ephemeral: true,
     })
     return
   }
 
   if (!tempvoice.is_channel_owner(channel.id, member.id)) {
     await interaction.reply({
-      ...create_not_owner_reply("Only the channel owner can change the region."),
-      ephemeral: true,
+      ...create_not_owner_reply("Only the channel owner can change the region."), ephemeral: true,
     })
     return
   }
@@ -470,7 +450,7 @@ export async function handle_tempvoice_region(interaction: ButtonInteraction): P
     ],
   })
 
-  await interaction.reply({ ...reply, ephemeral: true })
+  await interaction.reply({ ...reply, ephemeral: true})
 }
 
 export async function handle_tempvoice_block(interaction: ButtonInteraction): Promise<void> {
@@ -480,16 +460,14 @@ export async function handle_tempvoice_block(interaction: ButtonInteraction): Pr
 
   if (!channel || !tempvoice.is_temp_channel(channel.id)) {
     await interaction.reply({
-      ...create_not_in_channel_reply(guild_id, tempvoice.get_generator_channel_id()),
-      ephemeral: true,
+      ...create_not_in_channel_reply(guild_id, tempvoice.get_generator_channel_id()), ephemeral: true,
     })
     return
   }
 
   if (!tempvoice.is_channel_owner(channel.id, member.id)) {
     await interaction.reply({
-      ...create_not_owner_reply("Only the channel owner can block users."),
-      ephemeral: true,
+      ...create_not_owner_reply("Only the channel owner can block users."), ephemeral: true,
     })
     return
   }
@@ -505,7 +483,7 @@ export async function handle_tempvoice_block(interaction: ButtonInteraction): Pr
     ],
   })
 
-  await interaction.reply({ ...reply, ephemeral: true })
+  await interaction.reply({ ...reply, ephemeral: true})
 }
 
 export async function handle_tempvoice_unblock(interaction: ButtonInteraction): Promise<void> {
@@ -515,16 +493,14 @@ export async function handle_tempvoice_unblock(interaction: ButtonInteraction): 
 
   if (!channel || !tempvoice.is_temp_channel(channel.id)) {
     await interaction.reply({
-      ...create_not_in_channel_reply(guild_id, tempvoice.get_generator_channel_id()),
-      ephemeral: true,
+      ...create_not_in_channel_reply(guild_id, tempvoice.get_generator_channel_id()), ephemeral: true,
     })
     return
   }
 
   if (!tempvoice.is_channel_owner(channel.id, member.id)) {
     await interaction.reply({
-      ...create_not_owner_reply("Only the channel owner can unblock users."),
-      ephemeral: true,
+      ...create_not_owner_reply("Only the channel owner can unblock users."), ephemeral: true,
     })
     return
   }
@@ -540,7 +516,7 @@ export async function handle_tempvoice_unblock(interaction: ButtonInteraction): 
     ],
   })
 
-  await interaction.reply({ ...reply, ephemeral: true })
+  await interaction.reply({ ...reply, ephemeral: true})
 }
 
 export async function handle_tempvoice_claim(interaction: ButtonInteraction): Promise<void> {
@@ -566,19 +542,18 @@ export async function handle_tempvoice_claim(interaction: ButtonInteraction): Pr
         }),
       ],
     })
-    await interaction.reply({ ...reply, ephemeral: true })
+    await interaction.reply({ ...reply, ephemeral: true})
     return
   }
 
   if (tempvoice.is_channel_owner(channel.id, member.id)) {
     await interaction.reply({
-      ...create_success_reply("You already own this channel."),
-      ephemeral: true,
+      ...create_success_reply("You already own this channel."), ephemeral: true,
     })
     return
   }
 
-  await interaction.deferReply({ ephemeral: true })
+  await interaction.deferReply({ flags: 64 })
 
   // - VALIDATE CHANNEL STILL EXISTS - \\
   const validated = await validate_voice_channel(member.guild, orig_chan_id)
@@ -604,16 +579,14 @@ export async function handle_tempvoice_transfer(interaction: ButtonInteraction):
 
   if (!channel || !tempvoice.is_temp_channel(channel.id)) {
     await interaction.reply({
-      ...create_not_in_channel_reply(guild_id, tempvoice.get_generator_channel_id()),
-      ephemeral: true,
+      ...create_not_in_channel_reply(guild_id, tempvoice.get_generator_channel_id()), ephemeral: true,
     })
     return
   }
 
   if (!tempvoice.is_channel_owner(channel.id, member.id)) {
     await interaction.reply({
-      ...create_not_owner_reply("Only the channel owner can transfer ownership."),
-      ephemeral: true,
+      ...create_not_owner_reply("Only the channel owner can transfer ownership."), ephemeral: true,
     })
     return
   }
@@ -629,7 +602,7 @@ export async function handle_tempvoice_transfer(interaction: ButtonInteraction):
     ],
   })
 
-  await interaction.reply({ ...reply, ephemeral: true })
+  await interaction.reply({ ...reply, ephemeral: true})
 }
 
 export async function handle_tempvoice_delete(interaction: ButtonInteraction): Promise<void> {
@@ -640,21 +613,19 @@ export async function handle_tempvoice_delete(interaction: ButtonInteraction): P
 
   if (!channel || !tempvoice.is_temp_channel(channel.id)) {
     await interaction.reply({
-      ...create_not_in_channel_reply(guild_id, tempvoice.get_generator_channel_id()),
-      ephemeral: true,
+      ...create_not_in_channel_reply(guild_id, tempvoice.get_generator_channel_id()), ephemeral: true,
     })
     return
   }
 
   if (!tempvoice.is_channel_owner(channel.id, member.id)) {
     await interaction.reply({
-      ...create_not_owner_reply("Only the channel owner can delete the channel."),
-      ephemeral: true,
+      ...create_not_owner_reply("Only the channel owner can delete the channel."), ephemeral: true,
     })
     return
   }
 
-  await interaction.deferReply({ ephemeral: true })
+  await interaction.deferReply({ flags: 64 })
 
   // - VALIDATE CHANNEL STILL EXISTS - \\
   const validated = await validate_voice_channel(member.guild, orig_chan_id)
@@ -699,8 +670,7 @@ export async function handle_tempvoice_leaderboard(interaction: ButtonInteractio
 
   if (leaderboard.length === 0) {
     await interaction.reply({
-      content  : "No voice channel records found.",
-      ephemeral: true,
+      content  : "No voice channel records found.", ephemeral: true,
     })
     return
   }
@@ -726,5 +696,5 @@ export async function handle_tempvoice_leaderboard(interaction: ButtonInteractio
     ],
   })
 
-  await interaction.reply({ ...message, ephemeral: true })
+  await interaction.reply({ ...message, ephemeral: true})
 }

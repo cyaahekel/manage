@@ -21,8 +21,7 @@ export async function handle_bypass_mobile_copy(interaction: ButtonInteraction):
     // - VERIFY USER AUTHORIZATION - \\
     if (interaction.user.id !== user_id) {
       await interaction.reply({
-        content   : "This button is not for you!",
-        ephemeral : true,
+        content   : "This button is not for you!", ephemeral: true,
       })
       return
     }
@@ -38,8 +37,7 @@ export async function handle_bypass_mobile_copy(interaction: ButtonInteraction):
 
       if (!result.rows || result.rows.length === 0) {
         await interaction.reply({
-          content   : "Bypass result has expired or not found. Please run the bypass command again.",
-          ephemeral : true,
+          content   : "Bypass result has expired or not found. Please run the bypass command again.", ephemeral: true,
         })
         return
       }
@@ -47,16 +45,14 @@ export async function handle_bypass_mobile_copy(interaction: ButtonInteraction):
       const bypass_key = result.rows[0].url
 
       await interaction.reply({
-        content   : `\`${bypass_key}\``,
-        ephemeral : true,
+        content   : `\`${bypass_key}\``, ephemeral: true,
       })
 
       console.warn(`[ - BYPASS MOBILE COPY - ] Sent mobile copy to user ${interaction.user.id}`)
     } catch (db_error) {
       console.error(`[ - BYPASS MOBILE COPY - ] Database error:`, db_error)
       await interaction.reply({
-        content   : "Failed to retrieve bypass result. Please try again.",
-        ephemeral : true,
+        content   : "Failed to retrieve bypass result. Please try again.", ephemeral: true,
       })
     }
 
@@ -65,8 +61,7 @@ export async function handle_bypass_mobile_copy(interaction: ButtonInteraction):
 
     try {
       await interaction.reply({
-        content   : "An error occurred while processing your request",
-        ephemeral : true,
+        content   : "An error occurred while processing your request", ephemeral: true,
       })
     } catch (reply_error) {
       console.error(`[ - BYPASS MOBILE COPY - ] Failed to send error message:`, reply_error)

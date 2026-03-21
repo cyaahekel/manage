@@ -155,15 +155,13 @@ export const command: Command = {
 
     if (!result.success) {
       await interaction.reply({
-        content  : result.error || "Failed to create reminder",
-        ephemeral: true,
+        content  : result.error || "Failed to create reminder", ephemeral: true,
       })
       return
     }
 
     await interaction.reply({
-      content  : result.message || "Reminder scheduled! Check your DM.",
-      ephemeral: true,
+      content  : result.message || "Reminder scheduled! Check your DM.", ephemeral: true,
     })
   },
 }

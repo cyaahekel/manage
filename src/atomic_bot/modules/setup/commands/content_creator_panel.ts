@@ -32,8 +32,7 @@ export const command: Command = {
 
     if (!config) {
       await interaction.reply({
-        content:   "Content Creator ticket type not configured.",
-        ephemeral: true,
+        content:   "Content Creator ticket type not configured.", ephemeral: true,
       })
       return
     }
@@ -64,8 +63,7 @@ export const command: Command = {
     await api.send_components_v2(interaction.channelId, token, panel_message)
 
     await interaction.reply({
-      content:   "Content creator panel sent successfully!",
-      ephemeral: true,
+      content:   "Content creator panel sent successfully!", ephemeral: true,
     })
   },
 }

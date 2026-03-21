@@ -27,8 +27,7 @@ export const command: Command = {
   async execute(interaction: ChatInputCommandInteraction) {
     if (!interaction.guild) {
       await interaction.reply({
-        content  : "This command can only be used in a server.",
-        ephemeral: true,
+        content  : "This command can only be used in a server.", ephemeral: true,
       })
       return
     }
@@ -37,8 +36,7 @@ export const command: Command = {
 
     if (!member.permissions.has(PermissionFlagsBits.Administrator)) {
       await interaction.reply({
-        content  : "You need Administrator permission to use this command.",
-        ephemeral: true,
+        content  : "You need Administrator permission to use this command.", ephemeral: true,
       })
       return
     }

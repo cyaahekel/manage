@@ -33,21 +33,21 @@ export async function handle_share_settings_modal(interaction: ModalSubmitIntera
 
   const entry = share_settings.get_pending_entry(token)
   if (!entry) {
-    await interaction.reply({ content: "Request expired", ephemeral: true })
+    await interaction.reply({ content: "Request expired", ephemeral: true})
     return true
   }
 
   if (entry.user_id !== interaction.user.id) {
-    await interaction.reply({ content: "You are not allowed to submit this modal", ephemeral: true })
+    await interaction.reply({ content: "You are not allowed to submit this modal", ephemeral: true})
     return true
   }
 
   if (!share_settings.can_use_share_settings(interaction.member as any)) {
-    await interaction.reply({ content: "You don't have permission to use this command.", ephemeral: true })
+    await interaction.reply({ content: "You don't have permission to use this command.", ephemeral: true})
     return true
   }
 
-  await interaction.deferReply({ ephemeral: true })
+  await interaction.deferReply({ flags: 64 })
 
   try {
     const note_value = interaction.fields.getTextInputValue("note")

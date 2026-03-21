@@ -25,23 +25,23 @@ export async function handle_share_settings_continue(interaction: ButtonInteract
     const token = parts[1]
 
     if (!token) {
-      await interaction.reply({ content: "Invalid request", ephemeral: true })
+      await interaction.reply({ content: "Invalid request", ephemeral: true})
       return
     }
 
     const entry = share_settings.get_pending_entry(token)
     if (!entry) {
-      await interaction.reply({ content: "Request expired", ephemeral: true })
+      await interaction.reply({ content: "Request expired", ephemeral: true})
       return
     }
 
     if (entry.user_id !== interaction.user.id) {
-      await interaction.reply({ content: "You are not allowed to continue this request", ephemeral: true })
+      await interaction.reply({ content: "You are not allowed to continue this request", ephemeral: true})
       return
     }
 
     if (!entry.payload.rod_name) {
-      await interaction.reply({ content: "Please select a rod name first", ephemeral: true })
+      await interaction.reply({ content: "Please select a rod name first", ephemeral: true})
       return
     }
 
@@ -60,6 +60,6 @@ export async function handle_share_settings_continue(interaction: ButtonInteract
     await log_error(interaction.client, error as Error, "share_settings_continue", {
       custom_id : interaction.customId,
     })
-    await interaction.reply({ content: "Failed to open settings modal", ephemeral: true }).catch(() => {})
+    await interaction.reply({ content: "Failed to open settings modal", ephemeral: true}).catch(() => {})
   }
 }

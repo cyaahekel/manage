@@ -37,8 +37,7 @@ export async function handle_loa_request_modal(interaction: ModalSubmitInteracti
 
   if (!result.success) {
     await interaction.reply({
-      content  : result.error || "Failed to submit LOA request",
-      ephemeral: true,
+      content  : result.error || "Failed to submit LOA request", ephemeral: true,
     })
     return true
   }
@@ -74,8 +73,7 @@ export async function handle_loa_request_modal(interaction: ModalSubmitInteracti
     }).catch(() => {})
 
     await interaction.followUp({
-      content  : "LOA request submitted but failed to save. Please contact an administrator.",
-      ephemeral: true,
+      content  : "LOA request submitted but failed to save. Please contact an administrator.", ephemeral: true,
     }).catch(() => {})
   }
 

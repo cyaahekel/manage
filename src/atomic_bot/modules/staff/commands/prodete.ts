@@ -103,7 +103,7 @@ export const command: Command = {
     const member = interaction.member as GuildMember
 
     if (!is_admin(member)) {
-      await interaction.reply({ content: "You do not have permission to use this command.", ephemeral: true })
+      await interaction.reply({ content: "You do not have permission to use this command.", ephemeral: true})
       return
     }
 
@@ -113,8 +113,7 @@ export const command: Command = {
 
     if (!is_valid_date(from_date) || !is_valid_date(to_date)) {
       await interaction.reply({
-        content  : "Invalid date format. Use DD-MM-YYYY (e.g. `01-02-2026`).",
-        ephemeral: true,
+        content  : "Invalid date format. Use DD-MM-YYYY (e.g. `01-02-2026`).", ephemeral: true,
       })
       return
     }
@@ -127,8 +126,7 @@ export const command: Command = {
 
     if (from_ms > to_ms) {
       await interaction.reply({
-        content  : "Start date must be before or equal to end date.",
-        ephemeral: true,
+        content  : "Start date must be before or equal to end date.", ephemeral: true,
       })
       return
     }

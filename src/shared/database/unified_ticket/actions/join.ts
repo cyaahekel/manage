@@ -174,5 +174,5 @@ export async function join_ticket(interaction: ButtonInteraction, ticket_type: s
     ],
   })
 
-  await api.edit_deferred_reply(interaction, { ...reply_message, flags: 32832 })
+  await api.edit_deferred_reply(interaction, { ...reply_message, ephemeral: true })
 }

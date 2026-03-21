@@ -41,8 +41,7 @@ export const command: Command = {
 
     if (!is_admin(member)) {
       await interaction.reply({
-        content: "You don't have permission to use this command.",
-        ephemeral: true,
+        content: "You don't have permission to use this command.", ephemeral: true,
       })
       return
     }
@@ -52,13 +51,12 @@ export const command: Command = {
       
       if (!(channel instanceof TextChannel)) {
         await interaction.reply({
-          content: "Please select a text channel.",
-          ephemeral: true,
+          content: "Please select a text channel.", ephemeral: true,
         })
         return
       }
 
-      await interaction.deferReply({ ephemeral: true })
+      await interaction.deferReply({ flags: 64 })
 
       const message_payload = {
         flags: 32768,
@@ -115,8 +113,7 @@ export const command: Command = {
         })
       } else {
         await interaction.reply({
-          content: "Error setting up staff information panel.",
-          ephemeral: true,
+          content: "Error setting up staff information panel.", ephemeral: true,
         })
       }
     }

@@ -35,7 +35,7 @@ export const command: Command = {
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator) as SlashCommandBuilder,
 
   async execute(interaction: ChatInputCommandInteraction) {
-    await interaction.deferReply({ ephemeral: true })
+    await interaction.deferReply({ flags: 64 })
 
     const channel = interaction.options.getChannel("send_to", true) as TextChannel
 

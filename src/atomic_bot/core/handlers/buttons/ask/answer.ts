@@ -161,8 +161,7 @@ export async function handle_ask_answer(interaction: ButtonInteraction): Promise
 
   if (!is_staff(member) && !is_admin_or_mod(member)) {
     await interaction.reply({
-      content: "Only staff can answer questions.",
-      ephemeral: true,
+      content: "Only staff can answer questions.", ephemeral: true,
     })
     return
   }

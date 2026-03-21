@@ -17,7 +17,7 @@ import * as luarmor from "../../../../infrastructure/api/luarmor"
 export async function handle_get_script(interaction: ButtonInteraction): Promise<void> {
   const member = interaction.member as GuildMember
 
-  await interaction.deferReply({ ephemeral: true })
+  await interaction.deferReply({ flags: 64 })
 
   const script_result = await get_user_script({ client: interaction.client, user_id: member.id })
 
@@ -43,7 +43,7 @@ export async function handle_get_script(interaction: ButtonInteraction): Promise
         }),
       )
 
-      await interaction.followUp({ content: "Please redeem your key first.", ephemeral: true })
+      await interaction.followUp({ content: "Please redeem your key first.", ephemeral: true})
       return
     }
 
@@ -107,12 +107,11 @@ export async function handle_mobile_copy(interaction: ButtonInteraction): Promis
 
   if (!script_result.success) {
     if (script_result.message) {
-      await interaction.reply({ ...script_result.message, ephemeral: true })
+      await interaction.reply({ ...script_result.message, ephemeral: true})
       return
     }
     await interaction.reply({
-      content   : `## Error\n${script_result.error}`,
-      ephemeral : true,
+      content   : `## Error\n${script_result.error}`, ephemeral: true,
     })
     return
   }
@@ -121,7 +120,6 @@ export async function handle_mobile_copy(interaction: ButtonInteraction): Promis
   const mobile_copy   = loader_script.replace(/\n/g, " ")
 
   await interaction.reply({
-    content   : `\`${mobile_copy}\``,
-    ephemeral : true,
+    content   : `\`${mobile_copy}\``, ephemeral: true,
   })
 }

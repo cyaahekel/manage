@@ -48,8 +48,7 @@ export const command: Command = {
   async execute(interaction: ChatInputCommandInteraction) {
     if (!interaction.guild) {
       await interaction.reply({
-        content  : "This command can only be used in a server.",
-        ephemeral: true,
+        content  : "This command can only be used in a server.", ephemeral: true,
       })
       return
     }
@@ -58,8 +57,7 @@ export const command: Command = {
 
     if (!member || !member.roles || member_has_role(member, __allowed_role_id) === false) {
       await interaction.reply({
-        content  : "You don't have permission to use this command.",
-        ephemeral: true,
+        content  : "You don't have permission to use this command.", ephemeral: true,
       })
       return
     }
@@ -70,13 +68,12 @@ export const command: Command = {
 
     if (!user) {
       await interaction.reply({
-        content  : "Invalid user.",
-        ephemeral: true,
+        content  : "Invalid user.", ephemeral: true,
       })
       return
     }
 
-    await interaction.deferReply({ ephemeral: true })
+    await interaction.deferReply({ flags: 64 })
 
     const result = await edit_whitelist({
       user,

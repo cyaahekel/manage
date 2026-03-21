@@ -29,19 +29,19 @@ export async function handle_share_settings_pagination(interaction: ButtonIntera
     const index_raw = parts[2]
 
     if (!token || index_raw === undefined) {
-      await interaction.reply({ content: "Invalid pagination state", ephemeral: true })
+      await interaction.reply({ content: "Invalid pagination state", ephemeral: true})
       return
     }
 
     const entry = share_settings.get_search_entry(token)
     if (!entry) {
-      await interaction.reply({ content: "Search expired", ephemeral: true })
+      await interaction.reply({ content: "Search expired", ephemeral: true})
       return
     }
 
     const records = await share_settings.build_records_from_search(interaction.client, entry)
     if (records.length === 0) {
-      await interaction.reply({ content: "No settings found", ephemeral: true })
+      await interaction.reply({ content: "No settings found", ephemeral: true})
       return
     }
 
@@ -59,6 +59,6 @@ export async function handle_share_settings_pagination(interaction: ButtonIntera
     await log_error(interaction.client, error as Error, "share_settings_pagination", {
       custom_id : interaction.customId,
     })
-    await interaction.reply({ content: "Failed to paginate", ephemeral: true }).catch(() => {})
+    await interaction.reply({ content: "Failed to paginate", ephemeral: true}).catch(() => {})
   }
 }

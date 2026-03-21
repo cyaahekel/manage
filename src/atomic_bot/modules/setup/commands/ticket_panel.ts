@@ -30,22 +30,21 @@ export const command: Command = {
 
     if (!is_admin(member)) {
       await interaction.reply({
-        content: "You don't have permission to use this command.",
-        ephemeral: true,
+        content: "You don't have permission to use this command.", ephemeral: true,
       })
       return
     }
 
     const config = get_ticket_config("priority")
     if (!config) {
-      await interaction.reply({ content: "Priority ticket config not found.", ephemeral: true })
+      await interaction.reply({ content: "Priority ticket config not found.", ephemeral: true})
       return
     }
 
     const channel = interaction.guild?.channels.cache.get(config.panel_channel_id) as TextChannel
 
     if (!channel) {
-      await interaction.reply({ content: "Panel channel not found.", ephemeral: true })
+      await interaction.reply({ content: "Panel channel not found.", ephemeral: true})
       return
     }
 
@@ -92,10 +91,10 @@ export const command: Command = {
     const response = await api.send_components_v2(channel.id, api.get_token(), message)
 
     if (!response.error) {
-      await interaction.reply({ content: "Priority panel sent!", ephemeral: true })
+      await interaction.reply({ content: "Priority panel sent!", ephemeral: true})
     } else {
       console.error("[priority_panel] Error:", response)
-      await interaction.reply({ content: "Failed to send priority panel.", ephemeral: true })
+      await interaction.reply({ content: "Failed to send priority panel.", ephemeral: true})
     }
   },
 }

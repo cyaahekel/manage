@@ -15,7 +15,7 @@ import { reset_user_hwid }                    from "../../controllers/service_pr
 import { is_hwid_enabled }                    from "../../../../modules/setup/commands/hwid_control"
 
 export async function handle_reset_hwid(interaction: ButtonInteraction): Promise<void> {
-  await interaction.deferReply({ ephemeral: true })
+  await interaction.deferReply({ flags: 64 })
 
   const hwid_enabled = await is_hwid_enabled()
   if (!hwid_enabled) {

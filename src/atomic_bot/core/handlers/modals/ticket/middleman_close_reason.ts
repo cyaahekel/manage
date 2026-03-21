@@ -26,7 +26,7 @@ export async function handle_middleman_close_reason_modal(interaction: ModalSubm
   const thread       = interaction.channel as ThreadChannel
   const close_reason = interaction.fields.getTextInputValue("close_reason")
 
-  await interaction.deferReply({ ephemeral: true })
+  await interaction.deferReply({ flags: 64 })
 
   if (!thread.isThread()) {
     await interaction.editReply({ content: "This can only be used in a ticket thread." })

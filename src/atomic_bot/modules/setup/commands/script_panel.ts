@@ -29,8 +29,7 @@ export const command: Command = {
 
     if (!is_admin(member)) {
       await interaction.reply({
-        content   : "You don't have permission to use this command.",
-        ephemeral : true,
+        content   : "You don't have permission to use this command.", ephemeral: true,
       })
       return
     }
@@ -39,8 +38,7 @@ export const command: Command = {
 
     if (!channel) {
       await interaction.reply({
-        content   : "Channel not found.",
-        ephemeral : true,
+        content   : "Channel not found.", ephemeral: true,
       })
       return
     }
@@ -76,14 +74,12 @@ export const command: Command = {
 
     if (!response.error) {
       await interaction.reply({
-        content   : "Script panel sent!",
-        ephemeral : true,
+        content   : "Script panel sent!", ephemeral: true,
       })
     } else {
       console.error("[script_panel] Error:", response)
       await interaction.reply({
-        content   : "Failed to send script panel.",
-        ephemeral : true,
+        content   : "Failed to send script panel.", ephemeral: true,
       })
     }
   },

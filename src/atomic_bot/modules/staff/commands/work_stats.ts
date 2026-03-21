@@ -34,7 +34,7 @@ export const command: Command = {
     const staff        = staff_input || interaction.user
 
     if (!is_admin && staff.id !== interaction.user.id) {
-      await interaction.reply({ content: "You can only check your own work stats.", ephemeral: true })
+      await interaction.reply({ content: "You can only check your own work stats.", ephemeral: true})
       return
     }
 
@@ -61,8 +61,7 @@ export const command: Command = {
     })
 
     await interaction.reply({
-      ...message,
-      ephemeral: true,
+      ...message, ephemeral: true,
     })
   },
 }

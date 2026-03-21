@@ -34,7 +34,7 @@ function get_headers(): Record<string, string> {
 }
 
 export async function handle_free_reset_hwid(interaction: ButtonInteraction): Promise<void> {
-  await interaction.deferReply({ ephemeral: true })
+  await interaction.deferReply({ flags: 64 })
 
   const hwid_enabled = await is_hwid_enabled()
   if (!hwid_enabled) {

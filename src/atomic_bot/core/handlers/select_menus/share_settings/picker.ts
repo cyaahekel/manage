@@ -24,18 +24,18 @@ export async function handle_share_settings_picker(interaction: StringSelectMenu
     const token = parts[1]
 
     if (!token) {
-      await interaction.reply({ content: "Invalid selection", ephemeral: true })
+      await interaction.reply({ content: "Invalid selection", ephemeral: true})
       return
     }
 
     const entry = share_settings.get_pending_entry(token)
     if (!entry) {
-      await interaction.reply({ content: "Request expired", ephemeral: true })
+      await interaction.reply({ content: "Request expired", ephemeral: true})
       return
     }
 
     if (entry.user_id !== interaction.user.id) {
-      await interaction.reply({ content: "You are not allowed to update this request", ephemeral: true })
+      await interaction.reply({ content: "You are not allowed to update this request", ephemeral: true})
       return
     }
 
@@ -65,6 +65,6 @@ export async function handle_share_settings_picker(interaction: StringSelectMenu
     await log_error(interaction.client, error as Error, "share_settings_picker", {
       custom_id : interaction.customId,
     })
-    await interaction.reply({ content: "Failed to update selection", ephemeral: true }).catch(() => {})
+    await interaction.reply({ content: "Failed to update selection", ephemeral: true}).catch(() => {})
   }
 }

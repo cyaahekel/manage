@@ -24,12 +24,12 @@ import { log_error } from "@shared/utils/error_logger"
 export async function handle_setup_welcome(interaction: ChatInputCommandInteraction): Promise<void> {
   try {
     if (!interaction.guildId) {
-      await interaction.reply({ content: "This command can only be used in a server", ephemeral: true })
+      await interaction.reply({ content: "This command can only be used in a server", ephemeral: true})
       return
     }
 
     if (!interaction.member) {
-      await interaction.reply({ content: "Could not verify your permissions", ephemeral: true })
+      await interaction.reply({ content: "Could not verify your permissions", ephemeral: true})
       return
     }
 
@@ -37,8 +37,7 @@ export async function handle_setup_welcome(interaction: ChatInputCommandInteract
 
     if (!is_admin(member)) {
       await interaction.reply({
-        content: "You don't have permission to use this command",
-        ephemeral: true,
+        content: "You don't have permission to use this command", ephemeral: true,
       })
       return
     }
@@ -48,8 +47,7 @@ export async function handle_setup_welcome(interaction: ChatInputCommandInteract
 
     if (!channel || channel.type !== ChannelType.GuildText) {
       await interaction.reply({
-        content: "Please provide a valid text channel",
-        ephemeral: true,
+        content: "Please provide a valid text channel", ephemeral: true,
       })
       return
     }
@@ -58,8 +56,7 @@ export async function handle_setup_welcome(interaction: ChatInputCommandInteract
 
     if (!success) {
       await interaction.reply({
-        content: "Failed to save welcome channel setting",
-        ephemeral: true,
+        content: "Failed to save welcome channel setting", ephemeral: true,
       })
       return
     }
@@ -90,7 +87,7 @@ export async function handle_setup_welcome(interaction: ChatInputCommandInteract
       ],
     })
 
-    await interaction.reply({ ...response, ephemeral: true })
+    await interaction.reply({ ...response, ephemeral: true})
   } catch (err) {
     console.error("[ - SETUP WELCOME ERROR - ]", err)
     await log_error(interaction.client, err as Error, "HANDLE_SETUP_WELCOME", {
@@ -100,8 +97,7 @@ export async function handle_setup_welcome(interaction: ChatInputCommandInteract
     
     if (!interaction.replied && !interaction.deferred) {
       await interaction.reply({
-        content: "An error occurred while setting up welcome channel",
-        ephemeral: true,
+        content: "An error occurred while setting up welcome channel", ephemeral: true,
       })
     }
   }
@@ -117,8 +113,7 @@ export async function handle_setup_ticket(interaction: ChatInputCommandInteracti
 
     if (!is_admin(member)) {
       await interaction.reply({
-        content: "You don't have permission to use this command",
-        ephemeral: true,
+        content: "You don't have permission to use this command", ephemeral: true,
       })
       return
     }
@@ -127,7 +122,7 @@ export async function handle_setup_ticket(interaction: ChatInputCommandInteracti
     const log_channel      = interaction.options.getChannel("log_channel")
 
     if (!interaction.guildId) {
-      await interaction.reply({ content: "This command can only be used in a server", ephemeral: true })
+      await interaction.reply({ content: "This command can only be used in a server", ephemeral: true})
       return
     }
 
@@ -154,15 +149,14 @@ export async function handle_setup_ticket(interaction: ChatInputCommandInteracti
       ],
     })
 
-    await interaction.reply({ ...response, ephemeral: true })
+    await interaction.reply({ ...response, ephemeral: true})
   } catch (err) {
     await log_error(interaction.client, err as Error, "HANDLE_SETUP_TICKET", {
       guild_id: interaction.guildId,
       user_id: interaction.user.id,
     })
     await interaction.reply({
-      content: "An error occurred while setting up ticket system",
-      ephemeral: true,
+      content: "An error occurred while setting up ticket system", ephemeral: true,
     })
   }
 }
@@ -177,8 +171,7 @@ export async function handle_setup_logs(interaction: ChatInputCommandInteraction
 
     if (!is_admin(member)) {
       await interaction.reply({
-        content: "You don't have permission to use this command",
-        ephemeral: true,
+        content: "You don't have permission to use this command", ephemeral: true,
       })
       return
     }
@@ -187,7 +180,7 @@ export async function handle_setup_logs(interaction: ChatInputCommandInteraction
     const member_log_channel = interaction.options.getChannel("member_log_channel")
 
     if (!interaction.guildId) {
-      await interaction.reply({ content: "This command can only be used in a server", ephemeral: true })
+      await interaction.reply({ content: "This command can only be used in a server", ephemeral: true})
       return
     }
 
@@ -216,15 +209,14 @@ export async function handle_setup_logs(interaction: ChatInputCommandInteraction
       ],
     })
 
-    await interaction.reply({ ...response, ephemeral: true })
+    await interaction.reply({ ...response, ephemeral: true})
   } catch (err) {
     await log_error(interaction.client, err as Error, "HANDLE_SETUP_LOGS", {
       guild_id: interaction.guildId,
       user_id: interaction.user.id,
     })
     await interaction.reply({
-      content: "An error occurred while setting up log channels",
-      ephemeral: true,
+      content: "An error occurred while setting up log channels", ephemeral: true,
     })
   }
 }
@@ -239,14 +231,13 @@ export async function handle_setup_view(interaction: ChatInputCommandInteraction
 
     if (!is_admin(member)) {
       await interaction.reply({
-        content: "You don't have permission to use this command",
-        ephemeral: true,
+        content: "You don't have permission to use this command", ephemeral: true,
       })
       return
     }
 
     if (!interaction.guildId) {
-      await interaction.reply({ content: "This command can only be used in a server", ephemeral: true })
+      await interaction.reply({ content: "This command can only be used in a server", ephemeral: true})
       return
     }
 
@@ -254,8 +245,7 @@ export async function handle_setup_view(interaction: ChatInputCommandInteraction
 
     if (!settings || Object.keys(settings).length === 0) {
       await interaction.reply({
-        content: "No settings configured for this server",
-        ephemeral: true,
+        content: "No settings configured for this server", ephemeral: true,
       })
       return
     }
@@ -317,15 +307,14 @@ export async function handle_setup_view(interaction: ChatInputCommandInteraction
       ],
     })
 
-    await interaction.reply({ ...response, ephemeral: true })
+    await interaction.reply({ ...response, ephemeral: true})
   } catch (err) {
     await log_error(interaction.client, err as Error, "HANDLE_SETUP_VIEW", {
       guild_id: interaction.guildId,
       user_id: interaction.user.id,
     })
     await interaction.reply({
-      content: "An error occurred while viewing server settings",
-      ephemeral: true,
+      content: "An error occurred while viewing server settings", ephemeral: true,
     })
   }
 }

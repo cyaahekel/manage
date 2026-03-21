@@ -27,8 +27,7 @@ export async function handle_middleman_close(interaction: ButtonInteraction): Pr
 
   if (!authorized_users.includes(interaction.user.id)) {
     await interaction.reply({
-      content  : "You don't have permission to use this button.",
-      ephemeral: true,
+      content  : "You don't have permission to use this button.", ephemeral: true,
     })
     return true
   }
@@ -37,13 +36,12 @@ export async function handle_middleman_close(interaction: ButtonInteraction): Pr
 
   if (!thread.isThread()) {
     await interaction.reply({
-      content  : "This can only be used in a ticket thread.",
-      ephemeral: true,
+      content  : "This can only be used in a ticket thread.", ephemeral: true,
     })
     return true
   }
 
-  await interaction.deferReply({ ephemeral: true })
+  await interaction.deferReply({ flags: 64 })
 
   // - MARK TICKET AS CANCELLED IN DATABASE - \\
   await cancel_middleman_ticket(thread.id, "Closed by staff")

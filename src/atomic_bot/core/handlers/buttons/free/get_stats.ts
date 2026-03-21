@@ -31,7 +31,7 @@ function get_headers(): Record<string, string> {
 }
 
 export async function handle_free_get_stats(interaction: ButtonInteraction): Promise<void> {
-  await interaction.deferReply({ ephemeral: true })
+  await interaction.deferReply({ flags: 64 })
 
   const member = interaction.member as GuildMember
   const user   = member.user

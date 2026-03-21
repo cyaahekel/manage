@@ -26,8 +26,7 @@ export const command: Command = {
 
     if (!result.success) {
       await interaction.reply({
-        content  : result.error || "Failed to fetch reminders",
-        ephemeral: true,
+        content  : result.error || "Failed to fetch reminders", ephemeral: true,
       })
       return
     }

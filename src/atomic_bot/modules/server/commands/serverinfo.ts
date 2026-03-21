@@ -27,8 +27,7 @@ export const command: Command = {
 
     if (!guild) {
       await interaction.reply({
-        content   : "This command can only be used in a server.",
-        ephemeral : true,
+        content   : "This command can only be used in a server.", ephemeral: true,
       })
       return
     }

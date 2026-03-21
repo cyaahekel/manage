@@ -66,8 +66,7 @@ export const command: Command = {
 
       if (member_has_role(member, __required_role_id) === false) {
         await interaction.reply({
-          content   : "You do not have permission to use this command.",
-          ephemeral : true,
+          content   : "You do not have permission to use this command.", ephemeral: true,
         })
         return
       }

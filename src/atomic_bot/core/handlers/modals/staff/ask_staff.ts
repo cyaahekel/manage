@@ -14,7 +14,7 @@ import { post_question }          from "../../controllers/ask_controller"
 import { ask_channel_id }         from "../../../../modules/ask/commands/ask"
 
 export async function handle_ask_staff_modal(interaction: ModalSubmitInteraction): Promise<void> {
-  await interaction.deferReply({ ephemeral: true })
+  await interaction.deferReply({ flags: 64 })
 
   const question    = interaction.fields.getTextInputValue("question")
   const user        = interaction.user

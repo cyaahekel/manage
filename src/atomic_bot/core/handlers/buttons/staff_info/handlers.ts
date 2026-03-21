@@ -22,8 +22,7 @@ export async function handle_staff_info_button(interaction: ButtonInteraction): 
 
     if (!doc) {
       await interaction.reply({
-        content: "Staff information not found.",
-        ephemeral: true,
+        content: "Staff information not found.", ephemeral: true,
       })
       return
     }
@@ -74,8 +73,7 @@ export async function handle_staff_info_button(interaction: ButtonInteraction): 
 
     if (!interaction.replied) {
       await interaction.reply({
-        content: "Error displaying staff information.",
-        ephemeral: true,
+        content: "Error displaying staff information.", ephemeral: true,
       }).catch(() => {})
     }
   }

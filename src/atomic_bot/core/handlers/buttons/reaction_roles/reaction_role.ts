@@ -37,8 +37,7 @@ export async function handle_reaction_role(interaction: ButtonInteraction): Prom
 
   if (!role_id) {
     await interaction.reply({
-      content  : "Invalid role configuration.",
-      ephemeral: true,
+      content  : "Invalid role configuration.", ephemeral: true,
     })
     return
   }
@@ -48,8 +47,7 @@ export async function handle_reaction_role(interaction: ButtonInteraction): Prom
 
   if (!role) {
     await interaction.reply({
-      content  : `Role not found. Please contact an administrator.`,
-      ephemeral: true,
+      content  : `Role not found. Please contact an administrator.`, ephemeral: true,
     })
     return
   }
@@ -71,7 +69,7 @@ export async function handle_reaction_role(interaction: ButtonInteraction): Prom
         ],
       })
 
-      await interaction.reply({ ...message, ephemeral: true })
+      await interaction.reply({ ...message, ephemeral: true})
     } else {
       await member.roles.add(role_id)
 
@@ -86,12 +84,11 @@ export async function handle_reaction_role(interaction: ButtonInteraction): Prom
         ],
       })
 
-      await interaction.reply({ ...message, ephemeral: true })
+      await interaction.reply({ ...message, ephemeral: true})
     }
   } catch (error) {
     await interaction.reply({
-      content  : "Failed to update your roles. Please try again later.",
-      ephemeral: true,
+      content  : "Failed to update your roles. Please try again later.", ephemeral: true,
     })
   }
 }

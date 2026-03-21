@@ -34,7 +34,7 @@ function get_headers(): Record<string, string> {
 export async function handle_free_get_script(interaction: ButtonInteraction): Promise<void> {
   const member = interaction.member as GuildMember
 
-  await interaction.deferReply({ ephemeral: true })
+  await interaction.deferReply({ flags: 64 })
 
   try {
     const user = member.user
@@ -217,7 +217,7 @@ export async function handle_free_get_script(interaction: ButtonInteraction): Pr
 export async function handle_free_mobile_copy(interaction: ButtonInteraction): Promise<void> {
   const member = interaction.member as GuildMember
 
-  await interaction.deferReply({ ephemeral: true })
+  await interaction.deferReply({ flags: 64 })
 
   const user = member.user
 

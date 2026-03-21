@@ -46,9 +46,9 @@ export const error_handler: MiddlewareFunction = async (ctx: MiddlewareContext, 
 
     try {
       if (interaction.replied || interaction.deferred) {
-        await interaction.followUp({ ...err_message, ephemeral: true })
+        await interaction.followUp({ ...err_message, ephemeral: true})
       } else {
-        await interaction.reply({ ...err_message, ephemeral: true })
+        await interaction.reply({ ...err_message, ephemeral: true})
       }
     } catch (reply_err) {
       console.error("[ - ERROR HANDLER - ] Failed to send error message to user:", reply_err)

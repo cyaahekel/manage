@@ -55,8 +55,7 @@ export async function handle_middleman_penjual_self(interaction: ButtonInteracti
           ],
         }),
       ],
-    }),
-    ephemeral: true,
+    }), ephemeral: true,
   })
   
   return true
@@ -71,7 +70,7 @@ export async function handle_middleman_pembeli_self(interaction: ButtonInteracti
   const buyer_id = interaction.user.id
 
   if (buyer_id === seller_id) {
-    await interaction.reply({ content: "Pembeli tidak boleh sama dengan Penjual.", ephemeral: true })
+    await interaction.reply({ content: "Pembeli tidak boleh sama dengan Penjual.", ephemeral: true})
     return true
   }
 
@@ -108,8 +107,7 @@ export async function handle_middleman_pembeli_self(interaction: ButtonInteracti
           ],
         }),
       ],
-    }),
-    ephemeral: true,
+    }), ephemeral: true,
   })
 
   return true

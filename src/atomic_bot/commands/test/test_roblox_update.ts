@@ -25,13 +25,12 @@ export const command: Command = {
 
     if (!is_admin(member)) {
       await interaction.reply({
-        content: "You don't have permission to use this command.",
-        ephemeral: true,
+        content: "You don't have permission to use this command.", ephemeral: true,
       });
       return;
     }
 
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: 64 });
 
     const versions = await test_roblox_update_notification();
 

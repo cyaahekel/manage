@@ -29,7 +29,7 @@ const middleman_panel: Command = {
     ),
 
   async execute(interaction: ChatInputCommandInteraction) {
-    await interaction.deferReply({ ephemeral: true })
+    await interaction.deferReply({ flags: 64 })
 
     const channel = interaction.options.getChannel("channel", true)
     const token   = api.get_token()

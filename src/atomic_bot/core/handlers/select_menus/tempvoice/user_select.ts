@@ -34,16 +34,14 @@ export async function handle_tempvoice_user_select(interaction: UserSelectMenuIn
 
   if (!channel || !tempvoice.is_temp_channel(channel.id)) {
     await interaction.reply({
-      ...create_reply("You must be in your temporary voice channel to use this."),
-      ephemeral: true,
+      ...create_reply("You must be in your temporary voice channel to use this."), ephemeral: true,
     })
     return true
   }
 
   if (!tempvoice.is_channel_owner(channel.id, member.id)) {
     await interaction.reply({
-      ...create_reply("Only the channel owner can use this."),
-      ephemeral: true,
+      ...create_reply("Only the channel owner can use this."), ephemeral: true,
     })
     return true
   }

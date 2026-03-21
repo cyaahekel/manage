@@ -33,8 +33,7 @@ export const command: Command = {
         await interaction.reply({
           ...component.build_message({
             components: [component.container({ components: [component.text("Nothing is currently playing.")] })],
-          }),
-          ephemeral: true,
+          }), ephemeral: true,
         })
         return
       }
@@ -60,8 +59,7 @@ export const command: Command = {
       await interaction.reply({
         ...component.build_message({
           components: [component.container({ components: [component.text("An error occurred.")] })],
-        }),
-        ephemeral: true,
+        }), ephemeral: true,
       }).catch(() => {})
     }
   },

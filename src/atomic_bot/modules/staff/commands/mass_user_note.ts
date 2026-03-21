@@ -52,7 +52,7 @@ export const command: Command = {
       return
     }
 
-    await interaction.deferReply({ ephemeral: true })
+    await interaction.deferReply({ flags: 64 })
 
     const note = interaction.options.getString("note", true)
 

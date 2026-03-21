@@ -124,13 +124,12 @@ export const command: Command = {
   async execute(interaction: ChatInputCommandInteraction) {
     if (!is_admin(interaction.member as GuildMember)) {
       await interaction.reply({
-        content  : "You don't have permission to use this command.",
-        ephemeral: true,
+        content  : "You don't have permission to use this command.", ephemeral: true,
       })
       return
     }
 
-    await interaction.deferReply({ ephemeral: true })
+    await interaction.deferReply({ flags: 64 })
 
     const channel = interaction.options.getChannel("channel", true) as TextChannel
 

@@ -23,8 +23,7 @@ export async function handle_reminder_add_new_modal(interaction: ModalSubmitInte
 
   if (isNaN(minutes_num) || minutes_num < 1 || minutes_num > max_minutes) {
     await interaction.reply({
-      content  : `Invalid minutes. Must be between 1 and ${max_minutes}.`,
-      ephemeral: true,
+      content  : `Invalid minutes. Must be between 1 and ${max_minutes}.`, ephemeral: true,
     })
     return true
   }
@@ -39,15 +38,13 @@ export async function handle_reminder_add_new_modal(interaction: ModalSubmitInte
 
   if (!result.success) {
     await interaction.reply({
-      content  : result.error || "Failed to create reminder",
-      ephemeral: true,
+      content  : result.error || "Failed to create reminder", ephemeral: true,
     })
     return true
   }
 
   await interaction.reply({
-    content  : result.message || "Reminder scheduled! Check your DM.",
-    ephemeral: true,
+    content  : result.message || "Reminder scheduled! Check your DM.", ephemeral: true,
   })
 
   return true

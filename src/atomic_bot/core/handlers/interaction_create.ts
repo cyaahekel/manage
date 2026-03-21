@@ -132,8 +132,7 @@ async function handle_anti_spam_button(interaction: ButtonInteraction, client: C
           components: [
             component.container({ components: [component.text("Target not found")] }),
           ],
-        }),
-        ephemeral: true,
+        }), ephemeral: true,
       })
       return
     }
@@ -145,8 +144,7 @@ async function handle_anti_spam_button(interaction: ButtonInteraction, client: C
           components: [
             component.container({ components: [component.text("Guild not found")] }),
           ],
-        }),
-        ephemeral: true,
+        }), ephemeral: true,
       })
       return
     }
@@ -161,8 +159,7 @@ async function handle_anti_spam_button(interaction: ButtonInteraction, client: C
             components: [
               component.container({ components: [component.text("User not found in guild")] }),
             ],
-          }),
-          ephemeral: true,
+          }), ephemeral: true,
         })
         return
       }
@@ -172,8 +169,7 @@ async function handle_anti_spam_button(interaction: ButtonInteraction, client: C
           components: [
             component.container({ components: [component.text("User un-timed out")] }),
           ],
-        }),
-        ephemeral: true,
+        }), ephemeral: true,
       })
       return
     }
@@ -191,8 +187,7 @@ async function handle_anti_spam_button(interaction: ButtonInteraction, client: C
               components: [
                 component.container({ components: [component.text("Failed to ban user")] }),
               ],
-            }),
-            ephemeral: true,
+            }), ephemeral: true,
           })
         })
       }
@@ -202,8 +197,7 @@ async function handle_anti_spam_button(interaction: ButtonInteraction, client: C
             components: [
               component.container({ components: [component.text("User banned")] }),
             ],
-          }),
-          ephemeral: true,
+          }), ephemeral: true,
         })
       }
       return
@@ -224,8 +218,7 @@ async function handle_anti_spam_button(interaction: ButtonInteraction, client: C
               ],
             }),
           ],
-        }),
-        ephemeral: true,
+        }), ephemeral: true,
       })
       return
     }
@@ -235,8 +228,7 @@ async function handle_anti_spam_button(interaction: ButtonInteraction, client: C
         components: [
           component.container({ components: [component.text("Unknown action")] }),
         ],
-      }),
-      ephemeral: true,
+      }), ephemeral: true,
     })
   } catch (err) {
     console.log("[ - ANTI SPAM BUTTON - ] error:", err)
@@ -252,8 +244,7 @@ async function handle_anti_spam_button(interaction: ButtonInteraction, client: C
           components: [
             component.container({ components: [component.text("Error handling action")] }),
           ],
-        }),
-        ephemeral: true,
+        }), ephemeral: true,
       }).catch(() => {})
     }
   }
@@ -759,9 +750,9 @@ export async function handle_interaction(
         ],
       })
       if (interaction.replied || interaction.deferred) {
-        await interaction.followUp({ ...err_message, ephemeral: true })
+        await interaction.followUp({ ...err_message, ephemeral: true})
       } else {
-        await interaction.reply({ ...err_message, ephemeral: true })
+        await interaction.reply({ ...err_message, ephemeral: true})
       }
     }
     return
@@ -783,8 +774,7 @@ export async function handle_interaction(
             components: [component.text("You don't have permission to use this command.")],
           }),
         ],
-      }),
-      ephemeral: true,
+      }), ephemeral: true,
     })
     return
   }

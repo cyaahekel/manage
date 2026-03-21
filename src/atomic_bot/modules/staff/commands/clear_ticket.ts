@@ -225,16 +225,14 @@ export const command: Command = {
     // - PERMISSION CHECK - \\
     if (!is_admin_or_mod(member)) {
       await interaction.reply({
-        content   : "You don't have permission to use this command.",
-        ephemeral : true,
+        content   : "You don't have permission to use this command.", ephemeral: true,
       })
       return
     }
 
     if (!interaction.guild) {
       await interaction.reply({
-        content   : "This command can only be used in a server.",
-        ephemeral : true,
+        content   : "This command can only be used in a server.", ephemeral: true,
       })
       return
     }
@@ -244,13 +242,12 @@ export const command: Command = {
 
     if (!before_date) {
       await interaction.reply({
-        content   : "Invalid date format. Please use YYYY-MM-DD format (e.g., 2026-01-15).",
-        ephemeral : true,
+        content   : "Invalid date format. Please use YYYY-MM-DD format (e.g., 2026-01-15).", ephemeral: true,
       })
       return
     }
 
-    await interaction.deferReply({ ephemeral: true })
+    await interaction.deferReply({ flags: 64 })
 
     try {
       // - RELOAD TICKETS FROM DATABASE - \\
@@ -294,8 +291,7 @@ export const command: Command = {
       collector.on("collect", async (button_interaction) => {
         if (button_interaction.user.id !== interaction.user.id) {
           await button_interaction.reply({
-            content   : "This is not your confirmation.",
-            ephemeral : true,
+            content   : "This is not your confirmation.", ephemeral: true,
           })
           return
         }

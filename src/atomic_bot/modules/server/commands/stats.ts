@@ -88,8 +88,7 @@ export const command: Command = {
     })
 
     await interaction.reply({
-      ...stats_message,
-      ephemeral: true,
+      ...stats_message, ephemeral: true,
     })
   },
 }

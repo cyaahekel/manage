@@ -27,8 +27,7 @@ export async function handle_middleman_close_reason(interaction: ButtonInteracti
 
   if (!authorized_users.includes(interaction.user.id)) {
     await interaction.reply({
-      content  : "You don't have permission to use this button.",
-      ephemeral: true,
+      content  : "You don't have permission to use this button.", ephemeral: true,
     })
     return true
   }

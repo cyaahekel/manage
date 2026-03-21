@@ -45,8 +45,7 @@ export async function handle_staff_info_lang_select(interaction: StringSelectMen
     }
 
     await interaction.reply({
-      content,
-      ephemeral: true,
+      content, ephemeral: true,
     })
   } catch (err) {
     console.log("[ - STAFF INFO LANG SELECT - ] Error:", err)
@@ -59,8 +58,7 @@ export async function handle_staff_info_lang_select(interaction: StringSelectMen
 
     if (!interaction.replied) {
       await interaction.reply({
-        content: "Error changing language.",
-        ephemeral: true,
+        content: "Error changing language.", ephemeral: true,
       }).catch(() => {})
     }
   }

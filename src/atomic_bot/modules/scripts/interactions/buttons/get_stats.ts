@@ -17,7 +17,7 @@ import { component, api, format } from "@shared/utils"
 import { get_user_stats }         from "@atomic/modules/service_provider/controller"
 
 export async function handle_get_stats(interaction: ButtonInteraction): Promise<void> {
-  await interaction.deferReply({ ephemeral: true })
+  await interaction.deferReply({ flags: 64 })
 
   const member = interaction.member as GuildMember
 

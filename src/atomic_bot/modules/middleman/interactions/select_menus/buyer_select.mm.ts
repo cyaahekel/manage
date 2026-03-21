@@ -26,12 +26,12 @@ export async function handle_middleman_buyer_select(interaction: UserSelectMenuI
   const buyer_id  = interaction.values[0]
 
   if (!range_id || !seller_id || !buyer_id) {
-    await interaction.reply({ content: "Invalid selection. Please try again.", ephemeral: true })
+    await interaction.reply({ content: "Invalid selection. Please try again.", ephemeral: true})
     return true
   }
 
   if (buyer_id === seller_id) {
-    await interaction.reply({ content: "Pembeli tidak boleh sama dengan Penjual.", ephemeral: true })
+    await interaction.reply({ content: "Pembeli tidak boleh sama dengan Penjual.", ephemeral: true})
     return true
   }
 
@@ -68,8 +68,7 @@ export async function handle_middleman_buyer_select(interaction: UserSelectMenuI
           ],
         }),
       ],
-    }),
-    ephemeral: true,
+    }), ephemeral: true,
   })
   return true
 }

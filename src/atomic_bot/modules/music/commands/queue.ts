@@ -37,7 +37,7 @@ export const command: Command = {
       const page     = interaction.options.getInteger("page") ?? 1
       const msg      = build_queue_message(guild_id, page)
 
-      await interaction.reply({ ...msg, ephemeral: true })
+      await interaction.reply({ ...msg, ephemeral: true})
     } catch (err) {
       await log_error(interaction.client, err as Error, "Command /queue", {
         user_id : interaction.user.id,
@@ -45,8 +45,7 @@ export const command: Command = {
       }).catch(() => {})
 
       await interaction.reply({
-        content  : "An error occurred while fetching the queue.",
-        ephemeral: true,
+        content  : "An error occurred while fetching the queue.", ephemeral: true,
       }).catch(() => {})
     }
   },

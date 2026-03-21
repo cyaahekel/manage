@@ -14,9 +14,7 @@ import {
   SlashCommandBuilder,
 } from "discord.js"
 import { Command } from "@shared/types/command"
-import { join } from "path"
-import { file } from "@shared/utils"
-import { load_config as load_cfg } from "@shared/config/loader"
+import { load_config as load_cfg, save_config as save_cfg } from "@shared/config/loader"
 import { update_price_panel } from "@atomic/modules/setup/commands/script_price"
 
 interface PricingConfig {
@@ -30,14 +28,12 @@ interface PricingConfig {
   }
 }
 
-const CONFIG_PATH = join(__dirname, "../../../shared/config/pricing.cfg")
-
 function load_config(): PricingConfig {
   return load_cfg<PricingConfig>("pricing")
 }
 
 function save_config(config: PricingConfig): void {
-  file.write_json(CONFIG_PATH, config)
+  save_cfg<PricingConfig>("pricing", config)
 }
 
 export const command: Command = {
@@ -65,7 +61,7 @@ export const command: Command = {
     ) as SlashCommandBuilder,
 
   async execute(interaction: ChatInputCommandInteraction) {
-    await interaction.deferReply({ ephemeral: true })
+    await interaction.deferReply({ flags: 64 })
 
     const percentage = interaction.options.getInteger("percentage", true)
     const applies_to = interaction.options.getString("applies_to", true) as "monthly" | "lifetime" | "both"

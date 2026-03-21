@@ -24,7 +24,7 @@ import * as share_settings from "../controller"
  * @returns {Promise<void>}
  */
 async function execute_settings_leaderboard(interaction: ChatInputCommandInteraction): Promise<void> {
-  await interaction.deferReply({ ephemeral: true })
+  await interaction.deferReply({ flags: 64 })
 
   try {
     const records = await share_settings.list_settings_records(interaction.client)

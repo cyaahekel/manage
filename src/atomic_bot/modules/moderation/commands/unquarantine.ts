@@ -41,29 +41,26 @@ export const command: Command = {
 
     if (!guild) {
       await interaction.reply({
-        content   : "This command can only be used in a server.",
-        ephemeral : true,
+        content   : "This command can only be used in a server.", ephemeral: true,
       })
       return
     }
 
     if (!executor.permissions.has("ModerateMembers")) {
       await interaction.reply({
-        content   : "You don't have permission to release members from quarantine.",
-        ephemeral : true,
+        content   : "You don't have permission to release members from quarantine.", ephemeral: true,
       })
       return
     }
 
     if (!target) {
       await interaction.reply({
-        content   : "Invalid member.",
-        ephemeral : true,
+        content   : "Invalid member.", ephemeral: true,
       })
       return
     }
 
-    await interaction.deferReply({ ephemeral: true })
+    await interaction.deferReply({ flags: 64 })
 
     const result = await release_quarantine({
       client  : interaction.client,

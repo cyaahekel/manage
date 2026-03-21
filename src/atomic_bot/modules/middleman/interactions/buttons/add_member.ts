@@ -27,13 +27,12 @@ export async function handle_middleman_add_member(interaction: ButtonInteraction
 
   if (!authorized_users.includes(interaction.user.id)) {
     await interaction.reply({
-      content  : "You don't have permission to use this button.",
-      ephemeral: true,
+      content  : "You don't have permission to use this button.", ephemeral: true,
     })
     return true
   }
 
-  await interaction.deferReply({ ephemeral: true })
+  await interaction.deferReply({ flags: 64 })
 
   const message = component.build_message({
     components: [

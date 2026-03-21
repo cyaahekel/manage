@@ -44,8 +44,7 @@ export const command: Command = {
                 components: [component.text("You must be in a voice channel to use this command.")],
               }),
             ],
-          }),
-          ephemeral: true,
+          }), ephemeral: true,
         })
         return
       }
@@ -71,7 +70,7 @@ export const command: Command = {
       if (interaction.replied || interaction.deferred) {
         await interaction.editReply({ ...err_msg }).catch(() => {})
       } else {
-        await interaction.reply({ ...err_msg, ephemeral: true }).catch(() => {})
+        await interaction.reply({ ...err_msg, ephemeral: true}).catch(() => {})
       }
     }
   },

@@ -26,14 +26,14 @@ export async function handle_give_star(interaction: ButtonInteraction): Promise<
     const token       = parts[2]
 
     if (!settings_id) {
-      await interaction.reply({ content: "Settings not found", ephemeral: true })
+      await interaction.reply({ content: "Settings not found", ephemeral: true})
       return
     }
 
     const result = await share_settings.apply_star_vote(interaction.client, settings_id, interaction.user.id)
 
     if (!result.success) {
-      await interaction.reply({ content: result.message || "Failed to give star", ephemeral: true })
+      await interaction.reply({ content: result.message || "Failed to give star", ephemeral: true})
       return
     }
 
@@ -58,11 +58,11 @@ export async function handle_give_star(interaction: ButtonInteraction): Promise<
       await share_settings.update_forum_message(interaction.client, result.record)
     }
 
-    await interaction.reply({ content: "Star submitted", ephemeral: true })
+    await interaction.reply({ content: "Star submitted", ephemeral: true})
   } catch (error) {
     await log_error(interaction.client, error as Error, "share_settings_star", {
       custom_id : interaction.customId,
     })
-    await interaction.reply({ content: "Failed to process star", ephemeral: true }).catch(() => {})
+    await interaction.reply({ content: "Failed to process star", ephemeral: true}).catch(() => {})
   }
 }

@@ -25,7 +25,7 @@ import { component } from "@shared/utils"
 export async function handle_middleman_partner_select(interaction: UserSelectMenuInteraction): Promise<boolean> {
   if (!interaction.customId.startsWith("middleman_partner_select:")) return false
 
-  await interaction.deferReply({ ephemeral: true })
+  await interaction.deferReply({ flags: 64 })
 
   // - CHECK IF MIDDLEMAN SERVICE IS OPEN - \\
   const is_open = await is_middleman_service_open(interaction.guildId || "")

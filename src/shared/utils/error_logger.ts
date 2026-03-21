@@ -133,13 +133,13 @@ export async function handle_error_log_button(interaction: ButtonInteraction, cl
     const error_id = parts[1]
 
     if (!error_id) {
-      await interaction.reply({ content: "Error payload not found", ephemeral: true })
+      await interaction.reply({ content: "Error payload not found", ephemeral: true})
       return true
     }
 
     const payload = error_payload_store.get(error_id)
     if (!payload) {
-      await interaction.reply({ content: "Error payload expired or not found (24h limit)", ephemeral: true })
+      await interaction.reply({ content: "Error payload expired or not found (24h limit)", ephemeral: true})
       return true
     }
 
@@ -154,7 +154,7 @@ export async function handle_error_log_button(interaction: ButtonInteraction, cl
       return true
     }
 
-    await interaction.reply({ content: "Unknown error log action", ephemeral: true })
+    await interaction.reply({ content: "Unknown error log action", ephemeral: true})
     return true
   } catch (err) {
     console.error("[Error Logger] Failed handling button:", err)
@@ -164,7 +164,7 @@ export async function handle_error_log_button(interaction: ButtonInteraction, cl
       channel  : interaction.channel?.id,
     })
     if (!interaction.replied) {
-      await interaction.reply({ content: "Failed to process error log button", ephemeral: true }).catch(() => {})
+      await interaction.reply({ content: "Failed to process error log button", ephemeral: true}).catch(() => {})
     }
     return true
   }

@@ -40,8 +40,7 @@ export async function handle_middleman_seller_select(interaction: UserSelectMenu
             ],
           }),
         ],
-      }),
-      ephemeral: true,
+      }), ephemeral: true,
     })
     return true
   }
@@ -50,7 +49,7 @@ export async function handle_middleman_seller_select(interaction: UserSelectMenu
   const seller_id  = interaction.values[0]
 
   if (!range_id || !seller_id) {
-    await interaction.reply({ content: "Invalid selection. Please try again.", ephemeral: true })
+    await interaction.reply({ content: "Invalid selection. Please try again.", ephemeral: true})
     return true
   }
 
@@ -92,8 +91,7 @@ export async function handle_middleman_seller_select(interaction: UserSelectMenu
           ],
         }),
       ],
-    }),
-    ephemeral: true,
+    }), ephemeral: true,
   })
   return true
 }

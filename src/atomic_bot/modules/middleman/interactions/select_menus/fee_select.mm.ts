@@ -27,7 +27,7 @@ export async function handle_middleman_fee_select(interaction: StringSelectMenuI
   const fee_value = interaction.values[0]
 
   if (!range_id || !seller_id || !buyer_id || !fee_value) {
-    await interaction.reply({ content: "Invalid selection. Please try again.", ephemeral: true })
+    await interaction.reply({ content: "Invalid selection. Please try again.", ephemeral: true})
     return true
   }
 

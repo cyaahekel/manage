@@ -23,7 +23,7 @@ export const command: Command = {
     .setDescription("Show the last deleted message in this channel") as SlashCommandBuilder,
 
   async execute(interaction: ChatInputCommandInteraction) {
-    await interaction.deferReply({ ephemeral: true })
+    await interaction.deferReply({ flags: 64 })
 
     const deleted = get_last_deleted_message(interaction.channel!.id)
 

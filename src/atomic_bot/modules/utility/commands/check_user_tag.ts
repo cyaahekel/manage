@@ -32,13 +32,12 @@ export const command: Command = {
 
     if (!guild) {
       await interaction.reply({
-        content  : "This command can only be used in a server",
-        ephemeral: true,
+        content  : "This command can only be used in a server", ephemeral: true,
       })
       return
     }
 
-    await interaction.deferReply({ ephemeral: true })
+    await interaction.deferReply({ flags: 64 })
 
     if (scan_mode) {
       const scan_message = component.build_message({

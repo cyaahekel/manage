@@ -34,16 +34,14 @@ export const command: Command = {
 
     if (!guild) {
       await interaction.reply({
-        content   : "This command can only be used in a server.",
-        ephemeral : true,
+        content   : "This command can only be used in a server.", ephemeral: true,
       })
       return
     }
 
     if (!executor.permissions.has("ModerateMembers")) {
       await interaction.reply({
-        content   : "You don't have permission to view quarantined members.",
-        ephemeral : true,
+        content   : "You don't have permission to view quarantined members.", ephemeral: true,
       })
       return
     }
@@ -63,8 +61,7 @@ export const command: Command = {
               ],
             }),
           ],
-        }),
-        ephemeral: true,
+        }), ephemeral: true,
       })
       return
     }
@@ -98,8 +95,7 @@ export const command: Command = {
             ],
           }),
         ],
-      }),
-      ephemeral: true,
+      }), ephemeral: true,
     })
   },
 }

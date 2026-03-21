@@ -58,11 +58,11 @@ export const command: Command = {
       if (subcommand_group === "mod") {
         if (!member || !member.permissions.has(PermissionFlagsBits.Administrator)) {
           const no_permission = build_simple_message("## Error", ["You do not have permission to use this command."])
-          await interaction.reply({ ...no_permission, ephemeral: true })
+          await interaction.reply({ ...no_permission, ephemeral: true})
           return
         }
 
-        await interaction.deferReply({ ephemeral: true })
+        await interaction.deferReply({ flags: 64 })
 
         if (subcommand === "clear") {
           await handle_afk_mod_clear(interaction)
@@ -99,7 +99,7 @@ export const command: Command = {
         return
       }
 
-      await interaction.deferReply({ ephemeral: true })
+      await interaction.deferReply({ flags: 64 })
       await handle_afk_set(interaction)
     } catch (error) {
       console.error("[ - AFK COMMAND - ] Error:", error)
@@ -113,7 +113,7 @@ export const command: Command = {
       if (interaction.deferred || interaction.replied) {
         await interaction.editReply(error_message).catch(() => {})
       } else {
-        await interaction.reply({ ...error_message, ephemeral: true }).catch(() => {})
+        await interaction.reply({ ...error_message, ephemeral: true}).catch(() => {})
       }
     }
   },

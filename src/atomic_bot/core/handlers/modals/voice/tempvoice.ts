@@ -73,8 +73,7 @@ export async function handle_tempvoice_modal(interaction: ModalSubmitInteraction
 
   if (!channel || !tempvoice.is_temp_channel(channel.id)) {
     await interaction.reply({
-      ...create_not_in_channel_reply(guild_id, tempvoice.get_generator_channel_id()),
-      ephemeral: true,
+      ...create_not_in_channel_reply(guild_id, tempvoice.get_generator_channel_id()), ephemeral: true,
     })
     return true
   }
@@ -148,15 +147,14 @@ async function handle_name_modal(
 ): Promise<void> {
   if (!tempvoice.is_channel_owner(channel.id, member.id)) {
     await interaction.reply({
-      ...create_reply("Only the channel owner can rename the channel."),
-      ephemeral: true,
+      ...create_reply("Only the channel owner can rename the channel."), ephemeral: true,
     })
     return
   }
 
   const new_name = interaction.fields.getTextInputValue("channel_name")
 
-  await interaction.deferReply({ ephemeral: true })
+  await interaction.deferReply({ flags: 64 })
 
   // - VALIDATE CHANNEL STILL EXISTS - \\
   const validated = await validate_voice_channel(member.guild, channel.id)
@@ -181,8 +179,7 @@ async function handle_limit_modal(
 ): Promise<void> {
   if (!tempvoice.is_channel_owner(channel.id, member.id)) {
     await interaction.reply({
-      ...create_reply("Only the channel owner can set the user limit."),
-      ephemeral: true,
+      ...create_reply("Only the channel owner can set the user limit."), ephemeral: true,
     })
     return
   }
@@ -192,13 +189,12 @@ async function handle_limit_modal(
 
   if (isNaN(limit) || limit < 0 || limit > 99) {
     await interaction.reply({
-      ...create_reply("Please enter a valid number between 0 and 99."),
-      ephemeral: true,
+      ...create_reply("Please enter a valid number between 0 and 99."), ephemeral: true,
     })
     return
   }
 
-  await interaction.deferReply({ ephemeral: true })
+  await interaction.deferReply({ flags: 64 })
 
   // - VALIDATE CHANNEL STILL EXISTS - \\
   const validated = await validate_voice_channel(member.guild, channel.id)
@@ -228,13 +224,12 @@ async function handle_invite_with_message(
 ): Promise<void> {
   if (!tempvoice.is_channel_owner(channel.id, member.id)) {
     await interaction.reply({
-      ...create_reply("Only the channel owner can invite users."),
-      ephemeral: true,
+      ...create_reply("Only the channel owner can invite users."), ephemeral: true,
     })
     return
   }
 
-  await interaction.deferReply({ ephemeral: true })
+  await interaction.deferReply({ flags: 64 })
 
   const target = await channel.guild.members.fetch(user_id).catch(() => null)
 
@@ -289,15 +284,14 @@ async function handle_trust_modal(
 ): Promise<void> {
   if (!tempvoice.is_channel_owner(channel.id, member.id)) {
     await interaction.reply({
-      ...create_reply("Only the channel owner can trust users."),
-      ephemeral: true,
+      ...create_reply("Only the channel owner can trust users."), ephemeral: true,
     })
     return
   }
 
   const user_id = interaction.fields.getTextInputValue("user_id").trim()
 
-  await interaction.deferReply({ ephemeral: true })
+  await interaction.deferReply({ flags: 64 })
 
   const target = await channel.guild.members.fetch(user_id).catch(() => null)
 
@@ -322,15 +316,14 @@ async function handle_untrust_modal(
 ): Promise<void> {
   if (!tempvoice.is_channel_owner(channel.id, member.id)) {
     await interaction.reply({
-      ...create_reply("Only the channel owner can untrust users."),
-      ephemeral: true,
+      ...create_reply("Only the channel owner can untrust users."), ephemeral: true,
     })
     return
   }
 
   const user_id = interaction.fields.getTextInputValue("user_id").trim()
 
-  await interaction.deferReply({ ephemeral: true })
+  await interaction.deferReply({ flags: 64 })
 
   const success = await tempvoice.untrust_user(channel, user_id)
 
@@ -348,15 +341,14 @@ async function handle_kick_modal(
 ): Promise<void> {
   if (!tempvoice.is_channel_owner(channel.id, member.id)) {
     await interaction.reply({
-      ...create_reply("Only the channel owner can kick users."),
-      ephemeral: true,
+      ...create_reply("Only the channel owner can kick users."), ephemeral: true,
     })
     return
   }
 
   const user_id = interaction.fields.getTextInputValue("user_id").trim()
 
-  await interaction.deferReply({ ephemeral: true })
+  await interaction.deferReply({ flags: 64 })
 
   const success = await tempvoice.kick_user(channel, user_id)
 
@@ -374,15 +366,14 @@ async function handle_region_modal(
 ): Promise<void> {
   if (!tempvoice.is_channel_owner(channel.id, member.id)) {
     await interaction.reply({
-      ...create_reply("Only the channel owner can change the region."),
-      ephemeral: true,
+      ...create_reply("Only the channel owner can change the region."), ephemeral: true,
     })
     return
   }
 
   const region = interaction.fields.getTextInputValue("region").trim() || null
 
-  await interaction.deferReply({ ephemeral: true })
+  await interaction.deferReply({ flags: 64 })
 
   const success = await tempvoice.set_region(channel, region)
 
@@ -403,15 +394,14 @@ async function handle_block_modal(
 ): Promise<void> {
   if (!tempvoice.is_channel_owner(channel.id, member.id)) {
     await interaction.reply({
-      ...create_reply("Only the channel owner can block users."),
-      ephemeral: true,
+      ...create_reply("Only the channel owner can block users."), ephemeral: true,
     })
     return
   }
 
   const user_id = interaction.fields.getTextInputValue("user_id").trim()
 
-  await interaction.deferReply({ ephemeral: true })
+  await interaction.deferReply({ flags: 64 })
 
   const target = await channel.guild.members.fetch(user_id).catch(() => null)
 
@@ -436,15 +426,14 @@ async function handle_unblock_modal(
 ): Promise<void> {
   if (!tempvoice.is_channel_owner(channel.id, member.id)) {
     await interaction.reply({
-      ...create_reply("Only the channel owner can unblock users."),
-      ephemeral: true,
+      ...create_reply("Only the channel owner can unblock users."), ephemeral: true,
     })
     return
   }
 
   const user_id = interaction.fields.getTextInputValue("user_id").trim()
 
-  await interaction.deferReply({ ephemeral: true })
+  await interaction.deferReply({ flags: 64 })
 
   const success = await tempvoice.unblock_user(channel, user_id)
 
@@ -462,15 +451,14 @@ async function handle_transfer_modal(
 ): Promise<void> {
   if (!tempvoice.is_channel_owner(channel.id, member.id)) {
     await interaction.reply({
-      ...create_reply("Only the channel owner can transfer ownership."),
-      ephemeral: true,
+      ...create_reply("Only the channel owner can transfer ownership."), ephemeral: true,
     })
     return
   }
 
   const user_id = interaction.fields.getTextInputValue("user_id").trim()
 
-  await interaction.deferReply({ ephemeral: true })
+  await interaction.deferReply({ flags: 64 })
 
   const target = await channel.guild.members.fetch(user_id).catch(() => null)
 

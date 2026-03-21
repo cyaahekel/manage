@@ -27,8 +27,7 @@ export async function handle_close_request_accept(interaction: ButtonInteraction
 
   if (!thread.isThread() || !get_ticket_parent_ids().includes(thread.parentId || "")) {
     await interaction.reply({
-      content: "This button can only be used in a ticket thread.",
-      ephemeral: true,
+      content: "This button can only be used in a ticket thread.", ephemeral: true,
     })
     return
   }
@@ -37,8 +36,7 @@ export async function handle_close_request_accept(interaction: ButtonInteraction
   const owner_id = data?.owner_id
   if (member.id !== owner_id) {
     await interaction.reply({
-      content: "Only the ticket owner can accept or deny close requests.",
-      ephemeral: true,
+      content: "Only the ticket owner can accept or deny close requests.", ephemeral: true,
     })
     return
   }
@@ -61,8 +59,7 @@ export async function handle_close_request_deny(interaction: ButtonInteraction):
 
   if (!thread.isThread() || !get_ticket_parent_ids().includes(thread.parentId || "")) {
     await interaction.reply({
-      content: "This button can only be used in a ticket thread.",
-      ephemeral: true,
+      content: "This button can only be used in a ticket thread.", ephemeral: true,
     })
     return
   }
@@ -71,8 +68,7 @@ export async function handle_close_request_deny(interaction: ButtonInteraction):
   const owner_id = data?.owner_id
   if (member.id !== owner_id) {
     await interaction.reply({
-      content: "Only the ticket owner can accept or deny close requests.",
-      ephemeral: true,
+      content: "Only the ticket owner can accept or deny close requests.", ephemeral: true,
     })
     return
   }

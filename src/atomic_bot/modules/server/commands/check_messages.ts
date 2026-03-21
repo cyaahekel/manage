@@ -83,8 +83,7 @@ export const command: Command = {
 
     if (!is_admin(member)) {
       await interaction.reply({
-        content: "You don't have permission to use this command.",
-        ephemeral: true,
+        content: "You don't have permission to use this command.", ephemeral: true,
       });
       return;
     }
@@ -95,17 +94,17 @@ export const command: Command = {
     const custom_days = interaction.options.getInteger("custom_days");
 
     if (!channel || !channel.isTextBased()) {
-      await interaction.reply({ content: "Invalid text channel.", ephemeral: true });
+      await interaction.reply({ content: "Invalid text channel.", ephemeral: true});
       return;
     }
 
     if (duration === "custom" && !custom_days) {
-      await interaction.reply({ content: "Please provide custom_days when using custom duration.", ephemeral: true });
+      await interaction.reply({ content: "Please provide custom_days when using custom duration.", ephemeral: true});
       return;
     }
 
     const start_time = Date.now();
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: 64 });
 
     let after_date: Date | undefined;
     let duration_text = "lifetime";

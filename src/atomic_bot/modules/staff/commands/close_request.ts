@@ -212,16 +212,14 @@ const command: Command = {
 
     if (!is_staff(member) && !is_admin_or_mod(member)) {
       await interaction.reply({
-        content: "Only staff can use this command.",
-        ephemeral: true,
+        content: "Only staff can use this command.", ephemeral: true,
       })
       return
     }
 
     if (!thread.isThread() || !get_ticket_parent_ids().includes(thread.parentId || "")) {
       await interaction.reply({
-        content: "This command can only be used in a ticket thread.",
-        ephemeral: true,
+        content: "This command can only be used in a ticket thread.", ephemeral: true,
       })
       return
     }
@@ -236,8 +234,7 @@ const command: Command = {
       const duration_ms = parse_duration(time_str)
       if (!duration_ms || duration_ms < 60000) {
         await interaction.reply({
-          content: "Invalid time format. Use: `1h`, `30m`, `2d`, `1d12h` (minimum 1 minute)",
-          ephemeral: true,
+          content: "Invalid time format. Use: `1h`, `30m`, `2d`, `1d12h` (minimum 1 minute)", ephemeral: true,
         })
         return
       }
@@ -254,7 +251,7 @@ const command: Command = {
       deadline_timestamp
     )
 
-    await interaction.reply({ content: "Close request sent.", ephemeral: true })
+    await interaction.reply({ content: "Close request sent.", ephemeral: true})
     const sent = await api.send_components_v2(thread.id, api.get_token(), message)
 
     if (db.is_connected()) {

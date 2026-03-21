@@ -26,7 +26,7 @@ import * as share_settings from "../controller"
  * @returns {Promise<void>}
  */
 async function execute_delete_settings(interaction: ChatInputCommandInteraction): Promise<void> {
-  await interaction.deferReply({ ephemeral: true })
+  await interaction.deferReply({ flags: 64 })
 
   try {
     const target_publisher = interaction.options.getUser("target_publisher", true)

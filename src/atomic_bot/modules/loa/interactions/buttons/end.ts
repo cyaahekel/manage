@@ -16,8 +16,7 @@ import { ButtonHandler }               from "@shared/types/interaction"
 export async function handle_loa_end(interaction: ButtonInteraction): Promise<void> {
   if (!interaction.guild || !interaction.member) {
     await interaction.reply({
-      content  : "This can only be used in a server",
-      ephemeral: true,
+      content  : "This can only be used in a server", ephemeral: true,
     })
     return
   }
@@ -25,8 +24,7 @@ export async function handle_loa_end(interaction: ButtonInteraction): Promise<vo
   const member_roles = interaction.member.roles as any
   if (!has_loa_permission(member_roles)) {
     await interaction.reply({
-      content  : "You don't have permission to end LOA requests",
-      ephemeral: true,
+      content  : "You don't have permission to end LOA requests", ephemeral: true,
     })
     return
   }
@@ -40,16 +38,14 @@ export async function handle_loa_end(interaction: ButtonInteraction): Promise<vo
 
   if (!result.success) {
     await interaction.reply({
-      content  : result.error || "Failed to end LOA request",
-      ephemeral: true,
+      content  : result.error || "Failed to end LOA request", ephemeral: true,
     }).catch(() => {})
     return
   }
 
   if (result.message_deleted) {
     await interaction.reply({
-      content  : "LOA has been ended and the message has been deleted",
-      ephemeral: true,
+      content  : "LOA has been ended and the message has been deleted", ephemeral: true,
     }).catch(() => {})
   }
 }

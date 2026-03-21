@@ -45,8 +45,7 @@ export const command: Command = {
 
     if (!is_admin(member)) {
       await interaction.reply({
-        content: "You don't have permission to use this command.",
-        ephemeral: true,
+        content: "You don't have permission to use this command.", ephemeral: true,
       });
       return;
     }
@@ -61,14 +60,13 @@ export const command: Command = {
     const target_category = category_option ?? default_category;
 
     if (!target_channel) {
-      await interaction.reply({ content: "Invalid channel.", ephemeral: true });
+      await interaction.reply({ content: "Invalid channel.", ephemeral: true});
       return;
     }
 
     if (!target_category) {
       await interaction.reply({
-        content: "Target category not provided, and this channel is not inside a category.",
-        ephemeral: true,
+        content: "Target category not provided, and this channel is not inside a category.", ephemeral: true,
       });
       return;
     }
@@ -77,7 +75,7 @@ export const command: Command = {
     const bot_member = guild?.members.me;
 
     if (!guild || !bot_member) {
-      await interaction.reply({ content: "This command can only be used in a server.", ephemeral: true });
+      await interaction.reply({ content: "This command can only be used in a server.", ephemeral: true});
       return;
     }
 
@@ -98,8 +96,7 @@ export const command: Command = {
       if (missing_in_category.length > 0) parts.push(`Missing in category: ${missing_category}`);
 
       await interaction.reply({
-        content: `I can't move the channel due to missing permissions. ${parts.join(" | ")}`,
-        ephemeral: true,
+        content: `I can't move the channel due to missing permissions. ${parts.join(" | ")}`, ephemeral: true,
       });
       return;
     }
@@ -107,14 +104,12 @@ export const command: Command = {
     try {
       await move_channel_to_category(target_channel, target_category);
       await interaction.reply({
-        content: `Successfully moved <#${target_channel.id}> to **${target_category.name}** with synced permissions.`,
-        ephemeral: true,
+        content: `Successfully moved <#${target_channel.id}> to **${target_category.name}** with synced permissions.`, ephemeral: true,
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : "Unknown error";
       await interaction.reply({
-        content: `Failed to move the channel. ${message}`,
-        ephemeral: true,
+        content: `Failed to move the channel. ${message}`, ephemeral: true,
       });
     }
   },

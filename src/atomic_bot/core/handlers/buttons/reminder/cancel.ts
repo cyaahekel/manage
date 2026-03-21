@@ -32,8 +32,7 @@ export async function handle_reminder_cancel(interaction: ButtonInteraction): Pr
 
     if (active.length === 0) {
       await interaction.reply({
-        content  : "No active reminders to cancel",
-        ephemeral: true,
+        content  : "No active reminders to cancel", ephemeral: true,
       }).catch(() => {})
       return
     }
@@ -86,8 +85,7 @@ export async function handle_reminder_cancel(interaction: ButtonInteraction): Pr
     }).catch(() => {})
   } catch (err) {
     await interaction.reply({
-      content  : "Failed to load reminders",
-      ephemeral: true,
+      content  : "Failed to load reminders", ephemeral: true,
     }).catch(() => {})
   }
 }

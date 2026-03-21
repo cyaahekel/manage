@@ -30,7 +30,7 @@ const reset_work_stats: Command = {
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
 
   execute: async (interaction: ChatInputCommandInteraction) => {
-    await interaction.deferReply({ ephemeral: true })
+    await interaction.deferReply({ flags: 64 })
 
     const user = interaction.options.getUser("user", false)
 

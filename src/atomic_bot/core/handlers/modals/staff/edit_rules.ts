@@ -43,7 +43,7 @@ export async function handle_edit_rules_modal(interaction: ModalSubmitInteractio
   const rules  = interaction.fields.getTextInputValue("rules")
   const footer = interaction.fields.getTextInputValue("footer")
 
-  await interaction.deferReply({ ephemeral: true })
+  await interaction.deferReply({ flags: 64 })
 
   const message  = build_rules_message(header, rules, footer)
   const response = await api.edit_components_v2(rules_channel_id, message_id, api.get_token(), message)

@@ -19,7 +19,7 @@ import { UserSelectMenuInteraction, ThreadChannel } from "discord.js"
 export async function handle_middleman_member_select(interaction: UserSelectMenuInteraction): Promise<boolean> {
   if (!interaction.customId.startsWith("middleman_member_select:")) return false
 
-  await interaction.deferReply({ ephemeral: true })
+  await interaction.deferReply({ flags: 64 })
 
   const thread    = interaction.channel as ThreadChannel
   const member_id = interaction.values[0]

@@ -122,6 +122,6 @@ export async function handle(interaction: ButtonInteraction) {
     ],
   })
 
-  await api.edit_deferred_reply(interaction, { ...reply_message, flags: 32832 })
+  await api.edit_deferred_reply(interaction, { ...reply_message, ephemeral: true })
   return true
 }

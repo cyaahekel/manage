@@ -26,11 +26,11 @@ import * as share_settings from "../controller"
  */
 async function execute_search_settings(interaction: ChatInputCommandInteraction): Promise<void> {
   if (!share_settings.can_use_share_settings(interaction.member as any)) {
-    await interaction.reply({ content: "You don't have permission to use this command.", ephemeral: true })
+    await interaction.reply({ content: "You don't have permission to use this command.", ephemeral: true})
     return
   }
 
-  await interaction.deferReply({ ephemeral: true })
+  await interaction.deferReply({ flags: 64 })
 
   try {
     const rod_name  = interaction.options.getString("rod_name", true)

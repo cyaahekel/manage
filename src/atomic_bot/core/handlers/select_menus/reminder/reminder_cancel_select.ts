@@ -17,8 +17,7 @@ export async function handle_reminder_cancel_select(interaction: StringSelectMen
 
   if (isNaN(selected_time)) {
     await interaction.reply({
-      content  : "Invalid reminder selection",
-      ephemeral: true,
+      content  : "Invalid reminder selection", ephemeral: true,
     }).catch(() => {})
     return
   }
@@ -31,14 +30,12 @@ export async function handle_reminder_cancel_select(interaction: StringSelectMen
 
   if (!result.success) {
     await interaction.reply({
-      content  : result.error || "Failed to cancel reminder",
-      ephemeral: true,
+      content  : result.error || "Failed to cancel reminder", ephemeral: true,
     }).catch(() => {})
     return
   }
 
   await interaction.reply({
-    content  : result.message || "Reminder cancelled successfully",
-    ephemeral: true,
+    content  : result.message || "Reminder cancelled successfully", ephemeral: true,
   }).catch(() => {})
 }

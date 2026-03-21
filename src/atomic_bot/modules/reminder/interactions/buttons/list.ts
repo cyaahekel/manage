@@ -21,8 +21,7 @@ export async function handle_reminder_list(interaction: ButtonInteraction): Prom
 
   if (!result.success) {
     await interaction.reply({
-      content  : result.error || "Failed to fetch reminders",
-      ephemeral: true,
+      content  : result.error || "Failed to fetch reminders", ephemeral: true,
     }).catch(() => {})
     return
   }

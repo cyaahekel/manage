@@ -48,8 +48,7 @@ const softban: Command = {
 
     if (!interaction.guild) {
       await interaction.reply({
-        content  : "This command can only be used in a server.",
-        ephemeral: true,
+        content  : "This command can only be used in a server.", ephemeral: true,
       })
       return
     }
@@ -58,24 +57,21 @@ const softban: Command = {
 
     if (!member) {
       await interaction.reply({
-        content  : "User not found in this server.",
-        ephemeral: true,
+        content  : "User not found in this server.", ephemeral: true,
       })
       return
     }
 
     if (member.id === interaction.user.id) {
       await interaction.reply({
-        content  : "You cannot softban yourself.",
-        ephemeral: true,
+        content  : "You cannot softban yourself.", ephemeral: true,
       })
       return
     }
 
     if (member.id === interaction.guild.ownerId) {
       await interaction.reply({
-        content  : "You cannot softban the server owner.",
-        ephemeral: true,
+        content  : "You cannot softban the server owner.", ephemeral: true,
       })
       return
     }
@@ -84,8 +80,7 @@ const softban: Command = {
     
     if (member.roles.highest.position >= bot_member.roles.highest.position) {
       await interaction.reply({
-        content  : "I cannot softban this user due to role hierarchy.",
-        ephemeral: true,
+        content  : "I cannot softban this user due to role hierarchy.", ephemeral: true,
       })
       return
     }
@@ -94,8 +89,7 @@ const softban: Command = {
     
     if (executor_member.id !== interaction.guild.ownerId && member.roles.highest.position >= executor_member.roles.highest.position) {
       await interaction.reply({
-        content  : "You cannot softban this user due to role hierarchy.",
-        ephemeral: true,
+        content  : "You cannot softban this user due to role hierarchy.", ephemeral: true,
       })
       return
     }

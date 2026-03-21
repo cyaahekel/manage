@@ -21,8 +21,7 @@ import { ButtonHandler }                  from "@shared/types/interaction"
 export async function handle_quarantine_release(interaction: ButtonInteraction): Promise<void> {
   if (!interaction.guild || !interaction.member) {
     await interaction.reply({
-      content  : "This can only be used in a server",
-      ephemeral: true,
+      content  : "This can only be used in a server", ephemeral: true,
     })
     return
   }
@@ -31,8 +30,7 @@ export async function handle_quarantine_release(interaction: ButtonInteraction):
 
   if (!executor.permissions.has("ModerateMembers")) {
     await interaction.reply({
-      content  : "You don't have permission to release quarantined members",
-      ephemeral: true,
+      content  : "You don't have permission to release quarantined members", ephemeral: true,
     })
     return
   }
@@ -40,8 +38,7 @@ export async function handle_quarantine_release(interaction: ButtonInteraction):
   const user_id = interaction.customId.split(":")[1]
   if (!user_id) {
     await interaction.reply({
-      content  : "Invalid quarantine release request",
-      ephemeral: true,
+      content  : "Invalid quarantine release request", ephemeral: true,
     })
     return
   }
@@ -54,8 +51,7 @@ export async function handle_quarantine_release(interaction: ButtonInteraction):
 
   if (!result.success) {
     await interaction.reply({
-      content  : result.error || "Failed to release quarantine",
-      ephemeral: true,
+      content  : result.error || "Failed to release quarantine", ephemeral: true,
     }).catch(() => {})
     return
   }

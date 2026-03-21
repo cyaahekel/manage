@@ -26,7 +26,7 @@ export async function handle_script_update_select(interaction: StringSelectMenuI
   if (!interaction.customId.startsWith("script_update_select:")) return false
 
   if (interaction.user.id !== __allowed_user_id) {
-    await interaction.reply({ content: "You are not allowed to use this.", ephemeral: true })
+    await interaction.reply({ content: "You are not allowed to use this.", ephemeral: true})
     return true
   }
 
@@ -41,7 +41,7 @@ export async function handle_script_update_select(interaction: StringSelectMenuI
       user_id  : interaction.user.id,
       guild_id : interaction.guildId ?? undefined,
     }).catch(() => {})
-    await interaction.reply({ content: "Failed to update selection.", ephemeral: true })
+    await interaction.reply({ content: "Failed to update selection.", ephemeral: true})
   }
 
   return true
@@ -56,7 +56,7 @@ export async function handle_script_update_btn(interaction: ButtonInteraction): 
   if (!interaction.customId.startsWith("script_update_btn:")) return false
 
   if (interaction.user.id !== __allowed_user_id) {
-    await interaction.reply({ content: "You are not allowed to use this.", ephemeral: true })
+    await interaction.reply({ content: "You are not allowed to use this.", ephemeral: true})
     return true
   }
 
@@ -64,7 +64,7 @@ export async function handle_script_update_btn(interaction: ButtonInteraction): 
   const file_path = parts[1] ?? ""
   const script_id = parts[2] ?? ""
 
-  await interaction.deferReply({ ephemeral: true })
+  await interaction.deferReply({ flags: 64 })
 
   try {
     if (!script_id || script_id === "none") {

@@ -18,7 +18,7 @@ const __script_role_id = env.get("LUARMOR_SCRIPT_ROLE_ID", "1398313779380617459"
 export async function handle_script_redeem_modal(interaction: ModalSubmitInteraction): Promise<boolean> {
   if (interaction.customId !== "script_redeem_modal") return false
 
-  await interaction.deferReply({ ephemeral: true })
+  await interaction.deferReply({ flags: 64 })
 
   const member   = interaction.member as GuildMember
   const user_key = interaction.fields.getTextInputValue("user_key").trim()

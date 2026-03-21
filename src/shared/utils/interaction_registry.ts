@@ -67,8 +67,7 @@ export class InteractionRegistry {
         // - FALLBACK: UNKNOWN BUTTON - \\
         if (!interaction.replied && !interaction.deferred) {
           await interaction.reply({
-            content  : "This button is no longer active.",
-            ephemeral: true,
+            content  : "This button is no longer active.", ephemeral: true,
           }).catch(() => {})
         }
       } 
@@ -108,7 +107,7 @@ export class InteractionRegistry {
         channel  : interaction.channel?.id,
       })
       if (interaction.isRepliable() && !interaction.replied && !interaction.deferred) {
-        await interaction.reply({ content: "An error occurred.", ephemeral: true }).catch(() => {})
+        await interaction.reply({ content: "An error occurred.", ephemeral: true}).catch(() => {})
       }
     }
   }

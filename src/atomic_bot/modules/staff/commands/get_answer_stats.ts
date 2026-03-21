@@ -129,7 +129,7 @@ const command: Command = {
     .setDescription("View answer stats for staff members"),
 
   async execute(interaction: ChatInputCommandInteraction) {
-    await interaction.deferReply({ ephemeral: true })
+    await interaction.deferReply({ flags: 64 })
 
     const guild = interaction.guild
     if (!guild) {

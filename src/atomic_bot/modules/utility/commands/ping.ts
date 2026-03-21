@@ -24,7 +24,7 @@ export const command: Command = {
 
   async execute(interaction: ChatInputCommandInteraction) {
     try {
-      await interaction.deferReply({ ephemeral: true })
+      await interaction.deferReply({ flags: 64 })
 
       const sent = await interaction.fetchReply()
 
@@ -104,7 +104,7 @@ export const command: Command = {
       }
 
       if (!interaction.replied) {
-        await interaction.reply({ ...error_message, ephemeral: true })
+        await interaction.reply({ ...error_message, ephemeral: true})
       }
     }
   },

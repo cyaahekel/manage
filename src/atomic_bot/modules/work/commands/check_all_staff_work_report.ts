@@ -19,7 +19,7 @@ const check_all_staff_work_report: Command = {
     .setDescription("Check all staff work reports by year and week"),
 
   execute: async (interaction: ChatInputCommandInteraction) => {
-    await interaction.deferReply({ ephemeral: true })
+    await interaction.deferReply({ flags: 64 })
 
     const year_options = [
       { label: "2025", value: "2025" },

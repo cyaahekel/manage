@@ -49,8 +49,7 @@ export async function handle_middleman_complete(interaction: ButtonInteraction):
 
   if (!authorized_users.includes(interaction.user.id)) {
     await interaction.reply({
-      content  : "You don't have permission to use this button.",
-      ephemeral: true,
+      content  : "You don't have permission to use this button.", ephemeral: true,
     })
     return true
   }
@@ -59,13 +58,12 @@ export async function handle_middleman_complete(interaction: ButtonInteraction):
 
   if (!thread.isThread()) {
     await interaction.reply({
-      content  : "This can only be used in a ticket thread.",
-      ephemeral: true,
+      content  : "This can only be used in a ticket thread.", ephemeral: true,
     })
     return true
   }
 
-  await interaction.deferReply({ ephemeral: true })
+  await interaction.deferReply({ flags: 64 })
 
   const ticket_data = get_ticket(thread.id)
   const config      = get_ticket_config("middleman")

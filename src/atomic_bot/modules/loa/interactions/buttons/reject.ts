@@ -16,8 +16,7 @@ import { ButtonHandler }                   from "@shared/types/interaction"
 export async function handle_loa_reject(interaction: ButtonInteraction): Promise<void> {
   if (!interaction.guild || !interaction.member) {
     await interaction.reply({
-      content  : "This can only be used in a server",
-      ephemeral: true,
+      content  : "This can only be used in a server", ephemeral: true,
     })
     return
   }
@@ -25,8 +24,7 @@ export async function handle_loa_reject(interaction: ButtonInteraction): Promise
   const member_roles = interaction.member.roles as any
   if (!has_loa_permission(member_roles)) {
     await interaction.reply({
-      content  : "You don't have permission to reject LOA requests",
-      ephemeral: true,
+      content  : "You don't have permission to reject LOA requests", ephemeral: true,
     })
     return
   }
@@ -39,8 +37,7 @@ export async function handle_loa_reject(interaction: ButtonInteraction): Promise
 
   if (!result.success) {
     await interaction.reply({
-      content  : result.error || "Failed to reject LOA request",
-      ephemeral: true,
+      content  : result.error || "Failed to reject LOA request", ephemeral: true,
     }).catch(() => {})
     return
   }

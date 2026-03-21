@@ -44,16 +44,14 @@ export const command: Command = {
 
     if (!guild) {
       await interaction.reply({
-        content   : "This command can only be used in a server.",
-        ephemeral : true,
+        content   : "This command can only be used in a server.", ephemeral: true,
       })
       return
     }
 
     if (!target) {
       await interaction.reply({
-        content   : "Invalid member.",
-        ephemeral : true,
+        content   : "Invalid member.", ephemeral: true,
       })
       return
     }
@@ -68,13 +66,11 @@ export const command: Command = {
 
     if (result.success) {
       await interaction.reply({
-        ...result.message,
-        ephemeral: true,
+        ...result.message, ephemeral: true,
       })
     } else {
       await interaction.reply({
-        content   : result.error || "Failed to warn member",
-        ephemeral : true,
+        content   : result.error || "Failed to warn member", ephemeral: true,
       })
     }
   },

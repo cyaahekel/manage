@@ -56,16 +56,14 @@ export const command: Command = {
 
     if (!guild_id) {
       await interaction.reply({
-        content   : "This command can only be used in a server.",
-        ephemeral : true,
+        content   : "This command can only be used in a server.", ephemeral: true,
       })
       return
     }
 
     if (!executor.permissions.has(PermissionFlagsBits.ModerateMembers)) {
       await interaction.reply({
-        content   : "You don't have permission to view warnings.",
-        ephemeral : true,
+        content   : "You don't have permission to view warnings.", ephemeral: true,
       })
       return
     }
@@ -94,8 +92,7 @@ export const command: Command = {
       })
 
       await interaction.reply({
-        ...no_warnings_message,
-        ephemeral: true,
+        ...no_warnings_message, ephemeral: true,
       })
       return
     }
@@ -126,8 +123,7 @@ export const command: Command = {
     })
 
     await interaction.reply({
-      ...warnings_message,
-      ephemeral: true,
+      ...warnings_message, ephemeral: true,
     })
   },
 }

@@ -76,8 +76,7 @@ export const command: Command = {
   async execute(interaction: ChatInputCommandInteraction) {
     if (!is_admin(interaction.member as GuildMember)) {
       await interaction.reply({
-        content: "You don't have permission to use this command.",
-        ephemeral: true,
+        content: "You don't have permission to use this command.", ephemeral: true,
       })
       return
     }
@@ -88,8 +87,7 @@ export const command: Command = {
 
     if (!message_data || message_data.error) {
       await interaction.reply({
-        content: "Could not fetch the rules message. Make sure the message ID is correct.",
-        ephemeral: true,
+        content: "Could not fetch the rules message. Make sure the message ID is correct.", ephemeral: true,
       })
       return
     }

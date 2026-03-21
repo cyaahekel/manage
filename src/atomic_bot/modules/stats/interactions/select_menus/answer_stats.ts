@@ -27,7 +27,7 @@ export async function handle_answer_stats_select(interaction: StringSelectMenuIn
 
   const member = await guild.members.fetch(staff_id).catch(() => null)
   if (!member) {
-    await interaction.followUp({ content: "Staff member not found.", ephemeral: true })
+    await interaction.followUp({ content: "Staff member not found.", ephemeral: true})
     return
   }
 

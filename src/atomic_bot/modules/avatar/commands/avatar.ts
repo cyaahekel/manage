@@ -96,9 +96,9 @@ export const command: Command = {
       })
 
       if (interaction.replied || interaction.deferred) {
-        await interaction.followUp({ ...error_payload, ephemeral: true })
+        await interaction.followUp({ ...error_payload, ephemeral: true})
       } else {
-        await interaction.reply({ ...error_payload, ephemeral: true })
+        await interaction.reply({ ...error_payload, ephemeral: true})
       }
     }
   },

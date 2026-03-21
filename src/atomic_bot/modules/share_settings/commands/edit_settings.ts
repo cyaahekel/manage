@@ -26,7 +26,7 @@ import * as share_settings from "../controller"
  */
 async function execute_edit_settings(interaction: ChatInputCommandInteraction): Promise<void> {
   if (!share_settings.can_use_share_settings(interaction.member as any)) {
-    await interaction.reply({ content: "You don't have permission to use this command.", ephemeral: true })
+    await interaction.reply({ content: "You don't have permission to use this command.", ephemeral: true})
     return
   }
 
@@ -92,7 +92,7 @@ async function execute_edit_settings(interaction: ChatInputCommandInteraction): 
     await interaction.showModal(note_modal)
   } catch (error) {
     await log_error(interaction.client, error as Error, "edit_settings_command", {})
-    await interaction.reply({ content: "Failed to open edit modal", ephemeral: true }).catch(() => {})
+    await interaction.reply({ content: "Failed to open edit modal", ephemeral: true}).catch(() => {})
   }
 }
 

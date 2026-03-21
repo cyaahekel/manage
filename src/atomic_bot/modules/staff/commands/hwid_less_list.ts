@@ -34,7 +34,7 @@ export const command: Command = {
 
   async execute(interaction: ChatInputCommandInteraction) {
   try {
-    await interaction.deferReply({ ephemeral: true })
+    await interaction.deferReply({ flags: 64 })
 
     const schedules = await db.find_many_sorted<hwid_less_schedule>(
       __collection,

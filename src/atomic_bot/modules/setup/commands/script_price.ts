@@ -15,9 +15,8 @@ import {
   TextChannel,
 } from "discord.js"
 import { Command } from "@shared/types/command"
-import { component, api, format, file, http } from "@shared/utils"
-import { load_config as load_cfg } from "@shared/config/loader"
-import { join } from "path"
+import { component, api, format, http } from "@shared/utils"
+import { load_config as load_cfg, save_config as save_cfg } from "@shared/config/loader"
 
 interface PricingConfig {
   channel_id:     string
@@ -38,8 +37,6 @@ interface ExchangeRateResponse {
   }
 }
 
-const CONFIG_PATH = join(__dirname, "../../shared/config/pricing.cfg")
-
 async function get_usd_rate(): Promise<number> {
   try {
     const data = await http.get<ExchangeRateResponse>("https://v6.exchangerate-api.com/v6/latest/IDR")
@@ -54,7 +51,7 @@ function load_config(): PricingConfig {
 }
 
 function save_config(config: PricingConfig): void {
-  file.write_json(CONFIG_PATH, config)
+  save_cfg<PricingConfig>("pricing", config)
 }
 
 function format_price(price: number, discount: number, applies: boolean): string {
@@ -141,7 +138,7 @@ export const command: Command = {
     .setDescription("Send the script pricing panel") as SlashCommandBuilder,
 
   async execute(interaction: ChatInputCommandInteraction) {
-    await interaction.deferReply({ ephemeral: true })
+    await interaction.deferReply({ flags: 64 })
 
     const config  = load_config()
     const channel = interaction.client.channels.cache.get(config.channel_id) as TextChannel

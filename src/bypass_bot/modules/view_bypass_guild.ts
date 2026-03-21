@@ -54,7 +54,7 @@ const view_bypass_guild_command: Command = {
       return
     }
 
-    await interaction.deferReply({ ephemeral: true })
+    await interaction.deferReply({ flags: 64 })
 
     try {
       const records = await db.find_many<guild_settings_record>("guild_settings", {})

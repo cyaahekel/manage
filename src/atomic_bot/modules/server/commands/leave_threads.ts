@@ -34,7 +34,7 @@ export const command: Command = {
     const channel = interaction.options.getChannel("channel", true) as TextChannel | ForumChannel;
     const user_id = interaction.user.id;
 
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: 64 });
 
     console.log(`[leave_threads] Fetching threads from ${channel.name}...`);
 

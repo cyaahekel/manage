@@ -136,7 +136,7 @@ export const command: Command = {
     ) as SlashCommandBuilder,
 
   async execute(interaction: ChatInputCommandInteraction) {
-    await interaction.deferReply({ ephemeral: true })
+    await interaction.deferReply({ flags: 64 })
 
     const question    = interaction.options.getString("question", true)
     const user        = interaction.user

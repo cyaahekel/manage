@@ -23,8 +23,7 @@ export async function handle_bypass_request_log(interaction: ButtonInteraction):
     // - DEVELOPER ONLY - \\
     if (interaction.user.id !== __dev_id) {
       await interaction.reply({
-        content   : "This button is restricted to developers only.",
-        ephemeral : true,
+        content   : "This button is restricted to developers only.", ephemeral: true,
       })
       return
     }
@@ -38,8 +37,7 @@ export async function handle_bypass_request_log(interaction: ButtonInteraction):
 
     if (!result.rows || result.rows.length === 0) {
       await interaction.reply({
-        content   : "Log expired or not found.",
-        ephemeral : true,
+        content   : "Log expired or not found.", ephemeral: true,
       })
       return
     }
@@ -48,8 +46,7 @@ export async function handle_bypass_request_log(interaction: ButtonInteraction):
     const buffer   = Buffer.from(log_text, "utf-8")
 
     await interaction.reply({
-      files     : [new AttachmentBuilder(buffer, { name: `bypass_log_${log_key}.txt` })],
-      ephemeral : true,
+      files     : [new AttachmentBuilder(buffer, { name: `bypass_log_${log_key}.txt` })], ephemeral: true,
     })
 
     console.warn(`[ - BYPASS REQUEST LOG - ] Sent log to developer ${interaction.user.tag}`)
@@ -57,8 +54,7 @@ export async function handle_bypass_request_log(interaction: ButtonInteraction):
     console.error(`[ - BYPASS REQUEST LOG - ] Error:`, error)
     try {
       await interaction.reply({
-        content   : "Failed to retrieve log.",
-        ephemeral : true,
+        content   : "Failed to retrieve log.", ephemeral: true,
       })
     } catch { /* already replied */ }
   }

@@ -34,8 +34,7 @@ export async function handle_music_skip(interaction: ButtonInteraction): Promise
       await interaction.reply({
         ...component.build_message({
           components: [component.container({ components: [component.text("Nothing is currently playing.")] })],
-        }),
-        ephemeral: true,
+        }), ephemeral: true,
       })
       return
     }
@@ -64,8 +63,7 @@ export async function handle_music_skip(interaction: ButtonInteraction): Promise
     await interaction.reply({
       ...component.build_message({
         components: [component.container({ components: [component.text("An error occurred.")] })],
-      }),
-      ephemeral: true,
+      }), ephemeral: true,
     }).catch(() => {})
   }
 }
@@ -85,8 +83,7 @@ export async function handle_music_pause_resume(interaction: ButtonInteraction):
       await interaction.reply({
         ...component.build_message({
           components: [component.container({ components: [component.text("Nothing is currently playing.")] })],
-        }),
-        ephemeral: true,
+        }), ephemeral: true,
       })
       return
     }
@@ -112,8 +109,7 @@ export async function handle_music_pause_resume(interaction: ButtonInteraction):
     await interaction.reply({
       ...component.build_message({
         components: [component.container({ components: [component.text("An error occurred.")] })],
-      }),
-      ephemeral: true,
+      }), ephemeral: true,
     }).catch(() => {})
   }
 }
@@ -132,8 +128,7 @@ export async function handle_music_stop(interaction: ButtonInteraction): Promise
       await interaction.reply({
         ...component.build_message({
           components: [component.container({ components: [component.text("Nothing is currently playing.")] })],
-        }),
-        ephemeral: true,
+        }), ephemeral: true,
       })
       return
     }
@@ -157,8 +152,7 @@ export async function handle_music_stop(interaction: ButtonInteraction): Promise
     await interaction.reply({
       ...component.build_message({
         components: [component.container({ components: [component.text("An error occurred.")] })],
-      }),
-      ephemeral: true,
+      }), ephemeral: true,
     }).catch(() => {})
   }
 }
@@ -175,7 +169,7 @@ export async function handle_music_queue(interaction: ButtonInteraction): Promis
     const page     = parseInt(interaction.customId.split(":")[1] ?? "1", 10)
     const msg      = build_queue_message(guild_id, isNaN(page) ? 1 : page)
 
-    await interaction.reply({ ...msg, ephemeral: true })
+    await interaction.reply({ ...msg, ephemeral: true})
   } catch (err) {
     await log_error(interaction.client, err as Error, "Music Button Queue", {
       user_id : interaction.user.id,
@@ -185,8 +179,7 @@ export async function handle_music_queue(interaction: ButtonInteraction): Promis
     await interaction.reply({
       ...component.build_message({
         components: [component.container({ components: [component.text("An error occurred.")] })],
-      }),
-      ephemeral: true,
+      }), ephemeral: true,
     }).catch(() => {})
   }
 }

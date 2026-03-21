@@ -40,7 +40,7 @@ export async function handle(interaction: ModalSubmitInteraction) {
   const removed  = interaction.fields.getTextInputValue("removed")
   const fixed    = interaction.fields.getTextInputValue("fixed")
 
-  await interaction.deferReply({ ephemeral: true })
+  await interaction.deferReply({ flags: 64 })
 
   const result = await publish_devlog({
     client   : interaction.client,
