@@ -125,6 +125,6 @@ export const button: ButtonHandler = {
     ],
   })
 
-  await api.edit_deferred_reply(interaction, { ...reply_message, ephemeral: true })
+  await api.edit_deferred_reply(interaction, reply_message)
   }
 }
