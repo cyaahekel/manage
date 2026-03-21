@@ -11,6 +11,7 @@
 // - /push-script slash command, uploads local script file to Luarmor API - \
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js"
 import { Command }                       from "@shared/types/command"
+import { component }                     from "@shared/utils"
 import { log_error }                     from "@shared/utils/error_logger"
 import { build_update_script_message }   from "../controller"
 
@@ -25,9 +26,19 @@ export const command: Command = {
         .setRequired(true)
     ) as SlashCommandBuilder,
 
-  async execute(interaction: ChatInputCommandInteraction) {
+  /**
+   * @description Handles /push-script. Validates user, then builds the script selection message.
+   * @param {ChatInputCommandInteraction} interaction
+   * @returns {Promise<void>}
+   */
+  async execute(interaction: ChatInputCommandInteraction): Promise<void> {
     if (interaction.user.id !== "1118453649727823974") {
-      await interaction.reply({ content: "You are not allowed to use this command.", ephemeral: true})
+      await interaction.reply({
+        ...component.build_message({
+          components: [component.container({ components: [component.text("You are not allowed to use this command.")] })],
+        }),
+        ephemeral: true,
+      })
       return
     }
 
@@ -43,7 +54,11 @@ export const command: Command = {
         user_id  : interaction.user.id,
         guild_id : interaction.guildId ?? undefined,
       }).catch(() => {})
-      await interaction.editReply({ content: "Failed to load script data. Please try again." })
+      await interaction.editReply({
+        ...component.build_message({
+          components: [component.container({ components: [component.text("Failed to load script data. Please try again.")] })],
+        }),
+      })
     }
   },
 }

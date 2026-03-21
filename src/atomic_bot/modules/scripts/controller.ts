@@ -7,13 +7,11 @@
  * See the LICENSE file for more information.
  */
 
-// - 脚本模块控制器，处理 /push-script 的全部业务逻辑 - \
-// - scripts module controller, handles all business logic for /push-script - \
-import { randomBytes }  from "crypto"
-import { component }    from "@shared/utils"
-import * as luarmor     from "@atomic/infrastructure/api/luarmor"
-
-// - - \\
+// - 脚本模块控制器，处理 /push-script 的全部业务逻辑 - \\
+// - scripts module controller, handles all business logic for /push-script - \\
+import { randomBytes } from "crypto"
+import { component }   from "@shared/utils"
+import * as luarmor    from "@atomic/infrastructure/api/luarmor"
 
 interface attachment_ref {
   url      : string

@@ -7,13 +7,14 @@
  * See the LICENSE file for more information.
  */
 
-// - 脚本面板「更新脚本」按钮和选择菜单的交互处理 - \
-// - handles the update script button and select menu interactions - \
+// - 脚本面板「更新脚本」按钮和选择菜单的交互处理 - \\
+// - handles the update script button and select menu interactions - \\
+
 import { ButtonInteraction, StringSelectMenuInteraction } from "discord.js"
-import { component }                                      from "@shared/utils"
 import { log_error }                                      from "@shared/utils/error_logger"
+import { component }                                      from "@shared/utils"
 import { build_select_update_message,
-         perform_script_update }                          from "../../controller"
+         perform_script_update }                          from "@atomic/modules/scripts/controller"
 
 /**
  * @description Handles the update script select menu — updates the Update button with the chosen script_id
@@ -26,7 +27,18 @@ export async function handle_script_update_select(interaction: StringSelectMenuI
   if (!interaction.customId.startsWith("script_update_select:")) return false
 
   if (interaction.user.id !== __allowed_user_id) {
-    await interaction.reply({ content: "You are not allowed to use this.", ephemeral: true})
+    await interaction.reply({
+      ...component.build_message({
+        components: [
+          component.container({
+            components: [
+              component.text(["## Access Denied", "You are not allowed to use this."])
+            ],
+          }),
+        ],
+      }),
+      ephemeral: true,
+    })
     return true
   }
 
@@ -41,7 +53,18 @@ export async function handle_script_update_select(interaction: StringSelectMenuI
       user_id  : interaction.user.id,
       guild_id : interaction.guildId ?? undefined,
     }).catch(() => {})
-    await interaction.reply({ content: "Failed to update selection.", ephemeral: true})
+    await interaction.reply({
+      ...component.build_message({
+        components: [
+          component.container({
+            components: [
+              component.text(["## Update Failed", "Failed to update selection."])
+            ],
+          }),
+        ],
+      }),
+      ephemeral: true,
+    })
   }
 
   return true
@@ -56,7 +79,18 @@ export async function handle_script_update_btn(interaction: ButtonInteraction): 
   if (!interaction.customId.startsWith("script_update_btn:")) return false
 
   if (interaction.user.id !== __allowed_user_id) {
-    await interaction.reply({ content: "You are not allowed to use this.", ephemeral: true})
+    await interaction.reply({
+      ...component.build_message({
+        components: [
+          component.container({
+            components: [
+              component.text(["## Access Denied", "You are not allowed to use this."])
+            ],
+          }),
+        ],
+      }),
+      ephemeral: true,
+    })
     return true
   }
 
@@ -68,7 +102,15 @@ export async function handle_script_update_btn(interaction: ButtonInteraction): 
 
   try {
     if (!script_id || script_id === "none") {
-      await interaction.editReply({ content: "Please select a script from the dropdown first." })
+      await interaction.editReply(component.build_message({
+        components: [
+          component.container({
+            components: [
+              component.text(["## No Script Selected", "Please select a script from the dropdown first."])
+            ],
+          }),
+        ],
+      }) as any)
       return true
     }
 
@@ -99,7 +141,15 @@ export async function handle_script_update_btn(interaction: ButtonInteraction): 
       user_id  : interaction.user.id,
       guild_id : interaction.guildId ?? undefined,
     }).catch(() => {})
-    await interaction.editReply({ content: "Failed to read or upload script. Please try again." })
+    await interaction.editReply(component.build_message({
+      components: [
+        component.container({
+          components: [
+            component.text(["## Update Failed", "Failed to read or upload script. Please try again."])
+          ],
+        }),
+      ],
+    }) as any)
   }
 
   return true

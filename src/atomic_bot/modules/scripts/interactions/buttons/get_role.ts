@@ -7,36 +7,63 @@
  * See the LICENSE file for more information.
  */
 
-// - 脚本面板「获取角色」按钮的交互注册 - \
-// - registers the get role button for the scripts panel - \
-// - 脚本角色获取按钮 - \
-// - get script role button - \
+// - 脚本面板「获取角色」按鈕处理 - \\
+// - get script role button handler for the scripts panel - \\
 
 import { ButtonInteraction, GuildMember } from "discord.js"
-import * as luarmor                       from "@atomic/infrastructure/api/luarmor"
-import { component, api, env, format }    from "@shared/utils"
-import { member_has_role }                from "@shared/utils/discord_api"
+import { log_error }                       from "@shared/utils/error_logger"
+import * as luarmor                        from "@atomic/infrastructure/api/luarmor"
+import { component, api, env, format }     from "@shared/utils"
+import { member_has_role }                 from "@shared/utils/discord_api"
 
 const __script_role_id = env.get("LUARMOR_SCRIPT_ROLE_ID", "1398313779380617459")
 
+/**
+ * @description Handles the get script role button — verifies Luarmor key then assigns the script role.
+ * @param {ButtonInteraction} interaction - Discord button interaction
+ * @returns {Promise<void>}
+ */
 export async function handle_get_role(interaction: ButtonInteraction): Promise<void> {
   await interaction.deferReply({ flags: 64 })
 
-  const member = interaction.member as GuildMember
-  const guild  = interaction.guild!
+  try {
+    const member = interaction.member as GuildMember
+    const guild  = interaction.guild!
 
-  const user_result = await luarmor.get_user_by_discord(member.id)
+    const user_result = await luarmor.get_user_by_discord(member.id)
 
-  if (!user_result.success || !user_result.data) {
-    if (user_result.is_error) {
+    if (!user_result.success || !user_result.data) {
+      if (user_result.is_error) {
+        const message = component.build_message({
+          components: [
+            component.container({
+              components: [
+                component.section({
+                  content: [
+                    `## Error`,
+                    `${user_result.error}`,
+                  ],
+                  thumbnail: format.logo_url,
+                }),
+              ],
+            }),
+          ],
+        })
+
+        await api.edit_deferred_reply(interaction, message)
+        return
+      }
+
       const message = component.build_message({
         components: [
           component.container({
             components: [
               component.section({
                 content: [
-                  `## Error`,
-                  `${user_result.error}`,
+                  `## No Key Found`,
+                  `You don't have a key linked to your Discord account.`,
+                  ``,
+                  `Please use the **Redeem Key** button first to link your key.`,
                 ],
                 thumbnail: format.logo_url,
               }),
@@ -49,110 +76,94 @@ export async function handle_get_role(interaction: ButtonInteraction): Promise<v
       return
     }
 
-    const message = component.build_message({
-      components: [
-        component.container({
-          components: [
-            component.section({
-              content: [
-                `## No Key Found`,
-                `You don't have a key linked to your Discord account.`,
-                ``,
-                `Please use the **Redeem Key** button first to link your key.`,
-              ],
-              thumbnail: format.logo_url,
-            }),
-          ],
-        }),
-      ],
-    })
+    const role = await guild.roles.fetch(__script_role_id).catch(() => null)
+    if (!role) {
+      const message = component.build_message({
+        components: [
+          component.container({
+            components: [
+              component.section({
+                content: [
+                  `## Role Not Found`,
+                  `The script role could not be found. Please contact an administrator.`,
+                ],
+                thumbnail: format.logo_url,
+              }),
+            ],
+          }),
+        ],
+      })
 
-    await api.edit_deferred_reply(interaction, message)
-    return
-  }
+      await api.edit_deferred_reply(interaction, message)
+      return
+    }
 
-  const role = await guild.roles.fetch(__script_role_id).catch(() => null)
-  if (!role) {
-    const message = component.build_message({
-      components: [
-        component.container({
-          components: [
-            component.section({
-              content: [
-                `## Role Not Found`,
-                `The script role could not be found. Please contact an administrator.`,
-              ],
-              thumbnail: format.logo_url,
-            }),
-          ],
-        }),
-      ],
-    })
+    if (member_has_role(member, __script_role_id)) {
+      const message = component.build_message({
+        components: [
+          component.container({
+            components: [
+              component.section({
+                content: [
+                  `## Already Have Role`,
+                  `You already have the <@&${__script_role_id}> role!`,
+                ],
+                thumbnail: format.logo_url,
+              }),
+            ],
+          }),
+        ],
+      })
 
-    await api.edit_deferred_reply(interaction, message)
-    return
-  }
+      await api.edit_deferred_reply(interaction, message)
+      return
+    }
 
-  if (member_has_role(member, __script_role_id)) {
-    const message = component.build_message({
-      components: [
-        component.container({
-          components: [
-            component.section({
-              content: [
-                `## Already Have Role`,
-                `You already have the <@&${__script_role_id}> role!`,
-              ],
-              thumbnail: format.logo_url,
-            }),
-          ],
-        }),
-      ],
-    })
+    try {
+      await member.roles.add(role)
 
-    await api.edit_deferred_reply(interaction, message)
-    return
-  }
+      const message = component.build_message({
+        components: [
+          component.container({
+            components: [
+              component.section({
+                content: [
+                  `## Role Added`,
+                  `You have been given the <@&${__script_role_id}> role!`,
+                  ``,
+                  `You now have access to script-related channels.`,
+                ],
+                thumbnail: format.logo_url,
+              }),
+            ],
+          }),
+        ],
+      })
 
-  try {
-    await member.roles.add(role)
+      await api.edit_deferred_reply(interaction, message)
+    } catch (role_err) {
+      const message = component.build_message({
+        components: [
+          component.container({
+            components: [
+              component.section({
+                content: [
+                  `## Failed to Add Role`,
+                  `Could not add the role. Please contact an administrator.`,
+                ],
+                thumbnail: format.logo_url,
+              }),
+            ],
+          }),
+        ],
+      })
 
-    const message = component.build_message({
-      components: [
-        component.container({
-          components: [
-            component.section({
-              content: [
-                `## Role Added`,
-                `You have been given the <@&${__script_role_id}> role!`,
-                ``,
-                `You now have access to script-related channels.`,
-              ],
-              thumbnail: format.logo_url,
-            }),
-          ],
-        }),
-      ],
-    })
-
-    await api.edit_deferred_reply(interaction, message)
-  } catch (error) {
-    const message = component.build_message({
-      components: [
-        component.container({
-          components: [
-            component.section({
-              content: [
-                `## Failed to Add Role`,
-                `Could not add the role. Please contact an administrator.`,
-              ],
-              thumbnail: format.logo_url,
-            }),
-          ],
-        }),
-      ],
-    })
-
-    await api.edit_deferred_reply(interaction, message)
+      await api.edit_deferred_reply(interaction, message)
+    }
+  } catch (err) {
+    await log_error(interaction.client, err as Error, "Script Get Role", {
+      user_id : interaction.user.id,
+      guild_id: interaction.guildId ?? undefined,
+    }).catch(() => {})
   }
 }

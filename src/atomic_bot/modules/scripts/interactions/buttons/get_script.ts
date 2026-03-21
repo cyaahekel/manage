@@ -7,122 +7,164 @@
  * See the LICENSE file for more information.
  */
 
-// - 脚本面板「获取脚本」按钮的交互注册 - \
-// - registers the get script button for the scripts panel - \
-// - 脚本获取按钮 - \
-// - get script button - \
+// - 脚本面板「获取脚本」与「移动端复制」按钮处理 - \\
+// - get script and mobile copy button handlers for the scripts panel - \\
 
-import { ButtonInteraction, GuildMember } from "discord.js"
-import { component, api, format, modal } from "@shared/utils"
-import { get_user_script } from "@atomic/modules/service_provider/controller"
-import * as luarmor from "@atomic/infrastructure/api/luarmor"
+import { ButtonInteraction, GuildMember }  from "discord.js"
+import { component, api, format, modal }   from "@shared/utils"
+import { log_error }                       from "@shared/utils/error_logger"
+import { get_user_script }                 from "@atomic/modules/service_provider/controller"
+import * as luarmor                        from "@atomic/infrastructure/api/luarmor"
 
+/**
+ * @description Handles the get script button — retrieves and displays the user's loader script.
+ * @param {ButtonInteraction} interaction - Discord button interaction
+ * @returns {Promise<void>}
+ */
 export async function handle_get_script(interaction: ButtonInteraction): Promise<void> {
   const member = interaction.member as GuildMember
 
   await interaction.deferReply({ flags: 64 })
 
-  const script_result = await get_user_script({ client: interaction.client, user_id: member.id })
+  try {
+    const script_result = await get_user_script({ client: interaction.client, user_id: member.id })
 
-  if (!script_result.success) {
-    if (script_result.message) {
-      await api.edit_deferred_reply(interaction, script_result.message)
+    if (!script_result.success) {
+      if (script_result.message) {
+        await api.edit_deferred_reply(interaction, script_result.message)
+        return
+      }
+
+      const user_result = await luarmor.get_user_by_discord(member.id)
+
+      if (!user_result.success || !user_result.data) {
+        const redeem_modal = modal.create_modal(
+          "script_redeem_modal",
+          "Redeem Your Key",
+          modal.create_text_input({
+            custom_id   : "user_key",
+            label       : "Enter Your Key",
+            placeholder : "Paste your key here...",
+            required    : true,
+            min_length  : 30,
+            max_length  : 100,
+          }),
+        )
+
+        await interaction.followUp({ ...component.build_message({
+          components: [component.container({ components: [component.text("Please redeem your key first using the Redeem Key button.")] })],
+        }), ephemeral: true })
+        return
+      }
+
+      await api.edit_deferred_reply(interaction, component.build_message({
+        components: [
+          component.container({
+            components: [
+              component.text([
+                `## Error`,
+                `${script_result.error}`,
+              ]),
+            ],
+          }),
+        ],
+      }))
       return
     }
 
-    const user_result = await luarmor.get_user_by_discord(member.id)
-    
-    if (!user_result.success || !user_result.data) {
-      const redeem_modal = modal.create_modal(
-        "script_redeem_modal",
-        "Redeem Your Key",
-        modal.create_text_input({
-          custom_id   : "user_key",
-          label       : "Enter Your Key",
-          placeholder : "Paste your key here...",
-          required    : true,
-          min_length  : 30,
-          max_length  : 100,
-        }),
-      )
+    const loader_script = script_result.script!
 
-      await interaction.followUp({ content: "Please redeem your key first.", ephemeral: true})
-      return
-    }
-
-    const error_message = component.build_message({
+    await api.edit_deferred_reply(interaction, component.build_message({
       components: [
         component.container({
           components: [
             component.text([
-              `## Error`,
-              `${script_result.error}`,
+              `## Loader Script`,
+              `Copy and paste this script into your executor:`,
+            ]),
+          ],
+        }),
+        component.container({
+          components: [
+            component.text([
+              `\`\`\`lua`,
+              loader_script,
+              `\`\`\``,
+            ]),
+            component.divider(2),
+            component.text("-# Dont share your key or script with anyone else"),
+          ],
+        }),
+        component.container({
+          components: [
+            component.action_row(
+              component.secondary_button("Mobile Copy", "script_mobile_copy"),
+            ),
+          ],
+        }),
+      ],
+    }))
+  } catch (err) {
+    await log_error(interaction.client, err as Error, "Script Get Script", {
+      user_id : interaction.user.id,
+      guild_id: interaction.guildId ?? undefined,
+    }).catch(() => {})
+  }
+}
+
+/**
+ * @description Handles the mobile copy button — provides a minified single-line loader script.
+ * @param {ButtonInteraction} interaction - Discord button interaction
+ * @returns {Promise<void>}
+ */
+export async function handle_mobile_copy(interaction: ButtonInteraction): Promise<void> {
+  const member = interaction.member as GuildMember
+
+  await interaction.deferReply({ flags: 64 })
+
+  try {
+    const script_result = await get_user_script({ client: interaction.client, user_id: member.id })
+
+    if (!script_result.success) {
+      if (script_result.message) {
+        await api.edit_deferred_reply(interaction, script_result.message)
+        return
+      }
+
+      await api.edit_deferred_reply(interaction, component.build_message({
+        components: [
+          component.container({
+            components: [
+              component.text([
+                `## Error`,
+                `${script_result.error}`,
+              ]),
+            ],
+          }),
+        ],
+      }))
+      return
+    }
+
+    const loader_script = script_result.script!
+    const mobile_copy   = loader_script.replace(/\n/g, " ")
+
+    await api.edit_deferred_reply(interaction, component.build_message({
+      components: [
+        component.container({
+          components: [
+            component.text([
+              `## Mobile Copy`,
+              `\`${mobile_copy}\``,
             ]),
           ],
         }),
       ],
-    })
-
-    await api.edit_deferred_reply(interaction, error_message)
-    return
+    }))
+  } catch (err) {
+    await log_error(interaction.client, err as Error, "Script Mobile Copy", {
+      user_id : interaction.user.id,
+      guild_id: interaction.guildId ?? undefined,
+    }).catch(() => {})
   }
-
-  const loader_script = script_result.script!
-
-  const message = component.build_message({
-    components: [
-      component.container({
-        components: [
-          component.text([
-            `## Loader Script`,
-            `Copy and paste this script into your executor:`,
-          ]),
-        ],
-      }),
-      component.container({
-        components: [
-          component.text([
-            `\`\`\`lua`,
-            loader_script,
-            `\`\`\``,
-          ]),
-          component.divider(2),
-          component.text("-# Dont share your key or script with anyone else"),
-        ],
-      }),
-      component.container({
-        components: [
-          component.action_row(
-            component.secondary_button("Mobile Copy", "script_mobile_copy"),
-          ),
-        ],
-      }),
-    ],
-  })
-
-  await api.edit_deferred_reply(interaction, message)
-}
-
-export async function handle_mobile_copy(interaction: ButtonInteraction): Promise<void> {
-  const member = interaction.member as GuildMember
-
-  const script_result = await get_user_script({ client: interaction.client, user_id: member.id })
-
-  if (!script_result.success) {
-    if (script_result.message) {
-      await interaction.reply({ ...script_result.message, ephemeral: true})
-      return
-    }
-    await interaction.reply({
-      content   : `## Error\n${script_result.error}`, ephemeral: true,
-    })
-    return
-  }
-
-  const loader_script = script_result.script!
-  const mobile_copy   = loader_script.replace(/\n/g, " ")
-
-  await interaction.reply({
-    content   : `\`${mobile_copy}\``, ephemeral: true,
-  })
 }

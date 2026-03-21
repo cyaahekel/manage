@@ -7,18 +7,22 @@
  * See the LICENSE file for more information.
  */
 
-// - 处理脚本兑换 modal 的提交 - \
-// - handles the script redeem modal submission - \
-// - 密钥兑换模态框 - \
-// - key redeem modal - \
+// - 处理脚本兑换 modal 的提交 - \\
+// - handles the script redeem modal submission - \\
 
 import { ModalSubmitInteraction, GuildMember } from "discord.js"
-import { component, api, env, format }  from "@shared/utils"
-import { member_has_role }               from "@shared/utils/discord_api"
-import { redeem_user_key }             from "@atomic/modules/service_provider/controller"
+import { log_error }                            from "@shared/utils/error_logger"
+import { component, api, env, format }          from "@shared/utils"
+import { member_has_role }                      from "@shared/utils/discord_api"
+import { redeem_user_key }                      from "@atomic/modules/service_provider/controller"
 
 const __script_role_id = env.get("LUARMOR_SCRIPT_ROLE_ID", "1398313779380617459")
 
+/**
+ * @description Handles the script redeem modal — validates key, links Discord account, and assigns role.
+ * @param {ModalSubmitInteraction} interaction - Discord modal submit interaction
+ * @returns {Promise<boolean>} Returns true if this modal was handled
+ */
 export async function handle_script_redeem_modal(interaction: ModalSubmitInteraction): Promise<boolean> {
   if (interaction.customId !== "script_redeem_modal") return false
 
@@ -53,7 +57,11 @@ export async function handle_script_redeem_modal(interaction: ModalSubmitInterac
     if (role && !member_has_role(member as any, __script_role_id)) {
       await member.roles.add(role)
     }
-  } catch {
+  } catch (err) {
+    await log_error(interaction.client, err as Error, "Script Redeem Modal - Role Assign", {
+      user_id : interaction.user.id,
+      guild_id: interaction.guildId ?? undefined,
+    }).catch(() => {})
   }
 
   const loader_script = result.script!
