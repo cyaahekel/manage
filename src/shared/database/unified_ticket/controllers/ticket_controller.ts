@@ -72,7 +72,6 @@ export async function handle_ticket_button(interaction: ButtonInteraction): Prom
   }
 
   __interaction_locks.add(lock_key)
-
   try {
     for (const [type_key, config] of Object.entries(ticket_types)) {
       const prefix = config.prefix

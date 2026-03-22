@@ -54,7 +54,7 @@ export async function handle_staff_info_button(interaction: ButtonInteraction): 
     ]
 
     const message_payload = {
-      flags: 64,
+      flags: 32768 | 64,
       components: [
         container({ components: components_list }),
         container({ components: info_components }),

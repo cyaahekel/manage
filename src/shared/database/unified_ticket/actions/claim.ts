@@ -50,7 +50,7 @@ export async function claim_ticket(interaction: ButtonInteraction, ticket_type: 
           }),
         ],
       }),
-      flags: 64,
+      ephemeral: true,
     })
     return
   }
