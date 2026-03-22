@@ -35,6 +35,108 @@
 
 ---
 
+## Architecture
+
+```mermaid
+flowchart TD
+    Entry["src/index.ts\nMulti-bot launcher"]
+
+    Entry --> A["atomic_bot.ts"]
+    Entry --> J["jkt48_bot.ts"]
+    Entry --> B["bypass_bot.ts"]
+
+    subgraph ATOMIC["Atomic Bot"]
+        A --> AC["core/handlers\ncommand · button · modal · select"]
+        AC --> AM["modules/\nmoderation · tickets · payments\nmusic · reminder · tempvoice · ..."]
+    end
+
+    subgraph JKT48["JKT48 Bot"]
+        J --> JC["core/controllers\nIDN · Showroom · scheduler"]
+        JC --> JM["modules/\nnotify · history_live · ..."]
+    end
+
+    subgraph BYPASS["Bypass Bot"]
+        B --> BC["core/events · limits · select_menus"]
+        BC --> BM["modules/\nbypass · bypass_channel_set · ..."]
+    end
+
+    ATOMIC & JKT48 & BYPASS --> SHARED
+
+    subgraph SHARED["src/shared/"]
+        DB["database/\nmanagers · services · unified_ticket"]
+        UTILS["utils/\ncomponent · api · modal · logger"]
+        CONST["constants + enums + models"]
+        DB --- UTILS --- CONST
+    end
+
+    SHARED --> PG[("PostgreSQL")]
+    SHARED --> DAPI["Discord REST API"]
+
+    subgraph WEB["web/ — Next.js Dashboard"]
+        WEBAPP["app/ routes"]
+        WEBAPI["app/api/ — REST endpoints"]
+        WEBAPP --- WEBAPI
+    end
+
+    WEB --> PG
+```
+
+---
+
+## Interaction Routing
+
+```mermaid
+flowchart LR
+    Discord["Discord Gateway\nWebSocket event"] --> Handler["interactionCreate\nlistener"]
+
+    Handler --> CMD{"Interaction\ntype?"}
+
+    CMD -- "ChatInputCommand" --> SlashCmd["modules/<feature>/commands/*.ts\nexecute()"]
+    CMD -- "ButtonInteraction" --> Btn["core/handlers/buttons/\nor modules/.../interactions/buttons/"]
+    CMD -- "ModalSubmit" --> Mdl["core/handlers/modals/\nor modules/.../interactions/modals/"]
+    CMD -- "SelectMenu" --> Sel["modules/.../interactions/select_menus/"]
+    CMD -- "Autocomplete" --> Auto["command.autocomplete()"]
+
+    SlashCmd & Btn & Mdl & Sel --> CV2["component.build_message()\nComponent V2 reply\nflags: 32768"]
+    CV2 --> Discord
+```
+
+---
+
+## TempVoice Flow
+
+```mermaid
+flowchart TD
+    Join["User joins\n➕・create-voice"] --> VSU["VoiceStateUpdate\nevent"]
+    VSU --> Match{"channelId ==\ngeneratorId?"}
+    Match -- "no" --> Other["handle thread\nadd / remove"]
+    Match -- "yes" --> Existing{"User already\nhas channel?"}
+
+    Existing -- "yes" --> Move1["member.voice.setChannel\nexisting channel"]
+    Existing -- "no" --> Create["guild.channels.create\nnew VoiceChannel\n+ permission overwrites"]
+
+    Create --> RegMap["Register in-memory maps\n__temp_channels / __channel_owners\n__trusted_users / __blocked_users"]
+    RegMap --> MoveNow["member.voice.setChannel\nnew channel\n← user is here IMMEDIATELY"]
+
+    MoveNow --> BG["Background IIFE\nnon-blocking"]
+
+    subgraph BG_TASKS["Background tasks (fire-and-forget)"]
+        T1["voice_tracker.track_channel_created\nDB insert"]
+        T2["restore_channel_settings\napply saved name · limit · privacy\nper-user permission overwrites"]
+        T3["create_thread\nprivate thread + interface panel"]
+        T1 --> T2 --> T3
+    end
+
+    BG --> BG_TASKS
+
+    Leave["User leaves\ntemp channel"] --> Timer["setTimeout 2 s\nrace-condition guard"]
+    Timer --> Empty{"member\ncount == 0?"}
+    Empty -- "no" --> Keep["Keep channel alive"]
+    Empty -- "yes" --> Del["delete_temp_channel\narchive thread\ncleanup maps & DB"]
+```
+
+---
+
 ## Prerequisites
 
 - Node.js >= 20.19.0
