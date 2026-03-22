@@ -483,16 +483,8 @@ export async function create_temp_channel(member: GuildMember): Promise<VoiceCha
     __blocked_users.set(channel.id, new Set())
     __waiting_rooms.set(channel.id, false)
 
-    await voice_tracker.track_channel_created(channel.id, member.id, guild.id)
-
-    const has_saved_settings = __saved_settings.has(member.id)
-    if (has_saved_settings) {
-      await restore_channel_settings(channel, member)
-      __log.info(`[ - AUTO RESTORED - ] Settings applied for ${member.displayName}`)
-    }
-
-    __log.info(`Created temp channel: ${channel.name} for ${member.displayName}`)
-
+    // - 立即移动成员，无需等待后台任务 - \\
+    // - move member immediately without waiting for background tasks - \\
     try {
       await member.voice.setChannel(channel)
       __log.info(`Moved ${member.displayName} to channel: ${channel.name}`)
@@ -500,13 +492,27 @@ export async function create_temp_channel(member: GuildMember): Promise<VoiceCha
       __log.error(`Failed to move ${member.displayName} to channel:`, err)
     }
 
-    console.log(`[ - TEMPVOICE - ] Creating thread for ${channel.name}...`)
-    const thread_id = await create_thread(channel, member)
-    if (thread_id) {
-      console.log(`[ - TEMPVOICE - ] Thread created: ${thread_id}`)
-    } else {
-      console.log(`[ - TEMPVOICE - ] Failed to create thread`)
-    }
+    __log.info(`Created temp channel: ${channel.name} for ${member.displayName}`)
+
+    // - 后台异步：追踪、恢复设置、创建线程，不阻塞移动操作 - \\
+    // - background async: tracking, settings restore, thread creation - \\
+    ;(async () => {
+      await voice_tracker.track_channel_created(channel.id, member.id, guild.id).catch(() => {})
+
+      if (__saved_settings.has(member.id)) {
+        await restore_channel_settings(channel, member).catch(() => {})
+        __log.info(`[ - AUTO RESTORED - ] Settings applied for ${member.displayName}`)
+      }
+
+      const thread_id = await create_thread(channel, member)
+      if (thread_id) {
+        console.log(`[ - TEMPVOICE - ] Thread created: ${thread_id}`)
+      } else {
+        console.log(`[ - TEMPVOICE - ] Failed to create thread`)
+      }
+    })().catch(err => {
+      __log.error("Background tempvoice setup failed:", err)
+    })
 
     return channel
   } catch (error) {
