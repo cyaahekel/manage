@@ -22,9 +22,10 @@ interface booster_config {
 }
 
 /**
- * - CHECK BOOST SYSTEM MESSAGE - \\
- * @param {Message} message - Discord message
- * @returns {boolean} True when message is boost system log
+ * - 检查 Boost 系统消息 - \\
+ * - check boost system message - \\
+ * @param {Message} message - discord message
+ * @returns {boolean} true when message is boost system log
  */
 function is_boost_system_message(message: Message): boolean {
   const boost_message_types = new Set<number>([8, 9, 10, 11])

@@ -36,7 +36,8 @@ const whois: Command = {
       return
     }
 
-    // - FETCH GUILD ROLES VIA REST SINCE GUILD ROLE CACHE IS DISABLED - \\
+    // - 通过 REST 获取服务器角色（角色缓存已禁用） - \\
+    // - fetch guild roles via rest since guild role cache is disabled - \\
     const guild_roles = await interaction.guild!.roles.fetch().catch(() => null)
     const raw_roles   = (member as any)._roles as string[] ?? []
     const role_list   = guild_roles

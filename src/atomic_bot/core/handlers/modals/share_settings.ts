@@ -15,9 +15,10 @@ import { log_error }               from "@shared/utils/error_logger"
 import * as share_settings         from "@atomic/core/handlers/shared/controller/share_settings_controller"
 
 /**
- * - HANDLE SHARE SETTINGS MODAL - \\
- * @param {ModalSubmitInteraction} interaction - Modal submit interaction
- * @returns {Promise<boolean>} Handled
+ * - 处理分享设置模态框 - \\
+ * - handle share settings modal - \\
+ * @param {ModalSubmitInteraction} interaction - modal submit interaction
+ * @returns {Promise<boolean>} handled
  */
 export async function handle_share_settings_modal(interaction: ModalSubmitInteraction): Promise<boolean> {
   if (!interaction.customId.startsWith("share_settings_modal:") && !interaction.customId.startsWith("share_settings_edit:")) {

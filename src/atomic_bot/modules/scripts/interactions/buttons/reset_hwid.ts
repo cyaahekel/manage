@@ -17,8 +17,8 @@ import { reset_user_hwid }                 from "@atomic/modules/service_provide
 import { is_hwid_enabled }                 from "@atomic/modules/setup/commands/hwid_control"
 
 /**
- * @description Handles the reset HWID button — checks if enabled then resets the user's hardware ID.
- * @param {ButtonInteraction} interaction - Discord button interaction
+ * @description handles the reset hwid button — checks if enabled then resets the user's hardware id.
+ * @param {ButtonInteraction} interaction - discord button interaction
  * @returns {Promise<void>}
  */
 export async function handle_reset_hwid(interaction: ButtonInteraction): Promise<void> {

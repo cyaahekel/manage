@@ -33,7 +33,7 @@ let __bot_ready      = false
 let __discord_client : Client | null = null
 
 /**
- * @description Set bot ready status for health checks
+ * @description set bot ready status for health checks
  * @param ready - Boolean indicating if bot is ready
  * @returns void
  */
@@ -43,7 +43,7 @@ export function set_bot_ready(ready: boolean): void {
 }
 
 /**
- * @description Start Express HTTP server
+ * @description start Express HTTP server
  * @param client - Discord client instance
  * @returns void
  */
@@ -62,14 +62,16 @@ export function start_webhook_server(client: Client): void {
   app.use(express.json({ limit: "10mb" }))
   app.use(express.urlencoded({ extended: true, limit: "10mb" }))
 
-  // - RAILWAY KEEPALIVE - \\
+  // - Railway 保活机制 - \\
+  // - railway keepalive - \\
   app.use((_req, res, next) => {
     res.setHeader("Connection", "keep-alive")
     res.setHeader("Keep-Alive", "timeout=120")
     next()
   })
 
-  // - MOUNT ROUTERS - \\
+  // - 挂载路由器 - \\
+  // - mount routers - \\
   app.use(create_health_router(() => __bot_ready, client, __port, __public_url))
   app.use(create_webhook_router(client))
   app.use("/api", create_bot_router(client, __main_guild_id))

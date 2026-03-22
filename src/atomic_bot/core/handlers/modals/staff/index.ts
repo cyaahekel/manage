@@ -7,9 +7,8 @@
  * See the LICENSE file for more information.
  */
 
-// - 员工 modal handler 的统一导出 - \
-// - barrel export for staff modal handlers - \
-// - STAFF MODAL HANDLERS - \\
+// - 员工 modal handler 的统一导出 - \\
+// - staff modal handlers - \\
 
 export { handle_ask_staff_modal }     from "./ask_staff"
 export { handle as handle_devlog }    from "./devlog"

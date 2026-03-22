@@ -39,7 +39,7 @@ interface TicketData {
 }
 
 /**
- * @description Get all tickets opened before a specific date
+ * @description get all tickets opened before a specific date
  * @param before_date - Unix timestamp in milliseconds
  * @returns Array of ticket data
  */
@@ -59,7 +59,7 @@ async function get_tickets_before_date(before_date: number): Promise<TicketData[
 }
 
 /**
- * @description Get all ticket parent IDs from config
+ * @description get all ticket parent IDs from config
  * @returns Array of parent channel IDs
  */
 function get_ticket_parent_ids(): string[] {
@@ -67,7 +67,7 @@ function get_ticket_parent_ids(): string[] {
 }
 
 /**
- * @description Get active ticket threads opened before a specific date
+ * @description get active ticket threads opened before a specific date
  * @param before_date - Unix timestamp in milliseconds
  * @param guild - Guild instance
  * @returns Array of thread IDs
@@ -95,7 +95,7 @@ async function get_active_threads_before_date(before_date: number, guild: Guild)
 }
 
 /**
- * @description Build simple text message for component v2
+ * @description build simple text message for component v2
  * @param text - Message text
  * @returns Message payload
  */
@@ -110,7 +110,7 @@ function build_simple_message(text: string): component.message_payload {
 }
 
 /**
- * @description Build progress message for bulk close
+ * @description build progress message for bulk close
  * @param closed - Number of closed tickets
  * @param failed - Number of failed tickets
  * @param total - Total tickets to process
@@ -142,7 +142,7 @@ function build_progress_message(closed: number, failed: number, total: number, b
 }
 
 /**
- * @description Build confirmation message for clear ticket operation
+ * @description build confirmation message for clear ticket operation
  * @param count - Number of tickets to be closed
  * @param before_date - Date string
  * @returns Message payload
@@ -170,7 +170,7 @@ function build_confirmation_message(count: number, before_date: string): compone
 }
 
 /**
- * @description Build result message for clear ticket operation
+ * @description build result message for clear ticket operation
  * @param closed - Number of successfully closed tickets
  * @param failed - Number of failed tickets
  * @param before_date - Date string
@@ -195,7 +195,7 @@ function build_result_message(closed: number, failed: number, before_date: strin
 }
 
 /**
- * @description Parse date string to Unix timestamp
+ * @description parse date string to Unix timestamp
  * @param date_str - Date string in format YYYY-MM-DD
  * @returns Unix timestamp in milliseconds or null if invalid
  */
@@ -222,7 +222,8 @@ export const command: Command = {
   async execute(interaction: ChatInputCommandInteraction): Promise<void> {
     const member = interaction.member as GuildMember
 
-    // - PERMISSION CHECK - \\
+    // - 权限检查 - \\
+    // - permission check - \\
     if (!is_admin_or_mod(member)) {
       await interaction.reply({
         content   : "You don't have permission to use this command.", ephemeral: true,
@@ -250,7 +251,8 @@ export const command: Command = {
     await interaction.deferReply({ flags: 64 })
 
     try {
-      // - RELOAD TICKETS FROM DATABASE - \\
+      // - 从数据库重新加载工单 - \\
+      // - reload tickets from database - \\
       await load_all_tickets()
 
       const tickets_from_db = await get_tickets_before_date(before_date)
@@ -275,7 +277,8 @@ export const command: Command = {
         return
       }
 
-      // - SEND CONFIRMATION - \\
+      // - 发送确认 - \\
+      // - send confirmation - \\
       const confirmation = build_confirmation_message(tickets.length, date_str)
 
       const reply = await interaction.editReply({
@@ -283,7 +286,8 @@ export const command: Command = {
         flags: MessageFlags.IsComponentsV2,
       })
 
-      // - WAIT FOR BUTTON INTERACTION - \\
+      // - 等待按鈕交互 - \\
+      // - wait for button interaction - \\
       const collector = reply.createMessageComponentCollector({
         time: 60000,
       })
@@ -334,14 +338,16 @@ export const command: Command = {
 
                 closed++
               } else {
-                // - CHANNEL NOT FOUND, DELETE FROM DATABASE - \\
+                // - 频道不存在，从数据库删除 - \\
+                // - channel not found, delete from database - \\
                 if (db.is_connected()) {
                   await db.delete_one(__tickets_collection, { thread_id: ticket.thread_id })
                 }
                 closed++
               }
 
-              // - PROGRESS UPDATE - \\
+              // - 进度更新 - \\
+              // - progress update - \\
               if ((index + 1) % 25 === 0 || index + 1 === tickets.length) {
                 await interaction.editReply({
                   ...build_progress_message(closed, failed, tickets.length, date_str),
@@ -349,7 +355,8 @@ export const command: Command = {
                 }).catch(() => {})
               }
 
-              // - DELAY TO AVOID RATE LIMITING - \\
+              // - 延迟以避免频率限制 - \\
+              // - delay to avoid rate limiting - \\
               await new Promise(resolve => setTimeout(resolve, 300))
             } catch (error) {
               failed++

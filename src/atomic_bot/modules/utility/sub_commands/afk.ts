@@ -7,8 +7,8 @@
  * See the LICENSE file for more information.
  */
 
-// - AFK 子命令处理，检测提及 AFK 用户 - \
-// - AFK sub-command handler, detects when AFK users are mentioned - \
+// - AFK 子命令处理，检测提及 AFK 用户 - \\
+// - AFK sub-command handler, detects when AFK users are mentioned - \\
 import { Client, Message }                     from "discord.js"
 import { SubCommand }                        from "@shared/types/sub_command"
 import { set_afk, is_ignored_channel }       from "../../../infrastructure/cache/afk"

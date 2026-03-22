@@ -19,9 +19,9 @@ import { redeem_user_key }                      from "@atomic/modules/service_pr
 const __script_role_id = env.get("LUARMOR_SCRIPT_ROLE_ID", "1398313779380617459")
 
 /**
- * @description Handles the script redeem modal — validates key, links Discord account, and assigns role.
- * @param {ModalSubmitInteraction} interaction - Discord modal submit interaction
- * @returns {Promise<boolean>} Returns true if this modal was handled
+ * @description handles the script redeem modal — validates key, links Discord account, and assigns role.
+ * @param {ModalSubmitInteraction} interaction - discord modal submit interaction
+ * @returns {Promise<boolean>} returns true if this modal was handled
  */
 export async function handle_script_redeem_modal(interaction: ModalSubmitInteraction): Promise<boolean> {
   if (interaction.customId !== "script_redeem_modal") return false

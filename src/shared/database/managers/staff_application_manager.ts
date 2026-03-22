@@ -35,7 +35,7 @@ export interface staff_application {
 const __collection = "staff_applications"
 
 /**
- * @description Check if a user has already applied for staff
+ * @description check if a user has already applied for staff
  * @param discord_id The user's Discord ID
  * @returns boolean True if applied, false otherwise
  */
@@ -45,12 +45,13 @@ export async function has_user_applied(discord_id: string): Promise<boolean> {
 }
 
 /**
- * @description Submit a new staff application
+ * @description submit a new staff application
  * @param data The staff application data
  * @returns "ok" on success, "duplicate" if already applied
  */
 export async function submit_application(data: staff_application): Promise<"ok"> {
-  // - UPSERT: remove any stale record first, then insert fresh - \\
+  // - 口述：先删除旧记录，再插入新记录 - \\
+  // - upsert: remove any stale record first, then insert fresh - \\
   await delete_one(__collection, { discord_id: data.discord_id }).catch(() => {})
   await db.insert_one(__collection, data)
 
@@ -58,7 +59,7 @@ export async function submit_application(data: staff_application): Promise<"ok">
 }
 
 /**
- * @description Get a user's staff application by discord_id
+ * @description get a user's staff application by discord_id
  * @param discord_id The user's Discord ID
  * @returns The staff application or null
  */

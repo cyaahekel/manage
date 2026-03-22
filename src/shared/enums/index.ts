@@ -7,7 +7,8 @@
  * See the LICENSE file for more information.
  */
 
-// - BARREL EXPORT FOR SHARED ENUMS - \\
+// - 共享枚举的统一导出 - \\
+// - barrel export for shared enums - \\
 export * from "./loa_status"
 export * from "./ticket_status"
 export * from "./ticket_type"

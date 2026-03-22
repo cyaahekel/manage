@@ -13,14 +13,16 @@ import { StringSelectMenuInteraction } from "discord.js"
 import { component, api } from "@shared/utils"
 import { get_ticket } from "@shared/database/unified_ticket"
 
-// - PAYMENT DETAIL INTERFACES - \\
+// - 支付详情接口定义 - \\
+// - payment detail interfaces - \\
 interface payment_detail {
   title: string
   content: string[]
   image?: string
 }
 
-// - NORMAL TICKET PAYMENT DETAILS - \\
+// - 普通工单支付详情 - \\
+// - normal ticket payment details - \\
 const payment_details: Record<string, payment_detail> = {
   qris: {
     title   : "QRIS Payment",
@@ -69,7 +71,8 @@ const payment_details: Record<string, payment_detail> = {
   },
 }
 
-// - MIDDLEMAN TICKET PAYMENT DETAILS - \\
+// - 中间人工单支付详情 - \\
+// - middleman ticket payment details - \\
 const middleman_payment_details: Record<string, payment_detail> = {
   qris: {
     title   : "QRIS Payment",
@@ -129,14 +132,15 @@ const middleman_payment_details: Record<string, payment_detail> = {
 }
 
 /**
- * @description Handles payment method selection for tickets
- * @param {StringSelectMenuInteraction} interaction - The select menu interaction
+ * @description handles payment method selection for tickets
+ * @param {StringSelectMenuInteraction} interaction - the select menu interaction
  * @returns {Promise<void>}
  */
 export async function handle_payment_method_select(interaction: StringSelectMenuInteraction): Promise<void> {
   const selected = interaction.values[0]
   
-  // - CHECK IF MIDDLEMAN TICKET FROM TICKET DATA - \\
+  // - 从工单数据检查是否为中间人工单 - \\
+  // - check if middleman ticket from ticket data - \\
   const thread_id    = interaction.channel?.id
   const ticket_data  = thread_id ? get_ticket(thread_id) : undefined
   const is_middleman = ticket_data?.ticket_type === "middleman"
@@ -152,7 +156,8 @@ export async function handle_payment_method_select(interaction: StringSelectMenu
 
   await interaction.deferReply({ flags: 32832 } as any)
 
-  // - BUILD MESSAGE USING COMPONENT UTILS - \\
+  // - 使用组件工具构建消息 - \\
+  // - build message using component utils - \\
   const message_components = details.image
     ? [
         component.text(details.content),

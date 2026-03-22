@@ -30,14 +30,16 @@ import { add_member }                                from "../actions/add_member
 import { modal, component }                          from "../../../utils"
 import { has_used_appeal, mark_appeal_used }         from "../../../database/managers/appeal_quarantine_manager"
 
-// - PREVENT RACE CONDITIONS FROM FAST CLICKING - \\
+// - 防止快速点击导致的竞争条件 - \\
+// - prevent race conditions from fast clicking - \\
 const __interaction_locks = new Set<string>()
 
 export async function handle_ticket_button(interaction: ButtonInteraction): Promise<boolean> {
   const custom_id = interaction.customId
   const lock_key  = interaction.user.id
 
-  // - CHECK IF IT'S A TICKET BUTTON BEFORE TOUCHING THE LOCK - \\
+  // - 操作锁之前检查是否为工单按鈕 - \\
+  // - check if it's a ticket button before touching the lock - \\
   const is_ticket_button = Object.values(ticket_types).some(({ prefix }) =>
     custom_id === `${prefix}_open`         ||
     custom_id === `${prefix}_close`        ||
@@ -153,7 +155,8 @@ export async function handle_ticket_button(interaction: ButtonInteraction): Prom
 
       await interaction.deferReply({ flags: 64 })
 
-      // - ONE-TIME APPEAL: BLOCK IF ALREADY USED - \\
+      // - 一次性申诉：若已使用则锁定 - \\
+      // - one-time appeal: block if already used - \\
       if (type_key === "appeal_quarantine") {
         const already_used = await has_used_appeal(interaction.user.id, interaction.guildId!)
         if (already_used) {
@@ -236,7 +239,8 @@ export async function handle_ticket_button(interaction: ButtonInteraction): Prom
 
   return false
   } finally {
-    // - RELEASE LOCK AFTER 2s TO PREVENT RAPID RE-TRIGGER - \\
+    // - 2 秒后释放锁以防止快速重复触发 - \\
+    // - release lock after 2s to prevent rapid re-trigger - \\
     setTimeout(() => __interaction_locks.delete(lock_key), 2000)
   }
 }

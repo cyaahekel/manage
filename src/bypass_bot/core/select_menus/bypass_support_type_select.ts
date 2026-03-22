@@ -12,9 +12,10 @@ import { component, cache }            from "@shared/utils"
 import { log_error }                   from "@shared/utils/error_logger"
 
 /**
- * - HANDLE BYPASS SUPPORT TYPE SELECT - \\
+ * - 处理绕过支持类型选择 - \\
+ * - handle bypass support type select - \\
  * 
- * @param {StringSelectMenuInteraction} interaction - Select menu interaction
+ * @param {StringSelectMenuInteraction} interaction - select menu interaction
  * @returns {Promise<void>}
  */
 export async function handle_bypass_support_type_select(interaction: StringSelectMenuInteraction): Promise<void> {
@@ -24,7 +25,8 @@ export async function handle_bypass_support_type_select(interaction: StringSelec
     const [, interaction_id] = interaction.customId.split(":")
     selected_type            = interaction.values[0]
 
-    // - GET CACHED SERVICES DATA - \\
+    // - 获取缓存的服务数据 - \\
+    // - get cached services data - \\
     const cache_key        = `bypass_services_${interaction_id}`
     const grouped_services = cache.get<Record<string, any[]>>(cache_key)
 
@@ -60,7 +62,8 @@ export async function handle_bypass_support_type_select(interaction: StringSelec
       return
     }
 
-    // - BUILD SERVICE LIST MESSAGE - \\
+    // - 构建服务列表消息 - \\
+    // - build service list message - \\
     const lines: string[] = [
       `## ${selected_type}`,
       `Total: **${type_services.length}** services`,
@@ -115,7 +118,8 @@ export async function handle_bypass_support_type_select(interaction: StringSelec
 
       await interaction.reply(error_message)
     } catch {
-      // - IGNORE - \\
+      // - 忽略 - \\
+      // - ignore - \\
     }
   }
 }

@@ -45,7 +45,7 @@ export const command: Command = {
 
   /**
    * - EXECUTE AFK COMMAND - \\
-   * @param {ChatInputCommandInteraction} interaction - Discord interaction
+   * @param {ChatInputCommandInteraction} interaction - discord interaction
    * @returns {Promise<void>}
    */
   async execute(interaction: ChatInputCommandInteraction): Promise<void> {

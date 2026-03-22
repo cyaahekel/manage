@@ -8,7 +8,8 @@
  */
 
 /**
- * - IDN LIVE API CLIENT - \\
+ * - IDN Live API 客户端 - \\
+ * - IDN live api client - \\
  * Direct IDN Live API integration for JKT48 members
  */ 
 
@@ -112,9 +113,10 @@ export interface live_room {
 }
 
 /**
- * - BUILD IDN PROFILE URL - \\
- * @param {string} username - IDN username
- * @returns {string} Profile URL
+ * - 构建 IDN 用户主页 URL - \\
+ * - build idn profile url - \\
+ * @param {string} username - iDN username
+ * @returns {string} profile URL
  */
 function build_idn_profile_url(username: string): string {
   if (!username) return __idn_live_base
@@ -122,10 +124,11 @@ function build_idn_profile_url(username: string): string {
 }
 
 /**
- * - BUILD IDN LIVE URL - \\
- * @param {string} username - IDN username
- * @param {string} slug - Live slug
- * @returns {string} Live URL
+ * - 构建 IDN 直播 URL - \\
+ * - build idn live url - \\
+ * @param {string} username - iDN username
+ * @param {string} slug - live slug
+ * @returns {string} live URL
  */
 function build_idn_live_url(username: string, slug: string): string {
   if (!username) return __idn_live_base
@@ -134,9 +137,10 @@ function build_idn_live_url(username: string, slug: string): string {
 }
 
 /**
- * - NORMALIZE IDN LIVE TIMESTAMP - \\
- * @param {number | string} live_at - Live timestamp value
- * @returns {string} ISO date string
+ * - 标准化 IDN 直播时间戳 - \\
+ * - normalize idn live timestamp - \\
+ * @param {number | string} live_at - live timestamp value
+ * @returns {string} iSO date string
  */
 function normalize_live_timestamp(live_at: number | string): string {
   const numeric = typeof live_at === "string" ? Number(live_at) : live_at
@@ -146,9 +150,10 @@ function normalize_live_timestamp(live_at: number | string): string {
 }
 
 /**
- * - LOAD IDN ROSTER CACHE - \\
- * @param {Client} client - Discord client
- * @returns {Promise<idn_roster_cache | null>} Cached roster
+ * - 加载 IDN 名单缓存 - \\
+ * - load idn roster cache - \\
+ * @param {Client} client - discord client
+ * @returns {Promise<idn_roster_cache | null>} cached roster
  */
 async function load_idn_roster_cache(client: Client): Promise<idn_roster_cache | null> {
   if (!db.is_connected()) {
@@ -166,10 +171,11 @@ async function load_idn_roster_cache(client: Client): Promise<idn_roster_cache |
 }
 
 /**
- * - SAVE IDN ROSTER CACHE - \\
- * @param {Client} client - Discord client
- * @param {jkt48_member[]} members - Member list
- * @param {string} source - Data source
+ * - 保存 IDN 名单缓存 - \\
+ * - save idn roster cache - \\
+ * @param {Client} client - discord client
+ * @param {jkt48_member[]} members - member list
+ * @param {string} source - data source
  * @returns {Promise<void>}
  */
 async function save_idn_roster_cache(client: Client, members: jkt48_member[], source: string): Promise<void> {
@@ -197,9 +203,10 @@ async function save_idn_roster_cache(client: Client, members: jkt48_member[], so
 }
 
 /**
- * - FETCH IDN UUID LIST - \\
- * @param {Client} client - Discord client
- * @returns {Promise<string[]>} UUID list
+ * - 获取 IDN UUID 列表 - \\
+ * - fetch idn uuid list - \\
+ * @param {Client} client - discord client
+ * @returns {Promise<string[]>} uUID list
  */
 async function fetch_idn_uuid_list(client: Client): Promise<string[]> {
   try {
@@ -233,9 +240,10 @@ async function fetch_idn_uuid_list(client: Client): Promise<string[]> {
 }
 
 /**
- * - GET IDN UUID BY USERNAME - \\
- * @param {string} username - IDN username
- * @returns {string | null} UUID or null
+ * - 通过用户名获取 IDN UUID - \\
+ * - get idn uuid by username - \\
+ * @param {string} username - iDN username
+ * @returns {string | null} uUID or null
  */
 export function get_idn_uuid_by_username(username: string): string | null {
   try {
@@ -266,9 +274,10 @@ export function get_idn_uuid_by_username(username: string): string | null {
 }
 
 /**
- * - BUILD ROSTER ENDPOINTS - \\
- * @param {string} base - Roster API base
- * @returns {string[]} Endpoint list
+ * - 构建名单接口端点 - \\
+ * - build roster endpoints - \\
+ * @param {string} base - roster API base
+ * @returns {string[]} endpoint list
  */
 function build_roster_endpoints(base: string): string[] {
   const normalized = base.replace(/\/+$/, "")
@@ -289,10 +298,11 @@ function build_roster_endpoints(base: string): string[] {
 }
 
 /**
- * - MATCH MEMBER SEARCH - \\
- * @param {jkt48_member[]} members - Member list
- * @param {string} search - Search keyword
- * @returns {jkt48_member | null} Matched member
+ * - 匹配成员搜索 - \\
+ * - match member search - \\
+ * @param {jkt48_member[]} members - member list
+ * @param {string} search - search keyword
+ * @returns {jkt48_member | null} matched member
  */
 function match_member_search(members: jkt48_member[], search: string): jkt48_member | null {
   const normalized_search = search.toLowerCase().trim()
@@ -309,9 +319,10 @@ function match_member_search(members: jkt48_member[], search: string): jkt48_mem
 }
 
 /**
- * - BUILD USERNAME CANDIDATES - \\
- * @param {string} input - Raw user input
- * @returns {string[]} Candidate usernames
+ * - 构建用户名候选列表 - \\
+ * - build username candidates - \\
+ * @param {string} input - raw user input
+ * @returns {string[]} candidate usernames
  */
 function build_username_candidates(input: string): string[] {
   const normalized  = input.toLowerCase().trim().replace(/^@/, "")
@@ -344,9 +355,10 @@ function build_username_candidates(input: string): string[] {
 }
 
 /**
- * - CHECK JKT48 PROFILE - \\
- * @param {idn_public_profile} profile - Public profile
- * @returns {boolean} True when profile is JKT48
+ * - 检查 JKT48 用户主页 - \\
+ * - check jkt48 profile - \\
+ * @param {idn_public_profile} profile - public profile
+ * @returns {boolean} true when profile is JKT48
  */
 function is_jkt48_profile(profile: idn_public_profile): boolean {
   const name     = profile.name.toLowerCase()
@@ -355,9 +367,10 @@ function is_jkt48_profile(profile: idn_public_profile): boolean {
 }
 
 /**
- * - LOAD IDN CFG MEMBERS - \\
- * @param {Client} client - Discord client
- * @returns {Promise<jkt48_member[]>} Member list
+ * - 加载 IDN 配置成员 - \\
+ * - load idn cfg members - \\
+ * @param {Client} client - discord client
+ * @returns {Promise<jkt48_member[]>} member list
  */
 async function load_idn_cfg_members(client: Client): Promise<jkt48_member[]> {
   try {
@@ -398,9 +411,10 @@ async function load_idn_cfg_members(client: Client): Promise<jkt48_member[]> {
 }
 
 /**
- * - FETCH ALL IDN LIVES - \\
- * @param {Client} client - Discord client
- * @returns {Promise<any[]>} Raw IDN live list
+ * - 获取所有 IDN 直播 - \\
+ * - fetch all idn lives - \\
+ * @param {Client} client - discord client
+ * @returns {Promise<any[]>} raw IDN live list
  */
 async function fetch_all_idn_lives(client: Client): Promise<any[]> {
   const results: any[] = []
@@ -442,10 +456,11 @@ async function fetch_all_idn_lives(client: Client): Promise<any[]> {
 }
 
 /**
- * - FETCH IDN LIVE DETAIL - \\
- * @param {string} slug - Live slug
- * @param {Client} client - Discord client
- * @returns {Promise<string | null>} Playback URL or null
+ * - 获取 IDN 直播详情 - \\
+ * - fetch idn live detail - \\
+ * @param {string} slug - live slug
+ * @param {Client} client - discord client
+ * @returns {Promise<string | null>} playback URL or null
  */
 async function fetch_live_detail(slug: string, client: Client): Promise<string | null> {
   if (!slug) return null
@@ -454,7 +469,8 @@ async function fetch_live_detail(slug: string, client: Client): Promise<string |
     return detail_cache.get(slug) || null
   }
 
-  // - SKIP RECENTLY FAILED SLUGS TO AVOID HAMMERING IDN API - \\
+  // - 跳过最近失败的 slug 以避免粘労 IDN API - \\
+  // - skip recently failed slugs to avoid hammering IDN API - \\
   const failed_at = detail_failed_cache.get(slug)
   if (failed_at && (Date.now() - failed_at) < __detail_failed_ttl) {
     return null
@@ -488,10 +504,12 @@ async function fetch_live_detail(slug: string, client: Client): Promise<string |
         continue
       }
 
-      // - ALL ATTEMPTS EXHAUSTED - \\
+      // - 所有尝试均已耗尽 - \\
+      // - all attempts exhausted - \\
       detail_failed_cache.set(slug, Date.now())
       if (is_timeout || is_server_err) {
-        // - TRANSIENT ERROR (TIMEOUT / 5XX), SKIP LOGGING TO AVOID NOISE - \\
+        // - 瞬时错误（超时/5XX），跳过日志以减少噪音 - \\
+        // - transient error (timeout / 5xx), skip logging to avoid noise - \\
         console.warn(`[ - IDN LIVE - ] fetch_live_detail skipped for ${slug}: ${is_timeout ? "timeout" : `HTTP ${status}`}`)
       } else {
         await log_error(client, error as Error, "idn_live_fetch_detail_api", { slug, attempt }).catch(() => {})
@@ -504,10 +522,11 @@ async function fetch_live_detail(slug: string, client: Client): Promise<string |
 }
 
 /**
- * - FETCH PUBLIC PROFILE - \\
- * @param {string} username - IDN username
- * @param {Client} client - Discord client
- * @returns {Promise<idn_public_profile | null>} Public profile data or null
+ * - 获取公开用户主页 - \\
+ * - fetch public profile - \\
+ * @param {string} username - iDN username
+ * @param {Client} client - discord client
+ * @returns {Promise<idn_public_profile | null>} public profile data or null
  */
 async function fetch_public_profile_by_username(username: string, client: Client): Promise<idn_public_profile | null> {
   try {
@@ -542,10 +561,11 @@ async function fetch_public_profile_by_username(username: string, client: Client
 }
 
 /**
- * - FETCH PUBLIC PROFILE BY UUID - \\
- * @param {string} uuid - IDN user UUID
- * @param {Client} client - Discord client
- * @returns {Promise<idn_public_profile | null>} Public profile data or null
+ * - 通过 UUID 获取公开用户主页 - \\
+ * - fetch public profile by uuid - \\
+ * @param {string} uuid - iDN user UUID
+ * @param {Client} client - discord client
+ * @returns {Promise<idn_public_profile | null>} public profile data or null
  */
 async function fetch_public_profile_by_uuid(uuid: string, client: Client): Promise<idn_public_profile | null> {
   try {
@@ -580,9 +600,10 @@ async function fetch_public_profile_by_uuid(uuid: string, client: Client): Promi
 }
 
 /**
- * - FETCH IDN ROSTER BY UUID - \\
- * @param {Client} client - Discord client
- * @returns {Promise<jkt48_member[]>} Roster list
+ * - 通过 UUID 获取 IDN 名单 - \\
+ * - fetch idn roster by uuid - \\
+ * @param {Client} client - discord client
+ * @returns {Promise<jkt48_member[]>} roster list
  */
 async function fetch_idn_roster_by_uuid(client: Client): Promise<jkt48_member[]> {
   const uuid_list = await fetch_idn_uuid_list(client)
@@ -616,9 +637,10 @@ async function fetch_idn_roster_by_uuid(client: Client): Promise<jkt48_member[]>
 }
 
 /**
- * - FETCH IDN ROSTER - \\
- * @param {Client} client - Discord client
- * @returns {Promise<jkt48_member[]>} Roster list
+ * - 获取 IDN 名单 - \\
+ * - fetch idn roster - \\
+ * @param {Client} client - discord client
+ * @returns {Promise<jkt48_member[]>} roster list
  */
 async function fetch_idn_roster(client: Client): Promise<jkt48_member[]> {
   try {
@@ -712,9 +734,10 @@ async function fetch_idn_roster(client: Client): Promise<jkt48_member[]> {
 }
 
 /**
- * - FETCH IDN LIVE DATA - \\
- * @param {Client} client - Discord client
- * @returns {Promise<idn_livestream[]>} IDN Live data
+ * - 获取 IDN 直播数据 - \\
+ * - fetch idn live data - \\
+ * @param {Client} client - discord client
+ * @returns {Promise<idn_livestream[]>} iDN Live data
  */
 async function fetch_idn_live_data(client: Client): Promise<idn_livestream[]> {
   const now = Date.now()
@@ -773,9 +796,10 @@ async function fetch_idn_live_data(client: Client): Promise<idn_livestream[]> {
 }
 
 /**
- * - GET ALL JKT48 MEMBERS - \\
- * @param {Client} client - Discord client
- * @returns {Promise<jkt48_member[]>} List of all JKT48 members from IDN Live
+ * - 获取所有 JKT48 成员 - \\
+ * - get all jkt48 members - \\
+ * @param {Client} client - discord client
+ * @returns {Promise<jkt48_member[]>} list of all JKT48 members from IDN Live
  */
 export async function get_all_members(client: Client): Promise<jkt48_member[]> {
   try {
@@ -801,17 +825,19 @@ export async function get_all_members(client: Client): Promise<jkt48_member[]> {
     return Array.from(unique_members.values())
   } catch (error) {
     await log_error(client, error as Error, "idn_live_get_members", {}).catch(() => {})
-    // - FALLBACK TO CONFIG FILE - \\
+    // - 回退到配置文件 - \\
+    // - fallback to config file - \\
     console.log("[ - JKT48 - ] API failed, using config file fallback")
     return await load_idn_cfg_members(client)
   }
 }
 
 /**
- * - GET IDN ROSTER MEMBERS - \\
- * @param {Client} client - Discord client
- * @param {{ max_wait_ms?: number; allow_stale?: boolean }} options - Fetch options
- * @returns {Promise<jkt48_member[]>} IDN roster members
+ * - 获取 IDN 名单成员 - \\
+ * - get idn roster members - \\
+ * @param {Client} client - discord client
+ * @param {{ max_wait_ms?: number; allow_stale?: boolean }} options - fetch options
+ * @returns {Promise<jkt48_member[]>} iDN roster members
  */
 export async function get_idn_roster_members(client: Client, options?: { max_wait_ms?: number; allow_stale?: boolean }): Promise<jkt48_member[]> {
   try {
@@ -859,7 +885,8 @@ export async function get_idn_roster_members(client: Client, options?: { max_wai
     return members
   } catch (error) {
     await log_error(client, error as Error, "idn_live_get_roster_members", {}).catch(() => {})
-    // - FALLBACK TO CACHE OR CONFIG FILE - \\
+    // - 回退到缓存或配置文件 - \\
+    // - fallback to cache or config file - \\
     if (roster_cache.data.length > 0) {
       console.log("[ - JKT48 - ] Roster API failed, using cache")
       return roster_cache.data
@@ -870,9 +897,10 @@ export async function get_idn_roster_members(client: Client, options?: { max_wai
 }
 
 /**
- * - GET LIVE ROOMS - \\
- * @param {Client} client - Discord client
- * @returns {Promise<live_room[]>} List of currently live IDN streams
+ * - 获取直播间列表 - \\
+ * - get live rooms - \\
+ * @param {Client} client - discord client
+ * @returns {Promise<live_room[]>} list of currently live IDN streams
  */
 export async function get_live_rooms(client: Client): Promise<live_room[]> {
   try {
@@ -904,10 +932,11 @@ export async function get_live_rooms(client: Client): Promise<live_room[]> {
 }
 
 /**
- * - GET MEMBER BY NAME - \\
- * @param {string} name - Member name or username to search
- * @param {Client} client - Discord client
- * @returns {Promise<jkt48_member | null>} Member data or null
+ * - 通过名字获取成员 - \\
+ * - get member by name - \\
+ * @param {string} name - member name or username to search
+ * @param {Client} client - discord client
+ * @returns {Promise<jkt48_member | null>} member data or null
  */
 export async function get_member_by_name(name: string, client: Client): Promise<jkt48_member | null> {
   try {
@@ -967,10 +996,11 @@ export async function get_member_by_name(name: string, client: Client): Promise<
 }
 
 /**
- * - CHECK IF MEMBER IS LIVE - \\
- * @param {string} slug - Stream slug to check
- * @param {Client} client - Discord client
- * @returns {Promise<live_room | null>} Live room data or null
+ * - 检查成员是否正在直播 - \\
+ * - check if member is live - \\
+ * @param {string} slug - stream slug to check
+ * @param {Client} client - discord client
+ * @returns {Promise<live_room | null>} live room data or null
  */
 export async function check_member_live(slug: string, client: Client): Promise<live_room | null> {
   try {
@@ -983,9 +1013,10 @@ export async function check_member_live(slug: string, client: Client): Promise<l
 }
 
 /**
- * - FORMAT LIVE ROOM COMPONENT - \\
- * @param {live_room} room - Live room data
- * @returns {object} Component container for live room
+ * - 格式化直播间组件 - \\
+ * - format live room component - \\
+ * @param {live_room} room - live room data
+ * @returns {object} component container for live room
  */
 export function format_live_component(room: live_room) {
   const started_timestamp = Math.floor(room.started_at / 1000)

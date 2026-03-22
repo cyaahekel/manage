@@ -40,7 +40,8 @@ export interface prodete_report {
   generated_at  : number
 }
 
-// - CHANNELS TO COUNT MESSAGES FROM - \\
+// - 统计消息的频道列表 - \\
+// - channels to count messages from - \\
 const __msg_channels: readonly string[] = [
   "1351969499116736602",
   "1398761098852958239",
@@ -50,14 +51,18 @@ const __msg_channels: readonly string[] = [
   "1398318499658600529",
 ]
 
-// - TICKET TYPES TO COUNT CLAIMS FROM - \\
+// - 统计领取数的工单类型 - \\
+// - ticket types to count claims from - \\
 const __ticket_types: readonly string[] = ["priority", "helper"]
 
-// - ONLY COUNT USERS WITH THIS STAFF ROLE - \\
+// - 仅统计拥有此员工角色的用户 - \\
+// - only count users with this staff role - \\
 const __staff_role_id = "1264915024707588208"
 
-// - HUMAN-READABLE CHANNEL LABELS FOR WEB DISPLAY - \\
-// - NOTE: these are fallbacks only — real names are fetched from Discord at scan time - \\
+// - 网页显示用的可读频道标签 - \\
+// - human-readable channel labels for web display - \\
+// - 注：这些仅为备用，真实名称在扫描时从 Discord 获取 - \\
+// - note: these are fallbacks only — real names are fetched from Discord at scan time - \\
 const __channel_label_fallback: Record<string, string> = {
   "1351969499116736602" : "1351969499116736602",
   "1398761098852958239" : "1398761098852958239",
@@ -71,7 +76,8 @@ const __discord_epoch        = BigInt(1420070400000)
 const __max_iter_channel     = 5_000       // - 5000 * 100 = 500k msgs per channel max - \\
 const __max_iter_thread      = 500         // - 500 * 100 = 50k msgs per thread max - \\
 const __channel_timeout_ms   = 600_000     // - 10 min hard cap per channel (runs in parallel) - \\
-// - NO manual delay — Discord.js handles rate limits internally - \\
+// - 无需手动延迟，Discord.js 内部处理频率限制 - \\
+// - no manual delay — Discord.js handles rate limits internally - \\
 
 const log = logger.create_logger("prodete")
 
@@ -90,6 +96,7 @@ export function build_prodete_slug(): string {
  */
 function parse_date_wib_start(date_str: string): number {
   const [day, month, year] = date_str.split("-").map(Number)
+  // - WIB 午夜 = UTC 午夜 - 7 小时 - \\
   // - WIB midnight = UTC midnight - 7h - \\
   return Date.UTC(year, month - 1, day) - 7 * 3600 * 1000
 }
@@ -144,7 +151,8 @@ async function count_channel_messages(
   to_ts        : number
 ): Promise<Map<string, number>> {
   const counts   = new Map<string, number>()
-  // - START JUST PAST to_ts AND GO BACKWARD - \\
+  // - 从 to_ts 尾尾开始向前分页 - \\
+  // - start just past to_ts and go backward - \\
   let before_id  = ts_to_snowflake(to_ts + 1)
   let iterations = 0
   let total_msgs = 0
@@ -165,13 +173,15 @@ async function count_channel_messages(
       break
     }
 
-    // - SORT DESCENDING (NEWEST FIRST) SINCE WE PAGINATE BACKWARD - \\
+    // - 降序排列（最新消息在前）以便向前分页 - \\
+    // - sort descending (newest first) since we paginate backward - \\
     const sorted = [...batch.values()].sort((a, b) => (BigInt(a.id) > BigInt(b.id) ? -1 : 1))
 
     let reached_start = false
 
     for (const msg of sorted) {
-      // - SKIP MESSAGES OUTSIDE THE RANGE - \\
+      // - 跳过范围外的消息 - \\
+      // - skip messages outside the range - \\
       if (msg.createdTimestamp > to_ts)   continue
       if (msg.createdTimestamp < from_ts) { reached_start = true; break }
       counts.set(msg.author.id, (counts.get(msg.author.id) ?? 0) + 1)
@@ -183,7 +193,8 @@ async function count_channel_messages(
       break
     }
 
-    // - OLDEST MSG IN BATCH BECOMES NEW UPPER BOUND - \\
+    // - 批次中最旧的消息成为新的上界 - \\
+    // - oldest msg in batch becomes new upper bound - \\
     const oldest = sorted[sorted.length - 1]
     if (oldest) before_id = oldest.id
 
@@ -225,7 +236,8 @@ async function count_thread_messages(
     let total_thread_msgs = 0
 
     for (const thread of all_threads) {
-      // - SKIP THREADS CREATED ENTIRELY AFTER to_ts - \\
+      // - 跳过在 to_ts 之后完全创建的子线程 - \\
+      // - skip threads created entirely after to_ts - \\
       if (thread.createdTimestamp && thread.createdTimestamp > to_ts) continue
 
       let before_id  = ts_to_snowflake(to_ts + 1)
@@ -282,10 +294,12 @@ async function aggregate_channel_messages(
 ): Promise<{ channel_maps: Map<string, Map<string, number>>; channel_names: Record<string, string> }> {
   const guild = client.guilds.cache.get(guild_id) ?? await client.guilds.fetch(guild_id)
 
-  // - FETCH ALL CHANNELS IN PARALLEL FOR SPEED - \\
+  // - 并行获取所有频道以提升速度 - \\
+  // - fetch all channels in parallel for speed - \\
   const results = await Promise.allSettled(
     __msg_channels.map(async (channel_id) => {
-      // - USE GUILD CHANNEL MANAGER FOR FULL CHANNEL OBJECTS (avoids Partial channels) - \\
+      // - 使用服务器频道管理器获取完整频道对象 - \\
+      // - use guild channel manager for full channel objects (avoids Partial channels) - \\
       const ch = guild
         ? await guild.channels.fetch(channel_id, { force: true, cache: false }).catch(() => null)
         : await client.channels.fetch(channel_id, { force: true, cache: false }).catch(() => null)
@@ -302,7 +316,8 @@ async function aggregate_channel_messages(
 
       const counts    = await count_channel_messages(ch as TextChannel, real_name, from_ts, to_ts)
 
-      // - MERGE THREAD MESSAGES INTO SAME channel counts - \\
+      // - 将子线程消息合并到相同频道的计数中 - \\
+      // - merge thread messages into same channel counts - \\
       await count_thread_messages(ch as TextChannel, from_ts, to_ts, counts)
 
       const total     = [...counts.values()].reduce((a, b) => a + b, 0)
@@ -448,7 +463,8 @@ async function get_role_member_ids(client: Client, guild_id: string): Promise<Se
     const guild = client.guilds.cache.get(guild_id) ?? await client.guilds.fetch(guild_id)
     if (!guild) return ids
 
-    // - FETCH MEMBERS TO POPULATE CACHE, THEN FILTER BY ROLE - \\
+    // - 获取成员以填充缓存，然后按角色过滤 - \\
+    // - fetch members to populate cache, then filter by role - \\
     await guild.members.fetch()
     const role = guild.roles.cache.get(__staff_role_id)
 
@@ -493,7 +509,8 @@ export async function build_prodete_report(
   const __steps    = __msg_channels.length + 3
   let   __done     = 0
 
-  // - FIRE-AND-FORGET PROGRESS TICK - \\
+  // - 即兴操作：进度运作 - \\
+  // - fire-and-forget progress tick - \\
   const tick = (label: string): void => {
     __done++
     on_progress?.(label, __done, __steps).catch(() => {})
@@ -504,13 +521,15 @@ export async function build_prodete_report(
   console.log(`[ - PRODETE - ] range: ${new Date(from_ts).toISOString()} -> ${new Date(to_ts).toISOString()}`)
   console.log(`[ - PRODETE - ] scanning ${__msg_channels.length} channels in parallel...`)
 
-  // - PARALLEL CHANNEL SCAN — TICK AFTER EACH CHANNEL COMPLETES - \\
+  // - 并行频道扫描，完成每个频道后触发一次 - \\
+  // - parallel channel scan — tick after each channel completes - \\
   const { channel_maps, channel_names } = await aggregate_channel_messages(
     client, guild_id, from_ts, to_ts,
     (ch_id) => tick(`Channel scanned (${ch_id})`)
   )
 
-  // - BUILD TOTAL MSG MAP + PER-USER CHANNEL BREAKDOWN - \\
+  // - 构建总消息数映射 + 每用户频道分拆 - \\
+  // - build total msg map + per-user channel breakdown - \\
   const msg_map   = new Map<string, number>()
   const ch_detail = new Map<string, Record<string, number>>()
 
@@ -534,14 +553,16 @@ export async function build_prodete_report(
   console.log(`[ - PRODETE - ] voice time loaded: ${voice_map.size} users`)
   tick("Voice time loaded")
 
-  // - BUILD TOTAL MAPS FROM BREAKDOWNS - \\
+  // - 从分拆构建总映射 - \\
+  // - build total maps from breakdowns - \\
   const claim_map  = new Map<string, number>()
   const answer_map = new Map<string, number>()
 
   for (const [uid, bd] of ticket_maps) claim_map.set(uid, Object.values(bd).reduce((a, b) => a + b, 0))
   for (const [uid, bd] of answer_maps) answer_map.set(uid, Object.values(bd).reduce((a, b) => a + b, 0))
 
-  // - FETCH ONLY MEMBERS WITH THE STAFF ROLE - \\
+  // - 仅获取拥有员工角色的成员 - \\
+  // - fetch only members with the staff role - \\
   const role_member_ids = await get_role_member_ids(client, guild_id)
   console.log(`[ - PRODETE - ] filtering by role: ${role_member_ids.size} staff members`)
 

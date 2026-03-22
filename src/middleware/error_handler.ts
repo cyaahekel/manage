@@ -15,9 +15,9 @@ import { component }                           from "@shared/utils"
 import { MiddlewareFunction, MiddlewareContext, NextFunction } from "./runner"
 
 /**
- * @description Global error handling middleware for command executions
- * @param {MiddlewareContext} ctx - Context containing interaction and client
- * @param {NextFunction} next - Next middleware function
+ * @description global error handling middleware for command executions
+ * @param {MiddlewareContext} ctx - context containing interaction and client
+ * @param {NextFunction} next - next middleware function
  * @returns {Promise<void>}
  */
 export const error_handler: MiddlewareFunction = async (ctx: MiddlewareContext, next: NextFunction): Promise<void> => {

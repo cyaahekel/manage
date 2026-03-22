@@ -218,7 +218,8 @@ async function auto_approve_payment(
     throw last_error || new Error("Failed to whitelist user after retries")
   }
 
-  // - DELETE PENDING MESSAGE IMMEDIATELY AFTER WHITELIST SUCCESS - \\
+  // - 白名单成功后立即删除待处理消息 - \\
+  // - delete pending message immediately after whitelist success - \\
   try {
     await api.delete_message(payment_channel_id, pending_message_id, api.get_token())
     console.log(`[ - SUBMIT PAYMENT - ] Deleted pending message ${pending_message_id}`)
@@ -231,7 +232,8 @@ async function auto_approve_payment(
 
   await add_work_log(staff_id, staff_name, "ticket", message_link, undefined, amount_value)
 
-  // - ADD ROLES AFTER WHITELIST - \\
+  // - 白名单后添加角色 - \\
+  // - add roles after whitelist - \\
   try {
     const customer_member = await interaction.guild?.members.fetch(customer_id)
     if (customer_member) {
@@ -263,14 +265,16 @@ async function auto_approve_payment(
     ],
   })
 
-  // - SEND APPROVED MESSAGE TO THREAD - \\
+  // - 向工单频道发送审批消息 - \\
+  // - send approved message to thread - \\
   try {
     await api.send_components_v2(channel_id, api.get_token(), approved_message)
   } catch (send_err) {
     console.error(`[ - SUBMIT PAYMENT - ] Failed to send approved message to thread:`, send_err)
   }
 
-  // - SEND DM TO CUSTOMER - \\
+  // - 向客户发送 DM - \\
+  // - send dm to customer - \\
   try {
     const customer   = await interaction.client.users.fetch(customer_id)
     const dm_channel = await customer.createDM()
@@ -279,7 +283,8 @@ async function auto_approve_payment(
     console.error(`[ - SUBMIT PAYMENT - ] Failed to send DM:`, dm_err)
   }
 
-  // - SEND LOG TO PAYMENT LOG CHANNEL - \\
+  // - 发送日志到支付日志频道 - \\
+  // - send log to payment log channel - \\
   try {
     const done_message = component.build_message({
       components: [

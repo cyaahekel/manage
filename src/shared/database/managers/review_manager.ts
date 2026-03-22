@@ -21,8 +21,8 @@ const __collection_reviews   = "reviews"
 const __daily_review_limit   = 2
 
 /**
- * @param {string} user_id - User ID
- * @returns {Promise<number>} Count of reviews submitted today
+ * @param {string} user_id - user ID
+ * @returns {Promise<number>} count of reviews submitted today
  */
 export async function get_today_review_count(user_id: string): Promise<number> {
   const today_start = get_day_start_timestamp()
@@ -39,8 +39,8 @@ export async function get_today_review_count(user_id: string): Promise<number> {
 }
 
 /**
- * @param {string} user_id - User ID
- * @returns {Promise<boolean>} Whether user can submit more reviews today
+ * @param {string} user_id - user ID
+ * @returns {Promise<boolean>} whether user can submit more reviews today
  */
 export async function can_submit_review(user_id: string): Promise<boolean> {
   const count = await get_today_review_count(user_id)
@@ -48,12 +48,12 @@ export async function can_submit_review(user_id: string): Promise<boolean> {
 }
 
 /**
- * @param {string} user_id - User ID
- * @param {string} review_text - Review content
- * @param {number} rating - Rating (1-5)
- * @param {number} timestamp - Unix timestamp
- * @param {string} message_id - Discord message ID
- * @returns {Promise<boolean>} Success status
+ * @param {string} user_id - user ID
+ * @param {string} review_text - review content
+ * @param {number} rating - rating (1-5)
+ * @param {number} timestamp - unix timestamp
+ * @param {string} message_id - discord message ID
+ * @returns {Promise<boolean>} success status
  */
 export async function save_review(
   user_id     : string,
@@ -79,8 +79,8 @@ export async function save_review(
 }
 
 /**
- * @param {string} user_id - User ID
- * @returns {Promise<number>} Remaining reviews for today
+ * @param {string} user_id - user ID
+ * @returns {Promise<number>} remaining reviews for today
  */
 export async function get_remaining_reviews(user_id: string): Promise<number> {
   const count = await get_today_review_count(user_id)
@@ -88,7 +88,7 @@ export async function get_remaining_reviews(user_id: string): Promise<number> {
 }
 
 /**
- * @returns {number} Unix timestamp for start of today (00:00:00 UTC)
+ * @returns {number} unix timestamp for start of today (00:00:00 UTC)
  */
 function get_day_start_timestamp(): number {
   const now   = new Date()

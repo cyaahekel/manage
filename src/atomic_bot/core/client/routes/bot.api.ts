@@ -13,7 +13,7 @@ import { Router, Request, Response } from "express"
 import { Client, ChannelType }       from "discord.js"
 
 /**
- * @description Create bot info & stats API router
+ * @description create bot info & stats API router
  * @param client   - Discord client instance
  * @param guild_id - Main guild ID
  * @returns Express Router

@@ -29,13 +29,14 @@ const __transaction_ranges: Record<string, TransactionRange> = {
 }
 
 /**
- * @description Handles transaction range selection for middleman service
- * @param {StringSelectMenuInteraction} interaction - The select menu interaction
+ * @description handles transaction range selection for middleman service
+ * @param {StringSelectMenuInteraction} interaction - the select menu interaction
  */
 export async function handle_middleman_transaction_range_select(interaction: StringSelectMenuInteraction): Promise<void> {
   await interaction.deferReply({ flags: 64 })
 
-  // - CHECK IF MIDDLEMAN SERVICE IS OPEN - \\
+  // - 检查中间人服务是否开启 - \\
+  // - check if middleman service is open - \\
   const is_open = await is_middleman_service_open(interaction.guildId || "")
   if (!is_open) {
     const closed_message = component.build_message({

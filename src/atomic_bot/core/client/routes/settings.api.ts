@@ -14,7 +14,7 @@ import { Client }                    from "discord.js"
 import * as database                 from "@shared/utils/database"
 
 /**
- * @description Create bot settings API router
+ * @description create bot settings API router
  * @param client   - Discord client instance
  * @param guild_id - Main guild ID
  * @returns Express Router
@@ -22,7 +22,8 @@ import * as database                 from "@shared/utils/database"
 export function create_settings_router(client: Client | null, guild_id: string): Router {
   const router = Router()
 
-  // - GET /api/bot-settings - \\
+  // - 获取机器人设置接口 - \\
+  // - get /api/bot-settings - \\
   router.get("/bot-settings", async (req: Request, res: Response) => {
     try {
       const settings = await database.find_one<{
@@ -42,7 +43,8 @@ export function create_settings_router(client: Client | null, guild_id: string):
     }
   })
 
-  // - PUT /api/bot-settings - \\
+  // - 更新机器人设置接口 - \\
+  // - put /api/bot-settings - \\
   router.put("/bot-settings", async (req: Request, res: Response) => {
     try {
       if (!client?.isReady()) return res.status(503).json({ error: "Bot not ready" })

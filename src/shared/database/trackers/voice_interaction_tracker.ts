@@ -22,10 +22,10 @@ const __collection            = "voice_interactions"
 const __interaction_cache_ttl = 30 * 24 * 60 * 60 * 1000
 
 /**
- * @param {string} user_id - User who performed action
- * @param {string} target_id - User who received action
- * @param {string} guild_id - Guild ID
- * @param {string} action_type - Type of action (invite, trust, kick, etc)
+ * @param {string} user_id - user who performed action
+ * @param {string} target_id - user who received action
+ * @param {string} guild_id - guild ID
+ * @param {string} action_type - type of action (invite, trust, kick, etc)
  * @return {Promise<void>}
  */
 export async function track_interaction(
@@ -48,10 +48,10 @@ export async function track_interaction(
 }
 
 /**
- * @param {string} user_id - User ID to get suggestions for
- * @param {string} guild_id - Guild ID
- * @param {VoiceChannel} channel - Voice channel to get members from
- * @param {number} limit - Max suggestions to return
+ * @param {string} user_id - user ID to get suggestions for
+ * @param {string} guild_id - guild ID
+ * @param {VoiceChannel} channel - voice channel to get members from
+ * @param {number} limit - max suggestions to return
  * @return {Promise<string[]>} Array of user IDs sorted by interaction frequency
  */
 export async function get_suggested_users(
@@ -122,7 +122,7 @@ export async function get_suggested_users(
 }
 
 /**
- * @param {number} days - Days to keep
+ * @param {number} days - days to keep
  * @return {Promise<void>}
  */
 export async function cleanup_old_interactions(days: number = 30): Promise<void> {

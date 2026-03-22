@@ -50,16 +50,18 @@ interface luarmor_project_record {
 }
 
 /**
- * - GET LUARMOR API KEY - \\
- * @returns {string} Luarmor API key
+ * - 获取 Luarmor API 密鑰 - \\
+ * - get luarmor api key - \\
+ * @returns {string} luarmor API key
  */
 function get_api_key(): string {
   return env.required("LUARMOR_API_KEY")
 }
 
 /**
- * - BUILD DEFAULT HEADERS - \\
- * @returns {Record<string, string>} Headers for Luarmor API
+ * - 构建默认请求头 - \\
+ * - build default headers - \\
+ * @returns {Record<string, string>} headers for Luarmor API
  */
 function build_headers(): Record<string, string> {
   return {
@@ -69,8 +71,9 @@ function build_headers(): Record<string, string> {
 }
 
 /**
- * - FETCH API KEY DETAILS - \\
- * @returns {Promise<luarmor_key_details_response>} Key details response
+ * - 获取 API 密鑰详情 - \\
+ * - fetch api key details - \\
+ * @returns {Promise<luarmor_key_details_response>} key details response
  */
 async function fetch_key_details(): Promise<luarmor_key_details_response> {
   const api_key = get_api_key()
@@ -80,9 +83,10 @@ async function fetch_key_details(): Promise<luarmor_key_details_response> {
 }
 
 /**
- * - FETCH PROJECT LOADER SCRIPT - \\
- * @param {string} project_id - Luarmor project ID
- * @returns {Promise<string>} Loader script content
+ * - 获取项目加载器脚本 - \\
+ * - fetch project loader script - \\
+ * @param {string} project_id - luarmor project ID
+ * @returns {Promise<string>} loader script content
  */
 async function fetch_loader_script(project_id: string): Promise<string> {
   const url = `${__loader_script_base_url}/${project_id}.lua`
@@ -90,8 +94,9 @@ async function fetch_loader_script(project_id: string): Promise<string> {
 }
 
 /**
- * - UPSERT PROJECT SCRIPTS RECORD - \\
- * @param {luarmor_project_record} record - Record to store
+ * - 唱入或更新项目脚本记录 - \\
+ * - upsert project scripts record - \\
+ * @param {luarmor_project_record} record - record to store
  * @returns {Promise<void>}
  */
 async function upsert_project_record(record: luarmor_project_record): Promise<void> {

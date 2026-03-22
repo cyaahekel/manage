@@ -74,12 +74,14 @@ export async function join_ticket(interaction: ButtonInteraction, ticket_type: s
     return
   }
 
-  // - ACTIVATE COOLDOWN IMMEDIATELY TO PREVENT RACE CONDITIONS - \\
+  // - 立即激活冷却时间以防止竞争条件 - \\
+  // - activate cooldown immediately to prevent race conditions - \\
   activate_join_claim_cooldown(interaction.user.id)
 
   let data = get_ticket(thread_id)
 
-  // - FALLBACK: LOAD FROM DATABASE - \\
+  // - 回退：从数据库加载 - \\
+  // - fallback: load from database - \\
   if (!data) {
     const loaded = await load_ticket(thread_id)
     if (!loaded) {
@@ -131,7 +133,8 @@ export async function join_ticket(interaction: ButtonInteraction, ticket_type: s
   const staff_mentions = data.staff.map((id: string) => `<@${id}>`)
   const log_message_id = data.log_message_id
 
-  // - FIRE-AND-FORGET: LOG UPDATE + SAVE — DO NOT BLOCK REPLY - \\
+  // - 即兴操作：日志更新 + 保存，不阻塞回复 - \\
+  // - fire-and-forget: log update + save — do not block reply - \\
   if (log_message_id) {
     const log_channel = guild.channels.cache.get(config.log_channel_id) as TextChannel
     if (log_channel) {

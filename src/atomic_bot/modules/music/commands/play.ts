@@ -7,8 +7,8 @@
  * See the LICENSE file for more information.
  */
 
-// - /play 斜杠命令，播放音乐 - \\
-// - /play slash command, plays a song from Spotify/Apple Music/YouTube/query - \\
+// - /play 指令，想听啥直接点 - \\
+// - /play: drop your music query here - \\
 import { ChatInputCommandInteraction, GuildMember, SlashCommandBuilder } from "discord.js"
 import { Command }                                                        from "@shared/types/command"
 import { component }                                                      from "@shared/utils"
@@ -27,7 +27,7 @@ export const command: Command = {
     ) as SlashCommandBuilder,
 
   /**
-   * @description Handles the /play command. Validates voice channel, then delegates to handle_play.
+   * @description handles the /play command. Validates voice channel, then delegates to handle_play.
    * @param {ChatInputCommandInteraction} interaction
    * @returns {Promise<void>}
    */

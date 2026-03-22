@@ -30,7 +30,8 @@ export const command: Command = {
         return
       }
 
-      // - FETCH GUILD SETTINGS - \\
+      // - 获取服务器设置 - \\
+      // - fetch guild settings - \\
       const settings = await db.find_many<{
         guild_id   : string
         channel_id : string
@@ -48,7 +49,8 @@ export const command: Command = {
         return
       }
 
-      // - BUILD SETTINGS LIST - \\
+      // - 构建设置列表 - \\
+      // - build settings list - \\
       const settings_list = settings.map((setting) => {
         const platform_label = setting.platform === "idn" 
           ? "IDN Live" 

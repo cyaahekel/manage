@@ -69,7 +69,8 @@ function resolve_role_ids(permission: CommandPermission): string[] {
 }
 
 function get_highest_role_position(member: GuildMember, role_ids: string[]): number {
-  // - ROLES CACHE DISABLED: fall back to highest role position - \\
+  // - 角色缓存已禁用，回退到最高角色位置 - \\
+  // - roles cache disabled: fall back to highest role position - \\
   return member.roles.highest?.position ?? -1
 }
 

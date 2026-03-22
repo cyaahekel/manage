@@ -17,8 +17,8 @@ import { get_user_script }                 from "@atomic/modules/service_provide
 import * as luarmor                        from "@atomic/infrastructure/api/luarmor"
 
 /**
- * @description Handles the get script button — retrieves and displays the user's loader script.
- * @param {ButtonInteraction} interaction - Discord button interaction
+ * @description handles the get script button — retrieves and displays the user's loader script.
+ * @param {ButtonInteraction} interaction - discord button interaction
  * @returns {Promise<void>}
  */
 export async function handle_get_script(interaction: ButtonInteraction): Promise<void> {
@@ -113,8 +113,8 @@ export async function handle_get_script(interaction: ButtonInteraction): Promise
 }
 
 /**
- * @description Handles the mobile copy button — provides a minified single-line loader script.
- * @param {ButtonInteraction} interaction - Discord button interaction
+ * @description handles the mobile copy button — provides a minified single-line loader script.
+ * @param {ButtonInteraction} interaction - discord button interaction
  * @returns {Promise<void>}
  */
 export async function handle_mobile_copy(interaction: ButtonInteraction): Promise<void> {

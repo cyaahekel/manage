@@ -14,9 +14,10 @@ import { set_afk, is_ignored_channel }                                          
 import { build_simple_message, sanitize_afk_reason }                                from "./afk_utils"
 
 /**
- * - BUILD AFK SET SUBCOMMAND - \\
- * @param {SlashCommandSubcommandBuilder} subcommand - Subcommand builder
- * @returns {SlashCommandSubcommandBuilder} Updated subcommand builder
+ * - 构建 AFK 设置子命令 - \\
+ * - build afk set subcommand - \\
+ * @param {SlashCommandSubcommandBuilder} subcommand - subcommand builder
+ * @returns {SlashCommandSubcommandBuilder} updated subcommand builder
  */
 export function build_afk_set_subcommand(subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder {
   return subcommand
@@ -31,8 +32,9 @@ export function build_afk_set_subcommand(subcommand: SlashCommandSubcommandBuild
 }
 
 /**
- * - HANDLE AFK SET - \\
- * @param {ChatInputCommandInteraction} interaction - Discord interaction
+ * - 处理 AFK 设置 - \\
+ * - handle afk set - \\
+ * @param {ChatInputCommandInteraction} interaction - discord interaction
  * @returns {Promise<void>}
  */
 export async function handle_afk_set(interaction: ChatInputCommandInteraction): Promise<void> {

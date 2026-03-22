@@ -42,7 +42,7 @@ const __quarantine_role_id  = "1265318689130024992"
 const __quarantine_log_id   = "1474186051366031380"
 
 /**
- * @description Get quarantine role for a guild
+ * @description get quarantine role for a guild
  * @param guild - Discord Guild
  * @returns Promise<Role | null>
  */
@@ -54,7 +54,7 @@ async function get_quarantine_role(guild: Guild): Promise<Role | null> {
 }
 
 /**
- * @description Quarantine a member by removing their roles and applying quarantine role
+ * @description quarantine a member by removing their roles and applying quarantine role
  * @param options - Quarantine options
  * @returns Promise with success status and message
  */
@@ -78,7 +78,8 @@ export async function quarantine_member(options: quarantine_member_options) {
       }
     }
 
-    // - SKIP ROLE HIERARCHY CHECK FOR ADMINS - \\
+    // - 管理员跳过角色层级检查 - \\
+    // - skip role hierarchy check for admins - \\
     if (!executor_is_admin && executor.roles.highest.position <= target.roles.highest.position) {
       return {
         success : false,
@@ -86,7 +87,8 @@ export async function quarantine_member(options: quarantine_member_options) {
       }
     }
 
-    // - FORCE FRESH FETCH TO AVOID STALE CACHE ON MANAGEABLE CHECK - \\
+    // - 强制复取以避免检查可管理性时使用过期缓存 - \\
+    // - force fresh fetch to avoid stale cache on manageable check - \\
     const fresh_target = await guild.members.fetch({ user: target.id, force: true }).catch(() => null)
     if (!fresh_target) {
       return {
@@ -102,7 +104,8 @@ export async function quarantine_member(options: quarantine_member_options) {
       }
     }
 
-    // - CHECK IF ALREADY QUARANTINED - \\
+    // - 检查是否已被隔离 - \\
+    // - check if already quarantined - \\
     const already_quarantined = await is_quarantined(fresh_target.id, guild.id)
     if (already_quarantined) {
       return {
@@ -134,7 +137,8 @@ export async function quarantine_member(options: quarantine_member_options) {
       .filter(role => !role.managed && role.id !== guild.id)
       .map(role => role.id)
 
-    // - REMOVE ALL ROLES AND ADD QUARANTINE ROLE - \\
+    // - 移除所有角色并添加隔离角色 - \\
+    // - remove all roles and add quarantine role - \\
     await fresh_target.roles.set([...managed_roles, quarantine_role.id], reason)
 
     const now        = Math.floor(Date.now() / 1000)
@@ -150,7 +154,8 @@ export async function quarantine_member(options: quarantine_member_options) {
       days
     )
 
-    // - RECORD HISTORY AND SEND LOG - \\
+    // - 记录历史并发送日志 - \\
+    // - record history and send log - \\
     await add_quarantine_history(fresh_target.id, guild.id, reason, executor.id, days)
 
     const avatar_url   = fresh_target.user.displayAvatarURL({ size: 512 })
@@ -248,7 +253,7 @@ export async function quarantine_member(options: quarantine_member_options) {
 }
 
 /**
- * @description Release a member from quarantine
+ * @description release a member from quarantine
  * @param options - Release options
  * @returns Promise with success status
  */
@@ -273,13 +278,16 @@ export async function release_quarantine(options: release_quarantine_options) {
       }
     }
 
-    // - FETCH GUILD ROLES VIA REST TO BYPASS EMPTY CACHE - \\
+    // - 通过 REST 获取服务器角色以绕过空缓存 - \\
+    // - fetch guild roles via REST to bypass empty cache - \\
     const guild_roles = await guild.roles.fetch().catch(() => null)
 
-    // - REMOVE QUARANTINE ROLE FIRST - \\
+    // - 先移除隔离角色 - \\
+    // - remove quarantine role first - \\
     await member.roles.remove(__quarantine_role_id, "Released from quarantine").catch(() => {})
 
-    // - RESTORE PREVIOUS ROLES THAT STILL EXIST - \\
+    // - 恢复之前仍存在的角色 - \\
+    // - restore previous roles that still exist - \\
     const roles_to_restore = quarantine_data.previous_roles.filter(role_id =>
       role_id !== __quarantine_role_id && (guild_roles?.has(role_id) ?? true)
     )
@@ -288,7 +296,8 @@ export async function release_quarantine(options: release_quarantine_options) {
       await member.roles.add(roles_to_restore, "Restoring roles after quarantine").catch(() => {})
     }
 
-    // - ALWAYS REMOVE DB RECORD REGARDLESS OF ROLE RESTORE RESULT - \\
+    // - 无论角色恢复结果如何，始终删除数据库记录 - \\
+    // - always remove db record regardless of role restore result - \\
     await remove_quarantine(user_id, guild.id)
 
     return {

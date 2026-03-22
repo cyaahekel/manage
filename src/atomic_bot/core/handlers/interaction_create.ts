@@ -7,17 +7,16 @@
  * See the LICENSE file for more information.
  */
 
-// - 所有交互的总调度入口，按钮、modal、选择菜单全从这里分发 - \
-// - main interaction dispatcher, all buttons/modals/selects get routed from here - \
-// - 交互路由器的主入口，所有的按钮（Button）、模态框（Modal）、字符串选择菜单（String Select）、用户选择菜单（User Select）、各种类型的交互响应和分发都在这里完成。无论任何交互类型，只要属于 Discord 交互的子类型，例如 Slash Command、Button Interaction、Modal Submit、Select Menu（包括 String Select、User Select、Role Select、Channel Select）、Autocomplete，全部都会经过这个超长的分发路由器来处理。
-// - 主交互调度器作用是为了将所有收到的交互请求根据其类别进行恰当的分流分发，比如说按钮点了哪个 feature 的按钮就会路由到相应模块的 button handler，模态框提交则会去指定的 modal handler，选择菜单会被路由到对应功能的 select handler，甚至包括 complex case seperti 工单系统、提醒系统、middleman、staff tools、脚本面板、temporary voice、统计板块、review、社区内容、人事系统、结算支付、reaction role、各种企业级审批流等功能性的全部细分交互事件，全部都源头在这里分发调度，不会遗漏掉任何一种交互进来就被漏网之鱼。每个功能模块的交互子路由/handler，都必须在这里 import 并挂载，确保 maintainability 和可扩展性。
-// - 可以简单理解为——这是整个 Discord bot 所有基于 Interaction 的指令、交互行为、权限校验、以及各类功能交互的“十字路口”或者总路由，正因为这样代码会变得很长也很繁杂，但是这样处理才能统一管控，便于日后维护和定位各种复杂问题。
-// - interaction router/master dispatcher for Discord atomic bot, ALL interaction traffic (slash commands, context menu, every type of button click, modal submissions, string/user/role/channel select menus, autocomplete and more) are routed, dispatched, and encapsulated by this gigantic entry point, ensuring that literally every possible interaction initiated by a Discord user, in any guild or DM context, will first pass through this gateway. Here, every functional module (reminders, moderation, ticketing, middleman panel, scripts, payments, voice channels temp, statistics, reviews, community tools, HR tools, utils, and more) must register/register their specific interaction handlers (button, modal, select, autocomplete handlers) so that they each get their respective traffic dynamically and modularly. The design makes sure no component is left out, and all types of Discord interactions are covered, both now and as new Discord features are released. If you need to add new buttons, modals, or select menus for a feature, just create the handler in the correct module and hook it up here.
-// - Alias: "全量交互大管家" / "the ALL interactions big boss router"
-// - 注意，这里代码十分长，极其复杂，但为的是维护整个机器人体系的最大协同性、统一标准和可维护性。真正的“单点分发调度中心”。想要追踪任何交互事件的根源，都从这里开始。
+// - 所有交互的总调度中心，按钮、弹窗、菜单全从这分发 - \\
+// - main interaction dispatcher, where all the action starts - \\
+// - 简单说，这就是机器人所有交互（Interaction）的「十字路口」。
+// - 无论是点按钮、填表单、还是选菜单，全都得经过这个「大管家」来路由到对应的功能模块。
+// - 这样做虽然代码长点，但管理起来贼方便，所有的功能子路由都在这 import 挂载，稳如老狗。
+// - alias: "全能交互中心" / "the boss router for everything"
+// - shoutout to @_lyi for the logic rewrite btw.
 
 
-// - Big thanks to @_lyi krna udh ngerewrite ini
+// - Big thanks to @_lyi krna udh udh ngerewrite ini
 import {
   Client,
   Collection,
@@ -40,8 +39,8 @@ import {
 import { run_middleware }                                    from "../../../middleware/runner"
 import { error_handler }                                     from "../../../middleware/error_handler"
 
-// - 字符串选择菜单处理器，按功能模块分组 - \\
-// - string select menu handlers, grouped by feature - \\
+// - 各种下拉菜单处理器，按模块分好类了 - \\
+// - select menu handlers, grouped by feature - \\
 import * as stats_select            from "@atomic/modules/stats/interactions/select_menus"
 import * as guide_select            from "@atomic/modules/guide/interactions/select_menus"
 import * as reminder_cancel_select  from "@atomic/modules/reminder/interactions/select_menus"
@@ -57,7 +56,7 @@ import * as work_all_staff_select   from "@atomic/modules/work/interactions/sele
 import * as version_select          from "@atomic/modules/version/interactions/select_menus/select"
 import { handle_role_permission_select } from "@atomic/modules/utility/commands/get_role_permission"
 
-// - 按钮处理器，按功能模块分组 - \\
+// - 各种按钮点点点的逻辑，都在这里接住 - \\
 // - button handlers, grouped by feature - \\
 import * as ask_staff_button          from "@atomic/modules/ask/interactions/buttons/ask_staff"
 import * as ask_answer                from "@atomic/modules/ask/interactions/buttons/answer"
@@ -102,8 +101,8 @@ import {
   handle_music_queue,
 }                                     from "@atomic/modules/music/interactions/buttons/music_controls"
 
-// - 模态框处理器 - \\
-// - modal handlers - \\
+// - 各种表单弹窗的处理中心 - \\
+// - modal handlers, the popup center - \\
 import { handle as handle_devlog }              from "@atomic/modules/staff/interactions/modals/devlog"
 import { handle_ask_staff_modal }               from "@atomic/modules/ask/interactions/modals/ask_staff_modal"
 import { handle_loa_request_modal }             from "@atomic/modules/loa/interactions/modals/loa_request"
@@ -117,8 +116,8 @@ import { handle_middleman_ticket_details_modal } from "@atomic/modules/middleman
 import { handle_share_settings_modal }          from "@atomic/modules/share_settings/interactions/modals/share_settings"
 import { handle_edit_staff_info_modal }         from "@atomic/modules/staff_info/interactions/modals/staff_info"
 
-// - 反垃圾按钮逻辑，太小不值得单独建文件 - \\
-// - anti spam button logic, too small to bother making a separate file - \\
+// - 反垃圾按钮逻辑，太小了就懒得单开一个文件了 - \\
+// - anti spam button logic, too small for its own file - \\
 async function handle_anti_spam_button(interaction: ButtonInteraction, client: Client): Promise<void> {
   try {
     const parts      = interaction.customId.split(":")
@@ -252,8 +251,8 @@ async function handle_anti_spam_button(interaction: ButtonInteraction, client: C
 
 /**
  * @description 处理所有 Discord 交互事件，包括按钮、选择菜单、模态框、命令
- * @param {Interaction} interaction - Discord interaction object
- * @param {Client & { commands: Collection<string, Command> }} client - Discord client with commands
+ * @param {Interaction} interaction - discord interaction object
+ * @param {Client & { commands: Collection<string, Command> }} client - discord client with commands
  * @returns {Promise<void>}
  */
 export async function handle_interaction(

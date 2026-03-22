@@ -11,8 +11,8 @@
 
 /**
  * Pauses execution for specified milliseconds
- * @param {number} ms - Milliseconds to sleep
- * @returns {Promise<void>} Promise that resolves after delay
+ * @param {number} ms - milliseconds to sleep
+ * @returns {Promise<void>} promise that resolves after delay
  */
 export function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
@@ -20,10 +20,10 @@ export function sleep(ms: number): Promise<void> {
 
 /**
  * Retries an async function with exponential backoff
- * @param {() => Promise<T>} fn - Function to retry
- * @param {number} attempts - Maximum number of attempts
- * @param {number} delay - Delay between attempts in milliseconds
- * @returns {Promise<T>} Result from successful attempt
+ * @param {() => Promise<T>} fn - function to retry
+ * @param {number} attempts - maximum number of attempts
+ * @param {number} delay - delay between attempts in milliseconds
+ * @returns {Promise<T>} result from successful attempt
  */
 export async function retry<T>(
   fn: () => Promise<T>,
@@ -48,10 +48,10 @@ export async function retry<T>(
 
 /**
  * Races a promise against a timeout
- * @param {Promise<T>} promise - Promise to race
- * @param {number} ms - Timeout in milliseconds
- * @param {string} message - Optional timeout error message
- * @returns {Promise<T>} Result or timeout error
+ * @param {Promise<T>} promise - promise to race
+ * @param {number} ms - timeout in milliseconds
+ * @param {string} message - optional timeout error message
+ * @returns {Promise<T>} result or timeout error
  */
 export async function timeout<T>(promise: Promise<T>, ms: number, message?: string): Promise<T> {
   const timeout_promise = new Promise<never>((_, reject) => {
@@ -66,9 +66,9 @@ export async function timeout<T>(promise: Promise<T>, ms: number, message?: stri
 
 /**
  * Debounces a function to delay its execution
- * @param {T} fn - Function to debounce
- * @param {number} delay - Delay in milliseconds
- * @returns {(...args: Parameters<T>) => void} Debounced function
+ * @param {T} fn - function to debounce
+ * @param {number} delay - delay in milliseconds
+ * @returns {(...args: Parameters<T>) => void} debounced function
  */
 export function debounce<T extends (...args: unknown[]) => unknown>(
   fn: T,
@@ -86,9 +86,9 @@ export function debounce<T extends (...args: unknown[]) => unknown>(
 
 /**
  * Throttles a function to limit execution frequency
- * @param {T} fn - Function to throttle
- * @param {number} limit - Time limit in milliseconds
- * @returns {(...args: Parameters<T>) => void} Throttled function
+ * @param {T} fn - function to throttle
+ * @param {number} limit - time limit in milliseconds
+ * @returns {(...args: Parameters<T>) => void} throttled function
  */
 export function throttle<T extends (...args: unknown[]) => unknown>(
   fn: T,
@@ -107,8 +107,8 @@ export function throttle<T extends (...args: unknown[]) => unknown>(
 
 /**
  * Ensures a function is only called once
- * @param {T} fn - Function to call once
- * @returns {T} Function that can only be called once
+ * @param {T} fn - function to call once
+ * @returns {T} function that can only be called once
  */
 export function once<T extends (...args: unknown[]) => unknown>(fn: T): T {
   let called = false
@@ -128,9 +128,9 @@ export function once<T extends (...args: unknown[]) => unknown>(fn: T): T {
 
 /**
  * Executes async tasks in parallel with concurrency limit
- * @param {(() => Promise<T>)[]} tasks - Array of async tasks
- * @param {number} concurrency - Maximum concurrent tasks
- * @returns {Promise<T[]>} Array of results
+ * @param {(() => Promise<T>)[]} tasks - array of async tasks
+ * @param {number} concurrency - maximum concurrent tasks
+ * @returns {Promise<T[]>} array of results
  */
 export async function parallel<T>(tasks: (() => Promise<T>)[], concurrency: number = 5): Promise<T[]> {
   const results: T[] = []
@@ -158,8 +158,8 @@ export async function parallel<T>(tasks: (() => Promise<T>)[], concurrency: numb
 
 /**
  * Executes async tasks sequentially
- * @param {(() => Promise<T>)[]} tasks - Array of async tasks
- * @returns {Promise<T[]>} Array of results in order
+ * @param {(() => Promise<T>)[]} tasks - array of async tasks
+ * @returns {Promise<T[]>} array of results in order
  */
 export async function sequential<T>(tasks: (() => Promise<T>)[]): Promise<T[]> {
   const results: T[] = []
@@ -173,8 +173,8 @@ export async function sequential<T>(tasks: (() => Promise<T>)[]): Promise<T[]> {
 
 /**
  * Memoizes a function to cache results
- * @param {T} fn - Function to memoize
- * @returns {T} Memoized function
+ * @param {T} fn - function to memoize
+ * @returns {T} memoized function
  */
 export function memoize<T extends (...args: unknown[]) => unknown>(fn: T): T {
   const cache = new Map<string, ReturnType<T>>()
@@ -195,9 +195,9 @@ export function memoize<T extends (...args: unknown[]) => unknown>(fn: T): T {
 
 /**
  * Creates a rate limiter for controlling request frequency
- * @param {number} limit - Maximum requests allowed
- * @param {number} window_ms - Time window in milliseconds
- * @returns {Object} Rate limiter object with control methods
+ * @param {number} limit - maximum requests allowed
+ * @param {number} window_ms - time window in milliseconds
+ * @returns {Object} rate limiter object with control methods
  */
 export function create_rate_limiter(limit: number, window_ms: number) {
   const requests = new Map<string, number[]>()
@@ -243,8 +243,8 @@ export function create_rate_limiter(limit: number, window_ms: number) {
 
 /**
  * Creates a cooldown manager for time-based restrictions
- * @param {number} duration_ms - Cooldown duration in milliseconds
- * @returns {Object} Cooldown manager with control methods
+ * @param {number} duration_ms - cooldown duration in milliseconds
+ * @returns {Object} cooldown manager with control methods
  */
 export function create_cooldown(duration_ms: number) {
   const cooldowns = new Map<string, number>()

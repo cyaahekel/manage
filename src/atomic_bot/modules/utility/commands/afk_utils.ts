@@ -12,9 +12,9 @@ import { component } from "@shared/utils"
 
 /**
  * - build simple message - \\
- * @param {string} title - Message title
- * @param {string[]} lines - Message lines
- * @returns {object} Component v2 message
+ * @param {string} title - message title
+ * @param {string[]} lines - message lines
+ * @returns {object} component v2 message
  */
 export function build_simple_message(title: string, lines: string[]): object {
   return component.build_message({
@@ -30,8 +30,8 @@ export function build_simple_message(title: string, lines: string[]): object {
 
 /**
  * - sanitize afk reason - \\
- * @param {string} reason - Raw AFK reason from user input
- * @returns {string} Sanitized AFK reason
+ * @param {string} reason - raw AFK reason from user input
+ * @returns {string} sanitized AFK reason
  */
 export function sanitize_afk_reason(reason: string): string {
   // - remove invisible/zero-width characters - \\

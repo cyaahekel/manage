@@ -19,8 +19,9 @@ import { log_error }      from "@shared/utils/error_logger"
 import * as share_settings from "../controller"
 
 /**
- * - EXECUTE SETTINGS LEADERBOARD COMMAND - \\
- * @param {ChatInputCommandInteraction} interaction - Command interaction
+ * - 执行设置排行榜命令 - \\
+ * - execute settings leaderboard command - \\
+ * @param {ChatInputCommandInteraction} interaction - command interaction
  * @returns {Promise<void>}
  */
 async function execute_settings_leaderboard(interaction: ChatInputCommandInteraction): Promise<void> {

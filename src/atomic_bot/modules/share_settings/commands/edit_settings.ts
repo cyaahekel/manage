@@ -20,8 +20,9 @@ import { log_error }       from "@shared/utils/error_logger"
 import * as share_settings from "../controller"
 
 /**
- * - EXECUTE EDIT SETTINGS COMMAND - \\
- * @param {ChatInputCommandInteraction} interaction - Command interaction
+ * - 执行编辑设置命令 - \\
+ * - execute edit settings command - \\
+ * @param {ChatInputCommandInteraction} interaction - command interaction
  * @returns {Promise<void>}
  */
 async function execute_edit_settings(interaction: ChatInputCommandInteraction): Promise<void> {
@@ -97,8 +98,9 @@ async function execute_edit_settings(interaction: ChatInputCommandInteraction): 
 }
 
 /**
- * - AUTOCOMPLETE EDIT SETTINGS - \\
- * @param {AutocompleteInteraction} interaction - Autocomplete interaction
+ * - 编辑设置自动补全 - \\
+ * - autocomplete edit settings - \\
+ * @param {AutocompleteInteraction} interaction - autocomplete interaction
  * @returns {Promise<void>}
  */
 async function autocomplete_edit_settings(interaction: AutocompleteInteraction): Promise<void> {

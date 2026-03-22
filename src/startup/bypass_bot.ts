@@ -36,7 +36,8 @@ if (!bypass_token || !bypass_client_id) {
   process.exit(0)
 }
 
-// - MESSAGE CONTENT INTENT IS REQUIRED FOR AUTO BYPASS - \\
+// - 自动绕过需要消息内容意图 - \\
+// - message content intent is required for auto bypass - \\
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -106,7 +107,8 @@ async function register_bypass_commands(commands_data: object[]): Promise<void> 
   console.warn(`[ - BYPASS - ] Registered ${commands_data.length} commands`)
 }
 
-// - CLIENT READY EVENT - \\
+// - 机器人的就绪事件，准备开工 - \\
+// - client ready event, locked and loaded - \\
 client.once("ready", async () => {
   console.warn(`[ - BYPASS - ] Bot logged in as ${client.user?.tag}`)
   console.warn(`[ - BYPASS - ] Serving ${client.guilds.cache.size} guilds`)
@@ -118,21 +120,25 @@ client.once("ready", async () => {
     console.error("[ - BYPASS - ] Failed to load/register commands:", error)
   }
 
-  // - CONNECT TO DATABASE & CLEANUP BYPASS CACHE - \\
+  // - 连数据库并清理过期合法的绕过缓存 - \\
+  // - connect to database & cleanup expired bypass cache - \\
   try {
     await db.connect()
     setInterval(() => db.cleanup_expired_bypass_cache(), 10 * 60 * 1000)
 
-    // - RECOVER SESSIONS STUCK BEFORE RESTART - \\
+    // - 恢复重启前卡住的会话 - \\
+    // - recover sessions stuck before restart - \\
     await recover_stuck_bypass_sessions(client)
   } catch (error) {
     console.error("[ - BYPASS - ] Database connection error:", error)
   }
 })
 
-// - INTERACTION CREATE EVENT - \\
+// - 交互事件处理，按钮、菜单、指令都在这 - \\
+// - interaction create event, all the fun stuff - \\
 client.on("interactionCreate", async (interaction) => {
-  // - BUTTON HANDLERS - \\
+  // - 按钮点点点处理器 - \\
+  // - button handlers - \\
   if (interaction.isButton()) {
     try {
       if (interaction.customId.startsWith("bypass_mobile_copy:")) {
@@ -153,7 +159,8 @@ client.on("interactionCreate", async (interaction) => {
     }
   }
 
-  // - SELECT MENU HANDLERS - \\
+  // - 下拉菜单处理器 - \\
+  // - select menu handlers - \\
   if (interaction.isStringSelectMenu()) {
     try {
       if (interaction.customId.startsWith("bypass_support_type_select:")) {
@@ -170,7 +177,8 @@ client.on("interactionCreate", async (interaction) => {
     }
   }
 
-  // - COMMAND HANDLERS - \\
+  // - 指令处理器 - \\
+  // - command handlers - \\
   if (!interaction.isChatInputCommand()) return
 
   const command = client.commands.get(interaction.commandName)
@@ -182,13 +190,15 @@ client.on("interactionCreate", async (interaction) => {
   })
 })
 
-// - MESSAGE CREATE EVENT (AUTO BYPASS) - \\
+// - 消息监听，自动给链接开路 - \\
+// - message create event, auto-bypassing links - \\
 client.on("messageCreate", async (message: Message) => {
   if (message.author.bot) return
   await handle_auto_bypass(message)
 })
 
-// - ERROR HANDLERS - \\
+// - 错误捕获，不让机器人崩掉 - \\
+// - error handlers, keeping things alive - \\
 client.on("error", (error) => {
   console.error("[ - BYPASS - ] Client error:", error)
   log_error(client, error, "Bypass Client Error", {}).catch(() => { })
@@ -204,7 +214,8 @@ process.on("uncaughtException", (error: Error) => {
   log_error(client, error, "Bypass Uncaught Exception", {}).catch(() => { })
 })
 
-// - LOGIN - \\
+// - 登录咯 - \\
+// - login time! - \\
 client.login(bypass_token)
   .then(() => {
     console.warn("[ - BYPASS - ] Login successful")

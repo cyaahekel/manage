@@ -16,7 +16,7 @@ import { check_bypass_rate_limit, check_dm_user_cooldown } from "../limits/bypas
 const __session_key = (msg_id: string) => `bypass_session_${msg_id}`
 
 /**
- * @description Persist a processing session to DB so it can be recovered on restart
+ * @description persist a processing session to DB so it can be recovered on restart
  * @param msg_id - Processing message ID
  * @param channel_id - Channel where the message was sent
  */
@@ -31,7 +31,7 @@ async function track_bypass_session(msg_id: string, channel_id: string): Promise
 }
 
 /**
- * @description Remove a processing session from DB when bypass completes
+ * @description remove a processing session from DB when bypass completes
  * @param msg_id - Processing message ID
  */
 async function clear_bypass_session(msg_id: string): Promise<void> {
@@ -43,8 +43,8 @@ async function clear_bypass_session(msg_id: string): Promise<void> {
 }
 
 /**
- * @description On bot startup: find all stuck "Bypassing Link" messages and update them
- * @param {Client} client - Discord client
+ * @description on bot startup: find all stuck "Bypassing Link" messages and update them
+ * @param {Client} client - discord client
  * @returns {Promise<void>}
  */
 export async function recover_stuck_bypass_sessions(client: Client): Promise<void> {
@@ -98,8 +98,8 @@ export async function recover_stuck_bypass_sessions(client: Client): Promise<voi
 }
 
 /**
- * @param {Message} message - Discord message
- * @returns {string | null} Extracted URL if found
+ * @param {Message} message - discord message
+ * @returns {string | null} extracted URL if found
  */
 function extract_url_from_message(message: Message): string | null {
   const content = message.content?.trim() ?? ""
@@ -129,13 +129,15 @@ function extract_url_from_message(message: Message): string | null {
 }
 
 /**
- * - AUTO BYPASS HANDLER - \\
+ * - 自动绕过处理器 - \\
+ * - auto bypass handler - \\
  * 
- * @param {Message} message - Discord message
- * @returns {Promise<boolean>} True if message was handled
+ * @param {Message} message - discord message
+ * @returns {Promise<boolean>} true if message was handled
  */
 export async function handle_auto_bypass(message: Message): Promise<boolean> {
-  // - FETCH PARTIAL MESSAGE/CHANNEL TO GET CONTENT - \\
+  // - 获取部分消息/频道以写入内容 - \\
+  // - fetch partial message/channel to get content - \\
   if (message.partial) {
     try {
       message = await message.fetch()
@@ -206,7 +208,8 @@ export async function handle_auto_bypass(message: Message): Promise<boolean> {
 
   let processing_msg: Awaited<ReturnType<typeof message.reply>> | null = null
 
-  // - DM ANTI-SPAM: 1 REQUEST PER 2 SECONDS PER USER — SILENT DROP TO AVOID BOT QUARANTINE - \\
+  // - DM 防刷板：每用户每 2 秒 1 次请求，静默丢弃以避免机器人账号被隔离 - \\
+  // - dm anti-spam: 1 request per 2 seconds per user — silent drop to avoid bot quarantine - \\
   if (is_dm) {
     const cooldown = check_dm_user_cooldown(message.author.id)
     if (!cooldown.allowed) {
@@ -263,13 +266,15 @@ export async function handle_auto_bypass(message: Message): Promise<boolean> {
       })
     )
 
-    // - TRACK SESSION IN DB SO RESTART CAN RECOVER IT - \\
+    // - 将会话记录到数据库以便重启后恢复 - \\
+    // - track session in db so restart can recover it - \\
     await track_bypass_session(processing_msg.id, processing_msg.channelId)
 
     const source = is_dm ? "DM" : "Channel"
     console.warn(`[ - AUTO BYPASS - ] Processing URL from ${source}: ${url}`)
     const result = await bypass_link(url, async (attempt, _wait_ms, is_processing) => {
-      // - SKIP RETRY MESSAGE IF SERVER IS STILL PROCESSING - \\
+      // - 服务器仍在处理中则跳过重试消息 - \\
+      // - skip retry message if server is still processing - \\
       if (!processing_msg || is_processing) return
       try {
         await processing_msg.edit(
@@ -291,7 +296,8 @@ export async function handle_auto_bypass(message: Message): Promise<boolean> {
       }
     })
 
-    // - INCREMENT COUNT PER ATTEMPT - \\
+    // - 每次尝试递增计数 - \\
+    // - increment count per attempt - \\
     db.increment_bypass_count().catch(err => console.error(`[ - AUTO BYPASS - ] Failed to increment bypass count:`, err))
 
     if (result.success && result.result) {
@@ -307,14 +313,16 @@ export async function handle_auto_bypass(message: Message): Promise<boolean> {
         }).catch(err => console.error(`[ - AUTO BYPASS - ] Failed to insert log:`, err))
       }
 
-      // - RECORD PER-GUILD BYPASS STAT - \\
+      // - 记录每个服务器的绕过统计 - \\
+      // - record per-guild bypass stat - \\
       if (message.guildId) {
         db.record_bypass_guild_stat(message.guildId).catch(
           err => console.error(`[ - AUTO BYPASS - ] Failed to record guild stat:`, err)
         )
       }
 
-      // - STORE IN DATABASE - \\
+      // - 存入数据库 - \\
+      // - store in database - \\
       const cache_key = `bypass_result_${message.id}`
 
       try {
@@ -372,13 +380,15 @@ export async function handle_auto_bypass(message: Message): Promise<boolean> {
 
       await clear_bypass_session(processing_msg.id)
 
-      // - DM USER ONLY IF REQUEST CAME FROM GUILD (AVOID DOUBLE DM IN DM CONTEXT) - \\
+      // - 仅当请求来自服务器时才向用户发送 DM（避免在 DM 中重复发送） - \\
+      // - dm user only if request came from guild (avoid double dm in dm context) - \\
       if (!is_dm) {
         try {
           await message.author.send(success_message)
           console.warn(`[ - AUTO BYPASS - ] DM sent to ${message.author.tag}`)
         } catch {
-          // - USER HAS NOT AUTHORIZED OR HAS DMs DISABLED, SKIP SILENTLY - \\
+          // - 用户未授权或已关闭 DM，静默跳过 - \\
+          // - user has not authorized or has DMs disabled, skip silently - \\
         }
       }
     } else {
@@ -449,7 +459,8 @@ export async function handle_auto_bypass(message: Message): Promise<boolean> {
 
     return true
   } catch (error) {
-    // - DISCORD DM RATE LIMIT: SKIP LOG_ERROR, NOT A BOT BUG - \\
+    // - Discord DM 频率限制：跳过 log_error，这不是机器人 bug - \\
+    // - Discord DM rate limit: skip log_error, not a bot bug - \\
     const err_code = (error as any)?.code
     if (err_code === 340002 || err_code === 50007) {
       console.warn(`[ - AUTO BYPASS - ] DM restricted for ${message.author.tag} (code: ${err_code}), skipping.`)
@@ -476,7 +487,8 @@ export async function handle_auto_bypass(message: Message): Promise<boolean> {
       url     : url || "unknown",
     })
 
-    // - ALWAYS UPDATE PROCESSING MESSAGE TO AVOID STUCK STATE - \\
+    // - 始终更新处理消息以避免卡死 - \\
+    // - always update processing message to avoid stuck state - \\
     if (processing_msg) {
       try {
         const stuck_log_text = [

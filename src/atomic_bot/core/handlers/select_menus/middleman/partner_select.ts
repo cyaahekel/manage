@@ -15,8 +15,8 @@ import { is_middleman_service_open } from "@shared/database/managers/middleman_s
 import { component } from "@shared/utils"
 
 /**
- * @description Handles partner selection for middleman service and opens ticket
- * @param {UserSelectMenuInteraction} interaction - The user select menu interaction
+ * @description handles partner selection for middleman service and opens ticket
+ * @param {UserSelectMenuInteraction} interaction - the user select menu interaction
  * @returns {Promise<boolean>} - Returns true if handled, false otherwise
  */
 export async function handle_middleman_partner_select(interaction: UserSelectMenuInteraction): Promise<boolean> {
@@ -24,7 +24,8 @@ export async function handle_middleman_partner_select(interaction: UserSelectMen
 
   await interaction.deferReply({ flags: 64 })
 
-  // - CHECK IF MIDDLEMAN SERVICE IS OPEN - \\
+  // - 检查中间人服务是否开启 - \\
+  // - check if middleman service is open - \\
   const is_open = await is_middleman_service_open(interaction.guildId || "")
   if (!is_open) {
     const closed_message = component.build_message({

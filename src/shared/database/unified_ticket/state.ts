@@ -14,7 +14,8 @@ import { db, component, format } from "../../utils"
 
 const __tickets_collection = "unified_tickets"
 
-// - BATCH SAVE OPTIMIZATION - \\
+// - 批量保存优化 - \\
+// - batch save optimization - \\
 let save_queue: Set<string> = new Set()
 let save_timeout: NodeJS.Timeout | null = null
 const __batch_delay_ms = 500
@@ -208,9 +209,10 @@ export interface TicketLogOptions {
 }
 
 /**
- * - BUILD TICKET LOG MESSAGE - \\
- * @param {TicketLogOptions} opts - Ticket log message options
- * @returns {component.message_payload} Built message payload
+ * - 构建工单日志消息 - \\
+ * - build ticket log message - \\
+ * @param {TicketLogOptions} opts - ticket log message options
+ * @returns {component.message_payload} built message payload
  */
 export function build_ticket_log_message(opts: TicketLogOptions): component.message_payload {
   const claimed_text = opts.claimed_by ? `<@${opts.claimed_by}>` : "Not claimed"

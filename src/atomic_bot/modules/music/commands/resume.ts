@@ -21,7 +21,7 @@ export const command: Command = {
     .setDescription("Resume a paused track"),
 
   /**
-   * @description Handles /resume. Resumes playback if something is paused.
+   * @description handles /resume. Resumes playback if something is paused.
    * @param {ChatInputCommandInteraction} interaction
    * @returns {Promise<void>}
    */

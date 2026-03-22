@@ -21,19 +21,22 @@ export interface MiddlemanServiceStatus {
 let cached_status: Map<string, boolean> = new Map()
 
 /**
- * @description Get middleman service status for a guild
- * @param {string} guild_id - Guild ID
+ * @description get middleman service status for a guild
+ * @param {string} guild_id - guild ID
  * @returns {Promise<boolean>} - True if service is open, false if closed
  */
 export async function is_middleman_service_open(guild_id: string): Promise<boolean> {
-  // - CHECK CACHE FIRST - \\
+  // - 先检查缓存 - \\
+  // - check cache first - \\
   if (cached_status.has(guild_id)) {
     return cached_status.get(guild_id)!
   }
 
-  // - LOAD FROM DATABASE - \\
+  // - 从数据库加载 - \\
+  // - load from database - \\
   if (!db.is_connected()) {
-    // - DEFAULT TO OPEN IF DB NOT AVAILABLE - \\
+    // - 数据库不可用时默认开放 - \\
+    // - default to open if db not available - \\
     return true
   }
 
@@ -49,10 +52,10 @@ export async function is_middleman_service_open(guild_id: string): Promise<boole
 }
 
 /**
- * @description Set middleman service status
- * @param {string} guild_id - Guild ID
- * @param {boolean} is_open - True to open service, false to close
- * @param {string} updated_by - User ID who updated the status
+ * @description set middleman service status
+ * @param {string} guild_id - guild ID
+ * @param {boolean} is_open - true to open service, false to close
+ * @param {string} updated_by - user ID who updated the status
  * @returns {Promise<boolean>} - Success status
  */
 export async function set_middleman_service_status(guild_id: string, is_open: boolean, updated_by: string): Promise<boolean> {
@@ -72,7 +75,8 @@ export async function set_middleman_service_status(guild_id: string, is_open: bo
       true
     )
 
-    // - UPDATE CACHE - \\
+    // - 更新缓存 - \\
+    // - update cache - \\
     cached_status.set(guild_id, is_open)
 
     console.log(`[ - MIDDLEMAN SERVICE - ] Status updated: ${is_open ? "OPEN" : "CLOSED"} for guild ${guild_id}`)
@@ -84,7 +88,7 @@ export async function set_middleman_service_status(guild_id: string, is_open: bo
 }
 
 /**
- * @description Load all middleman service statuses into cache on startup
+ * @description load all middleman service statuses into cache on startup
  * @returns {Promise<void>}
  */
 export async function load_all_middleman_service_statuses(): Promise<void> {
@@ -104,7 +108,7 @@ export async function load_all_middleman_service_statuses(): Promise<void> {
 }
 
 /**
- * @description Clear cache (for testing purposes)
+ * @description clear cache (for testing purposes)
  * @returns {void}
  */
 export function clear_middleman_service_cache(): void {

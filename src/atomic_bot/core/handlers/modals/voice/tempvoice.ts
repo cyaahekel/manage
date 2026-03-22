@@ -14,7 +14,8 @@ import * as tempvoice                                               from "@share
 import { component }                                                from "@shared/utils"
 
 /**
- * - VALIDATE AND FETCH VOICE CHANNEL - \\
+ * - 验证并获取语音频道 - \\
+ * - validate and fetch voice channel - \\
  * @param guild - Guild instance
  * @param channel_id - Channel ID to validate
  * @returns VoiceChannel or null if not valid
@@ -156,7 +157,8 @@ async function handle_name_modal(
 
   await interaction.deferReply({ flags: 64 })
 
-  // - VALIDATE CHANNEL STILL EXISTS - \\
+  // - 验证语音频道是否仍存在 - \\
+  // - validate channel still exists - \\
   const validated = await validate_voice_channel(member.guild, channel.id)
   if (!validated) {
     await interaction.editReply(create_reply("Channel no longer exists."))
@@ -196,7 +198,8 @@ async function handle_limit_modal(
 
   await interaction.deferReply({ flags: 64 })
 
-  // - VALIDATE CHANNEL STILL EXISTS - \\
+  // - 验证语音频道是否仍存在 - \\
+  // - validate channel still exists - \\
   const validated = await validate_voice_channel(member.guild, channel.id)
   if (!validated) {
     await interaction.editReply(create_reply("Channel no longer exists."))

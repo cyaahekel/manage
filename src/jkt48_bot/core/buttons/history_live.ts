@@ -12,9 +12,10 @@ import { log_error }                                        from "@shared/utils/
 import { build_history_message, get_history_records }       from "../controllers/jkt48_live_controller"
 
 /**
- * - HANDLE HISTORY LIVE BUTTON - \\
- * @param {ButtonInteraction} interaction - Button interaction
- * @returns {Promise<void>} Void
+ * - 处理历史直播按钮 - \\
+ * - handle history live button - \\
+ * @param {ButtonInteraction} interaction - button interaction
+ * @returns {Promise<void>} void
  */
 export async function handle_history_live_button(interaction: ButtonInteraction): Promise<void> {
   try {

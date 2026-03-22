@@ -17,9 +17,9 @@ import { build_select_update_message,
          perform_script_update }                          from "@atomic/modules/scripts/controller"
 
 /**
- * @description Handles the update script select menu — updates the Update button with the chosen script_id
- * @param {StringSelectMenuInteraction} interaction - The string select menu interaction
- * @returns {Promise<boolean>} Returns true if handled
+ * @description handles the update script select menu — updates the Update button with the chosen script_id
+ * @param {StringSelectMenuInteraction} interaction - the string select menu interaction
+ * @returns {Promise<boolean>} returns true if handled
  */
 const __allowed_user_id = "1118453649727823974"
 
@@ -71,9 +71,9 @@ export async function handle_script_update_select(interaction: StringSelectMenuI
 }
 
 /**
- * @description Handles the update script button — reads local file and PUTs content to Luarmor API
- * @param {ButtonInteraction} interaction - The button interaction
- * @returns {Promise<boolean>} Returns true if handled
+ * @description handles the update script button — reads local file and PUTs content to Luarmor API
+ * @param {ButtonInteraction} interaction - the button interaction
+ * @returns {Promise<boolean>} returns true if handled
  */
 export async function handle_script_update_btn(interaction: ButtonInteraction): Promise<boolean> {
   if (!interaction.customId.startsWith("script_update_btn:")) return false

@@ -27,7 +27,7 @@ export const command: Command = {
     ) as SlashCommandBuilder,
 
   /**
-   * @description Handles /queue. Shows the current queue with pagination.
+   * @description handles /queue. Shows the current queue with pagination.
    * @param {ChatInputCommandInteraction} interaction
    * @returns {Promise<void>}
    */

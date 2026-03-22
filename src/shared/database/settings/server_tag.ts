@@ -35,7 +35,8 @@ const __quarantine_log_id       = "1474186051366031380"
 const __quarantine_role_id      = "1265318689130024992"
 const __auto_tag_quarantine_by  = "AUTO_TAG_GUARD"
 
-// - TAGS THAT TRIGGER AUTO-QUARANTINE (DB-BACKED) - \\
+// - 触发自动隔离的标签（数据库支持） - \\
+// - tags that trigger auto-quarantine (db-backed) - \\
 const __blacklist_tags_collection  = "blacklist_tags"
 const __banned_tags_cache_ttl_ms   = 5 * 60 * 1000
 const __auto_release_tags          = new Set(["LYNX", "ʟʏɴx"])
@@ -70,7 +71,8 @@ function __invalidate_banned_tags_cache(): void {
   __banned_tags_cache_at = 0
 }
 
-// - HELPER: GET MANAGED + PREVIOUS ROLES FROM MEMBER USING REST-FETCHED GUILD ROLES - \\
+// - 辅助函数：通过 REST 获取的服务器角色获取成员角色 - \\
+// - helper: get managed + previous roles from member using rest-fetched guild roles - \\
 async function get_member_roles(member: GuildMember, guild: Guild): Promise<{ managed: string[]; previous: string[] }> {
   const guild_roles = await guild.roles.fetch().catch(() => null)
   const raw_ids     = ((member as any)._roles ?? []) as string[]
@@ -135,7 +137,7 @@ export async function list_banned_tags(): Promise<string[]> {
 export { get_banned_tags }
 
 /**
- * @description Auto-quarantine member when they equip a banned server tag, release when removed
+ * @description auto-quarantine member when they equip a banned server tag, release when removed
  * @param client   - Discord Client
  * @param new_user - Updated user
  * @param new_tag  - Current primary guild tag (from Gateway event)
@@ -168,7 +170,8 @@ async function handle_banned_tag_quarantine(
       ? quarantine_data.previous_roles.filter(rid => guild_roles_map.has(rid))
       : quarantine_data.previous_roles
 
-    // - REMOVE QUARANTINE ROLE - \\
+    // - 移除隔离角色 - \\
+    // - remove quarantine role - \\
     const roles_to_set = [...managed_roles, ...valid_roles].filter(rid => rid !== __quarantine_role_id)
 
     await target_member.roles.set(roles_to_set, reason)
@@ -208,7 +211,8 @@ async function handle_banned_tag_quarantine(
   }
 
   if (is_using_banned_tag) {
-    // - ALREADY QUARANTINED, SKIP - \\
+    // - 已隔离，跳过 - \\
+    // - already quarantined, skip - \\
     const already = await is_quarantined(new_user.id, guild.id)
     if (already) return
 
@@ -232,7 +236,8 @@ async function handle_banned_tag_quarantine(
       3650
     )
 
-    // - RECORD HISTORY AND SEND TO QUARANTINE LOG - \\
+    // - 记录历史并发送隔离日志 - \\
+    // - record history and send to quarantine log - \\
     await add_quarantine_history(new_user.id, guild.id, `Auto-quarantined: using banned server tag (${new_tag})`, __auto_tag_quarantine_by, 3650)
 
     const total_count   = await get_quarantine_count(new_user.id, guild.id)
@@ -303,7 +308,8 @@ async function handle_banned_tag_quarantine(
     return
   }
 
-  // - NOT USING BANNED TAG — CHECK IF AUTO-QUARANTINE SHOULD BE LIFTED - \\
+  // - 未使用禁止标签，检查是否应解除自动隔离 - \\
+  // - not using banned tag — check if auto-quarantine should be lifted - \\
   await release_auto_tag_quarantine("Auto-released: no longer using banned server tag")
 }
 
@@ -327,7 +333,8 @@ export async function check_server_tag_change(
     const old_guild_id = old_user.primaryGuild?.identityGuildId
     const new_guild_id = new_user.primaryGuild?.identityGuildId
 
-    // - CHECK IF BANNED TAG WAS EQUIPPED OR REMOVED - \\
+    // - 检查禁止标签是否被装备或移除 - \\
+    // - check if banned tag was equipped or removed - \\
     await handle_banned_tag_quarantine(client, new_user, new_tag)
 
     const switched_to_target_guild = (old_guild_id !== __target_guild_id || !old_tag) && new_tag && new_guild_id === __target_guild_id
@@ -430,7 +437,7 @@ export async function check_server_tag_change(
 }
 
 /**
- * @description Scan all guild members on startup and quarantine/release based on banned tags
+ * @description scan all guild members on startup and quarantine/release based on banned tags
  * @param client - Discord Client
  */
 export async function scan_banned_tags_on_startup(client: Client): Promise<void> {
@@ -458,7 +465,8 @@ export async function scan_banned_tags_on_startup(client: Client): Promise<void>
         const quarantine_data = await get_quarantine(user.id, guild.id)
 
         if (is_using_banned && !quarantine_data) {
-          // - MEMBER HAS BANNED TAG BUT NOT QUARANTINED → QUARANTINE - \\
+          // - 成员有禁止标签但未被隔离，对其执行隔离 - \\
+          // - member has banned tag but not quarantined → quarantine - \\
           const quarantine_role = await guild.roles.fetch(__quarantine_role_id).catch(() => null)
           if (!quarantine_role) continue
 
@@ -515,14 +523,16 @@ export async function scan_banned_tags_on_startup(client: Client): Promise<void>
           quarantined++
 
         } else if (!is_using_banned && quarantine_data?.quarantined_by === __auto_tag_quarantine_by) {
-          // - MEMBER NO LONGER HAS BANNED TAG BUT STILL AUTO-QUARANTINED → RELEASE - \\
+          // - 成员已不再使用禁止标签但仍被自动隔离，解除隔离 - \\
+          // - member no longer has banned tag but still auto-quarantined → release - \\
           const guild_roles_map                 = await guild.roles.fetch().catch(() => null)
           const { managed: managed_roles }      = await get_member_roles(member, guild)
           const valid_roles = guild_roles_map
             ? quarantine_data.previous_roles.filter(rid => guild_roles_map.has(rid))
             : quarantine_data.previous_roles
 
-          // - REMOVE QUARANTINE ROLE - \\
+          // - 移除隔离角色 - \\
+          // - remove quarantine role - \\
           const roles_to_set = [...managed_roles, ...valid_roles].filter(rid => rid !== __quarantine_role_id)
 
           await member.roles.set(roles_to_set, "Auto-released on startup: no longer using banned server tag")

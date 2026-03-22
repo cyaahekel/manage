@@ -32,9 +32,10 @@ interface invite_snapshot {
 const invite_cache: Map<string, Map<string, invite_snapshot>> = new Map()
 
 /**
- * - FETCH INVITES - \\
- * @param {Guild} guild - Guild
- * @returns {Promise<Map<string, invite_snapshot>>} Invite map
+ * - 获取邀请列表 - \\
+ * - fetch invites - \\
+ * @param {Guild} guild - guild
+ * @returns {Promise<Map<string, invite_snapshot>>} invite map
  */
 async function fetch_invites(guild: Guild): Promise<Map<string, invite_snapshot>> {
   const invites = await guild.invites.fetch()
@@ -55,9 +56,10 @@ async function fetch_invites(guild: Guild): Promise<Map<string, invite_snapshot>
 }
 
 /**
- * - UPDATE INVITE CACHE - \\
- * @param {Guild} guild - Guild
- * @returns {Promise<Map<string, invite_snapshot>>} Invite map
+ * - 更新邀请缓存 - \\
+ * - update invite cache - \\
+ * @param {Guild} guild - guild
+ * @returns {Promise<Map<string, invite_snapshot>>} invite map
  */
 async function update_invite_cache(guild: Guild): Promise<Map<string, invite_snapshot>> {
   const map = await fetch_invites(guild)
@@ -66,11 +68,12 @@ async function update_invite_cache(guild: Guild): Promise<Map<string, invite_sna
 }
 
 /**
- * - GET USED INVITE - \\
- * @param {Map<string, invite_snapshot> | undefined} previous - Previous map
- * @param {Map<string, invite_snapshot>} current - Current map
- * @param {invite_snapshot[]} invites - Invite list
- * @returns {invite_snapshot | null} Used invite
+ * - 获取已使用邀请 - \\
+ * - get used invite - \\
+ * @param {Map<string, invite_snapshot> | undefined} previous - previous map
+ * @param {Map<string, invite_snapshot>} current - current map
+ * @param {invite_snapshot[]} invites - invite list
+ * @returns {invite_snapshot | null} used invite
  */
 function get_used_invite(
   previous: Map<string, invite_snapshot> | undefined,
@@ -96,13 +99,14 @@ function get_used_invite(
 }
 
 /**
- * - SEND INVITE LOG - \\
- * @param {Client} client - Discord client
- * @param {object} options - Log options
- * @param {string} options.member_id - Member ID
- * @param {string} options.member_tag - Member tag
- * @param {invite_snapshot | null} options.invite - Invite
- * @returns {Promise<void>} Void
+ * - 发送邀请日志 - \\
+ * - send invite log - \\
+ * @param {Client} client - discord client
+ * @param {object} options - log options
+ * @param {string} options.member_id - member ID
+ * @param {string} options.member_tag - member tag
+ * @param {invite_snapshot | null} options.invite - invite
+ * @returns {Promise<void>} void
  */
 async function send_invite_log(
   client: Client,
@@ -163,11 +167,12 @@ async function send_invite_log(
 }
 
 /**
- * - INCREMENT INVITE LEADERBOARD - \\
- * @param {Client} client - Discord client
- * @param {Guild} guild - Guild
- * @param {invite_snapshot | null} invite - Invite
- * @returns {Promise<void>} Void
+ * - 增加邀请排行榜 - \\
+ * - increment invite leaderboard - \\
+ * @param {Client} client - discord client
+ * @param {Guild} guild - guild
+ * @param {invite_snapshot | null} invite - invite
+ * @returns {Promise<void>} void
  */
 async function increment_invite_leaderboard(client: Client, guild: Guild, invite: invite_snapshot | null): Promise<void> {
   if (!invite?.inviter_id) return
@@ -198,9 +203,10 @@ async function increment_invite_leaderboard(client: Client, guild: Guild, invite
 }
 
 /**
- * - START INVITE LOGGER - \\
- * @param {Client} client - Discord client
- * @returns {Promise<void>} Void
+ * - 启动邀请日志器 - \\
+ * - start invite logger - \\
+ * @param {Client} client - discord client
+ * @returns {Promise<void>} void
  */
 export async function start_invite_logger(client: Client): Promise<void> {
   try {

@@ -21,7 +21,7 @@ export const command: Command = {
     .setDescription("Stop playback, clear the queue, and leave the voice channel"),
 
   /**
-   * @description Handles /stop. Stops playback and disconnects the bot from VC.
+   * @description handles /stop. Stops playback and disconnects the bot from VC.
    * @param {ChatInputCommandInteraction} interaction
    * @returns {Promise<void>}
    */

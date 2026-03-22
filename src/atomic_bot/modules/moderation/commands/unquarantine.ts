@@ -20,7 +20,7 @@ import { release_quarantine }     from "../../quarantine/controller"
 import { component }              from "@shared/utils"
 
 /**
- * @description Manually release a member from quarantine
+ * @description manually release a member from quarantine
  */
 export const command: Command = {
   data: new SlashCommandBuilder()

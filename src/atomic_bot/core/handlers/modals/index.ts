@@ -11,23 +11,29 @@
 // - barrel export for all modal handlers - \
 /**
  * @module Modal Handlers
- * @description Centralized modal handler exports organized by feature category
+ * @description centralized modal handler exports organized by feature category
  */
 
-// - STAFF MODALS - \\
+// - 员工模态框 - \\
+// - staff modals - \\
 export * from "./staff"
 
-// - TOOLS MODALS - \\
+// - 工具模态框 - \\
+// - tools modals - \\
 export * from "./tools"
 
-// - SERVICE MODALS - \\
+// - 服务模态框 - \\
+// - service modals - \\
 export * from "./service"
 
-// - VOICE MODALS - \\
+// - 语音模态框 - \\
+// - voice modals - \\
 export * from "./voice"
 
-// - COMMUNITY MODALS - \\
+// - 社区模态框 - \\
+// - community modals - \\
 export * from "./community"
 
-// - TICKET MODALS - \\
+// - 工单模态框 - \\
+// - ticket modals - \\
 export * from "./ticket"

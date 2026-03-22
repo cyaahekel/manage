@@ -27,7 +27,8 @@ interface WorkReport {
   last_work            : number
 }
 
-// - WEEKLY WORK STATS RESET SCHEDULER - \\
+// - 每周工作统计重置调度器 - \\
+// - weekly work stats reset scheduler - \\
 export async function start_weekly_reset_scheduler(): Promise<void> {
   log.info("Starting weekly work reset scheduler")
 

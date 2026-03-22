@@ -7,9 +7,8 @@
  * See the LICENSE file for more information.
  */
 
-// - 票务 modal handler 的统一导出 - \
-// - barrel export for ticket modal handlers - \
-// - TICKET MODAL HANDLERS - \\
+// - 票务 modal handler 的统一导出 - \\
+// - ticket modal handlers - \\
 
 export { handle as handle_ticket_create_modal }              from "./create"
 export { handle as handle_ticket_close_modal }               from "./close"

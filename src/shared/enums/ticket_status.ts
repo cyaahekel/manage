@@ -7,7 +7,8 @@
  * See the LICENSE file for more information.
  */
 
-// - TICKET STATUS ENUM - \\
+// - 工单状态枚举 - \\
+// - ticket status enum - \\
 export enum TicketStatus {
   open   = "open",
   closed = "closed",

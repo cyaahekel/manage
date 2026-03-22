@@ -9,7 +9,8 @@
 
 import { Client, Guild, GuildMember } from "discord.js"
 
-// - QUARANTINE CONTROLLER OPTION INTERFACES - \\
+// - 隔离控制器选项接口 - \\
+// - quarantine controller option interfaces - \\
 export interface quarantine_member_options {
   client   : Client
   guild    : Guild

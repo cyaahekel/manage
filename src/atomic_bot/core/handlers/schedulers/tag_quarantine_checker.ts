@@ -24,7 +24,7 @@ const __quarantine_log_id  = "1474186051366031380"
 const __check_interval_ms  = 5 * 60 * 1000
 
 /**
- * @description Start periodic checker that releases auto-tag-quarantines when banned tag is removed
+ * @description start periodic checker that releases auto-tag-quarantines when banned tag is removed
  * @param client - Discord Client instance
  */
 export function start_tag_quarantine_checker(client: Client): void {
@@ -44,7 +44,8 @@ export function start_tag_quarantine_checker(client: Client): void {
 
       for (const entry of auto_quarantines) {
         try {
-          // - FETCH FRESH USER DATA FROM API TO GET CURRENT TAG - \\
+          // - 从 API 获取最新用户数据以获取当前 TAG - \\
+          // - fetch fresh user data from API to get current tag - \\
           const member = await guild.members.fetch(entry.user_id).catch(() => null)
           if (!member) continue
 
@@ -56,8 +57,10 @@ export function start_tag_quarantine_checker(client: Client): void {
 
           if (still_banned) continue
 
-          // - TAG REMOVED, RELEASE QUARANTINE - \\
-          // - FETCH ALL GUILD ROLES VIA REST TO CHECK VALIDITY - \\
+          // - TAG 已移除，释放隔离 - \\
+          // - tag removed, release quarantine - \\
+          // - 通过 REST 获取所有服务器角色以验证有效性 - \\
+          // - fetch all guild roles via REST to check validity - \\
           const guild_roles   = await guild.roles.fetch().catch(() => null)
           const managed_roles = guild_roles
             ? [...guild_roles.values()].filter(r => r.managed || r.id === guild.id).map(r => r.id)
@@ -66,7 +69,8 @@ export function start_tag_quarantine_checker(client: Client): void {
             ? entry.previous_roles.filter(rid => guild_roles.has(rid))
             : entry.previous_roles
           
-          // - REMOVE QUARANTINE ROLE - \\
+          // - 移除隔离角色 - \\
+          // - remove quarantine role - \\
           const quarantine_role_id = "1265318689130024992"
           const roles_to_set = [...managed_roles, ...valid_roles].filter(rid => rid !== quarantine_role_id)
 
@@ -75,7 +79,8 @@ export function start_tag_quarantine_checker(client: Client): void {
 
           log.info(`Released ${user.username} (tag no longer banned)`)
 
-          // - SEND RELEASE LOG TO BOTH CHANNELS - \\
+          // - 向两个频道发送释放日志 - \\
+          // - send release log to both channels - \\
           const release_msg = component.build_message({
             components: [
               component.container({
@@ -109,10 +114,12 @@ export function start_tag_quarantine_checker(client: Client): void {
     }
   }
 
-  // - RUN INITIAL CHECK AFTER 15 SECONDS - \\
+  // - 15 秒后执行初始检查 - \\
+  // - run initial check after 15 seconds - \\
   setTimeout(run_check, 15000)
 
-  // - RUN CHECK EVERY 5 MINUTES - \\
+  // - 每 5 分钟执行一次检查 - \\
+  // - run check every 5 minutes - \\
   setInterval(run_check, __check_interval_ms)
 
   log.info("Tag quarantine checker started")

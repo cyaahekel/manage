@@ -7,8 +7,8 @@
  * See the LICENSE file for more information.
  */
 
-// - 管理功能的模块控制器 - \
-// - module controller for moderation features - \
+// - 审核管理控制中心，主打一个稳准狠 - \\
+// - moderation controller, keeping the peace - \\
 import { Client, GuildMember, User, Guild } from "discord.js"
 import { component }                        from "@shared/utils"
 import { log_error }                        from "@shared/utils/error_logger"

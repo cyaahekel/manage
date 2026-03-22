@@ -145,7 +145,8 @@ export async function handle_free_reset_hwid(interaction: ButtonInteraction): Pr
       return
     }
 
-    // - TRACK RESET ATTEMPT BEFORE API CALL - \\
+    // - 在 API 调用前追踪重置尝试 - \\
+    // - track reset attempt before api call - \\
     await track_and_check_hwid_reset(interaction.client, member.id)
 
     const reset_url  = `https://api.luarmor.net/v3/projects/${FREE_PROJECT_ID}/users/resethwid`

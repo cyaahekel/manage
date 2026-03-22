@@ -7,8 +7,7 @@
  * See the LICENSE file for more information.
  */
 
-// - 语音相关 modal handler 的统一导出 - \
-// - barrel export for voice modal handlers - \
-// - VOICE MODAL HANDLERS - \\
+// - 语音相关 modal handler 的统一导出 - \\
+// - voice modal handlers - \\
 
 export { handle_tempvoice_modal } from "./tempvoice"

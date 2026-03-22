@@ -14,9 +14,10 @@ import { add_ignored_channel, remove_ignored_channel, is_ignored_channel }      
 import { build_simple_message }                                                     from "./afk_utils"
 
 /**
- * - BUILD AFK MOD IGNORE SUBCOMMAND - \\
- * @param {SlashCommandSubcommandBuilder} subcommand - Subcommand builder
- * @returns {SlashCommandSubcommandBuilder} Updated subcommand builder
+ * - 构建 AFK 管理忽略子命令 - \\
+ * - build afk mod ignore subcommand - \\
+ * @param {SlashCommandSubcommandBuilder} subcommand - subcommand builder
+ * @returns {SlashCommandSubcommandBuilder} updated subcommand builder
  */
 export function build_afk_mod_ignore_subcommand(subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder {
   return subcommand
@@ -37,8 +38,9 @@ export function build_afk_mod_ignore_subcommand(subcommand: SlashCommandSubcomma
 }
 
 /**
- * - HANDLE AFK MOD IGNORE - \\
- * @param {ChatInputCommandInteraction} interaction - Discord interaction
+ * - 处理 AFK 管理忽略 - \\
+ * - handle afk mod ignore - \\
+ * @param {ChatInputCommandInteraction} interaction - discord interaction
  * @returns {Promise<void>}
  */
 export async function handle_afk_mod_ignore(interaction: ChatInputCommandInteraction): Promise<void> {

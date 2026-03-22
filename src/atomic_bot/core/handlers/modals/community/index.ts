@@ -7,8 +7,7 @@
  * See the LICENSE file for more information.
  */
 
-// - 社区模块 modal 的统一导出 - \
-// - barrel export for community modal handlers - \
-// - COMMUNITY MODAL HANDLERS - \\
+// - 社区模块 modal 的统一导出 - \\
+// - community modal handlers - \\
 
 export { handle_review_modal } from "./review"

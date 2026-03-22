@@ -46,7 +46,8 @@ const __generator_name   = __config.generator_name ?? "➕ Create Voice"
 const __thread_parent_id = "1449863232071401534"
 
 /**
- * - FETCH CHANNEL WITH FALLBACK - \\
+ * - 带回退方式获取频道 - \\
+ * - fetch channel with fallback - \\
  * @param guild - Guild to fetch from
  * @param channel_id - Channel ID to fetch
  * @returns VoiceChannel or null
@@ -70,7 +71,8 @@ async function fetch_voice_channel(
 }
 
 /**
- * - GET ACTIVE VOICE MEMBER COUNT - \\
+ * - 获取活跃语音成员数量 - \\
+ * - get active voice member count - \\
  *
  * @param guild - Target guild
  * @param channel_id - Voice channel ID
@@ -128,7 +130,8 @@ let __category_id           : string | null                     = __config.categ
 let __interface_channel_id  : string | null                     = null
 
 /**
- * - GET CATEGORY FROM GENERATOR - \\
+ * - 从生成器获取分类 - \\
+ * - get category from generator - \\
  * @param guild - Guild to resolve the category from
  * @returns CategoryChannel or null
  */
@@ -153,7 +156,8 @@ function get_category_from_generator(guild: Guild): CategoryChannel | null {
 }
 
 /**
- * - GET OWNER ID FROM OVERWRITES - \\
+ * - 从权限覆盖中获取所有者 ID - \\
+ * - get owner id from overwrites - \\
  * @param channel - Voice channel to inspect
  * @returns Owner ID or null
  */
@@ -176,7 +180,8 @@ function get_owner_id_from_overwrites(channel: VoiceChannel): string | null {
 }
 
 /**
- * - REGISTER EXISTING CHANNEL - \\
+ * - 注册现有频道 - \\
+ * - register existing channel - \\
  * @param channel - Voice channel to register
  * @param owner_id - Owner user ID
  * @returns Void
@@ -190,7 +195,8 @@ function register_existing_channel(channel: VoiceChannel, owner_id: string): voi
 }
 
 /**
- * - RECONCILE TEMPVOICE GUILD - \\
+ * - 同步服务器临时语音状态 - \\
+ * - reconcile tempvoice guild - \\
  * @param guild - Target guild to reconcile
  * @returns Void
  */
@@ -208,7 +214,8 @@ export async function reconcile_tempvoice_guild(guild: Guild): Promise<void> {
     for (const ch of voice_channels.values()) {
       const channel = ch as VoiceChannel
 
-      // - FETCH FRESH DATA TO VERIFY CHANNEL STATE - \\
+      // - 获取最新数据以验证频道状态 - \\
+      // - fetch fresh data to verify channel state - \\
       const fresh_channel = await fetch_voice_channel(guild, channel.id)
       if (!fresh_channel) {
         cleanup_channel_data(channel.id)
@@ -242,7 +249,8 @@ interface setup_result {
 }
 
 /**
- * - SETUP TEMPVOICE - \\
+ * - 初始化临时语音功能 - \\
+ * - setup tempvoice - \\
  * @param guild - Target guild
  * @returns Setup result
  */
@@ -323,7 +331,8 @@ export async function setup_tempvoice(guild: Guild): Promise<setup_result> {
 }
 
 /**
- * - GET GENERATOR CHANNEL ID - \\
+ * - 获取生成器频道 ID - \\
+ * - get generator channel id - \\
  * @returns Generator channel ID or null
  */
 export function get_generator_channel_id(): string | null {
@@ -331,7 +340,8 @@ export function get_generator_channel_id(): string | null {
 }
 
 /**
- * - SET GENERATOR CHANNEL ID - \\
+ * - 设置生成器频道 ID - \\
+ * - set generator channel id - \\
  * @param id - Generator channel ID
  * @returns Void
  */
@@ -340,7 +350,8 @@ export function set_generator_channel_id(id: string): void {
 }
 
 /**
- * - GET CATEGORY ID - \\
+ * - 获取分类 ID - \\
+ * - get category id - \\
  * @returns Category ID or null
  */
 export function get_category_id(): string | null {
@@ -348,7 +359,8 @@ export function get_category_id(): string | null {
 }
 
 /**
- * - SET CATEGORY ID - \\
+ * - 设置分类 ID - \\
+ * - set category id - \\
  * @param id - Category ID
  * @returns Void
  */
@@ -357,7 +369,8 @@ export function set_category_id(id: string): void {
 }
 
 /**
- * - GET USER TEMP CHANNEL - \\
+ * - 获取用户临时频道 - \\
+ * - get user temp channel - \\
  * @param guild - Target guild
  * @param user_id - User ID to resolve
  * @returns VoiceChannel or null
@@ -391,7 +404,8 @@ export async function get_user_temp_channel(guild: Guild, user_id: string): Prom
 }
 
 /**
- * - CREATE TEMP CHANNEL - \\
+ * - 创建临时频道 - \\
+ * - create temp channel - \\
  * @param member - Member who requested a temp channel
  * @returns VoiceChannel or null
  */
@@ -502,7 +516,8 @@ export async function create_temp_channel(member: GuildMember): Promise<VoiceCha
 }
 
 /**
- * - DELETE TEMP CHANNEL - \\
+ * - 删除临时频道 - \\
+ * - delete temp channel - \\
  * @param channel - Voice channel or channel ID
  * @returns True when deletion and cleanup succeed
  */
@@ -522,7 +537,8 @@ export async function delete_temp_channel(channel: VoiceChannel | string): Promi
       guild = channel.guild
     }
 
-    // - VERIFY CHANNEL STILL EXISTS - \\
+    // - 验证频道仍存在 - \\
+    // - verify channel still exists - \\
     if (guild) {
       const fetched = await fetch_voice_channel(guild, channel_id)
       if (!fetched) {
@@ -569,12 +585,14 @@ export async function delete_temp_channel(channel: VoiceChannel | string): Promi
 }
 
 /**
- * - CLEANUP CHANNEL DATA - \\
+ * - 清理频道数据 - \\
+ * - cleanup channel data - \\
  * @param channel_id - Channel ID to clean
  * @returns Void
  */
 export function cleanup_channel_data(channel_id: string): void {
-  // - CLEAR DELETION TIMER IF EXISTS - \\
+  // - 清除删除定时器（如果存在） - \\
+  // - clear deletion timer if exists - \\
   const timer = __deletion_timers.get(channel_id)
   if (timer) {
     clearTimeout(timer)
@@ -591,7 +609,8 @@ export function cleanup_channel_data(channel_id: string): void {
 }
 
 /**
- * - CHECK TEMP CHANNEL - \\
+ * - 检查临时频道 - \\
+ * - check temp channel - \\
  * @param channel_id - Channel ID to check
  * @returns True if channel is a temp channel
  */
@@ -600,7 +619,8 @@ export function is_temp_channel(channel_id: string): boolean {
 }
 
 /**
- * - CHECK CHANNEL OWNER - \\
+ * - 检查频道所有者 - \\
+ * - check channel owner - \\
  * @param channel_id - Channel ID to check
  * @param user_id - User ID to compare
  * @returns True if user owns the channel
@@ -610,7 +630,8 @@ export function is_channel_owner(channel_id: string, user_id: string): boolean {
 }
 
 /**
- * - GET CHANNEL OWNER - \\
+ * - 获取频道所有者 - \\
+ * - get channel owner - \\
  * @param channel_id - Channel ID to resolve
  * @returns Owner ID or null
  */
@@ -619,7 +640,8 @@ export function get_channel_owner(channel_id: string): string | null {
 }
 
 /**
- * - RENAME TEMPVOICE CHANNEL - \\
+ * - 重命名临时语音频道 - \\
+ * - rename tempvoice channel - \\
  * @param channel - Voice channel to rename
  * @param new_name - New name to apply
  * @returns True if rename succeeded
@@ -639,7 +661,8 @@ export async function rename_tempvoice_channel(channel: VoiceChannel, new_name: 
 }
 
 /**
- * - SET USER LIMIT - \\
+ * - 设置用户上限 - \\
+ * - set user limit - \\
  * @param channel - Voice channel to update
  * @param limit - New user limit
  * @returns True if update succeeded
@@ -659,7 +682,8 @@ export async function set_user_limit(channel: VoiceChannel, limit: number): Prom
 }
 
 /**
- * - SET PRIVACY - \\
+ * - 设置隐私权限 - \\
+ * - set privacy - \\
  * @param channel - Voice channel to update
  * @param is_private - Private flag
  * @returns True if update succeeded
@@ -687,7 +711,8 @@ export async function set_privacy(channel: VoiceChannel, is_private: boolean): P
 }
 
 /**
- * - TOGGLE WAITING ROOM - \\
+ * - 切换等候室状态 - \\
+ * - toggle waiting room - \\
  * @param channel - Voice channel to update
  * @returns New waiting room state
  */
@@ -698,7 +723,8 @@ export async function toggle_waiting_room(channel: VoiceChannel): Promise<boolea
 }
 
 /**
- * - GET WAITING ROOM STATE - \\
+ * - 获取等候室状态 - \\
+ * - get waiting room state - \\
  * @param channel_id - Channel ID to resolve
  * @returns True if waiting room is enabled
  */
@@ -707,7 +733,8 @@ export function is_waiting_room_enabled(channel_id: string): boolean {
 }
 
 /**
- * - CREATE THREAD FOR VOICE CHANNEL - \\
+ * - 为语音频道创建帖子 - \\
+ * - create thread for voice channel - \\
  * @param channel - Voice channel to create thread for
  * @param owner - Owner of the voice channel
  * @returns Thread ID or null
@@ -771,9 +798,9 @@ export async function create_thread(channel: VoiceChannel, owner: GuildMember): 
 }
 
 /**
- * - DELETE THREAD FOR VOICE CHANNEL - \\
+ * - 删除语音频道帖子 - \\
+ * - delete thread for voice channel - \\
  * @param voice_channel_id - Voice channel ID
- * @returns True if deleted successfully
  */
 export async function delete_thread(voice_channel_id: string): Promise<boolean> {
   try {
@@ -791,7 +818,8 @@ export async function delete_thread(voice_channel_id: string): Promise<boolean> 
 }
 
 /**
- * - GET THREAD ID FOR VOICE CHANNEL - \\
+ * - 获取语音频道帖子 ID - \\
+ * - get thread id for voice channel - \\
  * @param voice_channel_id - Voice channel ID
  * @returns Thread ID or null
  */
@@ -800,7 +828,8 @@ export function get_thread_id(voice_channel_id: string): string | null {
 }
 
 /**
- * - TRUST USER - \\
+ * - 信任用户 - \\
+ * - trust user - \\
  * @param channel - Voice channel to update
  * @param user_id - User ID to trust
  * @returns True if update succeeded
@@ -831,7 +860,8 @@ export async function trust_user(channel: VoiceChannel, user_id: string): Promis
 }
 
 /**
- * - UNTRUST USER - \\
+ * - 取消信任用户 - \\
+ * - untrust user - \\
  * @param channel - Voice channel to update
  * @param user_id - User ID to remove from trust
  * @returns True if update succeeded
@@ -858,7 +888,8 @@ export async function untrust_user(channel: VoiceChannel, user_id: string): Prom
 }
 
 /**
- * - GET TRUSTED USERS - \\
+ * - 获取受信用户列表 - \\
+ * - get trusted users - \\
  * @param channel_id - Channel ID to resolve
  * @returns Set of trusted user IDs
  */
@@ -867,7 +898,8 @@ export function get_trusted_users(channel_id: string): Set<string> {
 }
 
 /**
- * - BLOCK USER - \\
+ * - 屏蔽用户 - \\
+ * - block user - \\
  * @param channel - Voice channel to update
  * @param user_id - User ID to block
  * @returns True if update succeeded
@@ -901,7 +933,8 @@ export async function block_user(channel: VoiceChannel, user_id: string): Promis
 }
 
 /**
- * - UNBLOCK USER - \\
+ * - 解除屏蔽用户 - \\
+ * - unblock user - \\
  * @param channel - Voice channel to update
  * @param user_id - User ID to unblock
  * @returns True if update succeeded
@@ -928,7 +961,8 @@ export async function unblock_user(channel: VoiceChannel, user_id: string): Prom
 }
 
 /**
- * - GET BLOCKED USERS - \\
+ * - 获取屏蔽用户列表 - \\
+ * - get blocked users - \\
  * @param channel_id - Channel ID to resolve
  * @returns Set of blocked user IDs
  */
@@ -937,7 +971,8 @@ export function get_blocked_users(channel_id: string): Set<string> {
 }
 
 /**
- * - KICK USER - \\
+ * - 踢出用户 - \\
+ * - kick user - \\
  * @param channel - Voice channel to update
  * @param user_id - User ID to kick
  * @returns True if kick succeeded
@@ -958,7 +993,8 @@ export async function kick_user(channel: VoiceChannel, user_id: string): Promise
 }
 
 /**
- * - INVITE USER - \\
+ * - 邀请用户 - \\
+ * - invite user - \\
  * @param channel - Voice channel to update
  * @param user_id - User ID to invite
  * @returns True if invite succeeded
@@ -1017,7 +1053,8 @@ export async function invite_user(channel: VoiceChannel, user_id: string): Promi
 }
 
 /**
- * - SET REGION - \\
+ * - 设置地区 - \\
+ * - set region - \\
  * @param channel - Voice channel to update
  * @param region - New RTC region
  * @returns True if update succeeded
@@ -1033,7 +1070,8 @@ export async function set_region(channel: VoiceChannel, region: string | null): 
 }
 
 /**
- * - CLAIM CHANNEL - \\
+ * - 认领频道 - \\
+ * - claim channel - \\
  * @param channel - Voice channel to claim
  * @param new_owner - New owner member
  * @returns True if claim succeeded
@@ -1071,7 +1109,8 @@ export async function claim_channel(channel: VoiceChannel, new_owner: GuildMembe
 }
 
 /**
- * - TRANSFER OWNERSHIP - \\
+ * - 转让所有权 - \\
+ * - transfer ownership - \\
  * @param channel - Voice channel to update
  * @param current_owner - Current owner member
  * @param new_owner_id - New owner user ID
@@ -1111,7 +1150,8 @@ export async function transfer_ownership(
 }
 
 /**
- * - HANDLE VOICE STATE UPDATE - \\
+ * - 处理语音状态更新 - \\
+ * - handle voice state update - \\
  * @param old_state - Previous voice state
  * @param new_state - Updated voice state
  * @returns Void
@@ -1125,7 +1165,8 @@ export async function handle_voice_state_update(old_state: VoiceState, new_state
     return
   }
 
-  // - ADD MEMBER TO THREAD WHEN JOINING TEMP CHANNEL - \\
+  // - 加入临时频道时将成员添加到子线程 - \\
+  // - add member to thread when joining temp channel - \\
   if (new_state.channelId && is_temp_channel(new_state.channelId)) {
     const thread_id = __threads.get(new_state.channelId)
     if (thread_id) {
@@ -1141,7 +1182,8 @@ export async function handle_voice_state_update(old_state: VoiceState, new_state
     }
   }
 
-  // - REMOVE MEMBER FROM THREAD WHEN LEAVING TEMP CHANNEL - \\
+  // - 离开临时频道时将成员从子线程移除 - \\
+  // - remove member from thread when leaving temp channel - \\
   if (
     old_state.channelId &&
     is_temp_channel(old_state.channelId) &&
@@ -1165,17 +1207,20 @@ export async function handle_voice_state_update(old_state: VoiceState, new_state
     const guild = old_state.guild
     const channel_id = old_state.channelId
 
-    // - CLEAR EXISTING DELETION TIMER - \\
+    // - 清除已有删除定时器 - \\
+    // - clear existing deletion timer - \\
     const existing_timer = __deletion_timers.get(channel_id)
     if (existing_timer) {
       clearTimeout(existing_timer)
       __deletion_timers.delete(channel_id)
     }
 
-    // - DELAY DELETION TO AVOID RACE CONDITIONS - \\
+    // - 延迟删除以避免竞争条件 - \\
+    // - delay deletion to avoid race conditions - \\
     const deletion_timer = setTimeout(async () => {
       try {
-        // - FETCH FRESH CHANNEL DATA TO AVOID CACHE ISSUES - \\
+        // - 获取最新频道数据以避免缓存问题 - \\
+        // - fetch fresh channel data to avoid cache issues - \\
         const channel = await fetch_voice_channel(guild, channel_id)
 
         if (!channel) {
@@ -1204,7 +1249,8 @@ export async function handle_voice_state_update(old_state: VoiceState, new_state
 }
 
 /**
- * - GET INTERFACE CHANNEL ID - \\
+ * - 获取界面频道 ID - \\
+ * - get interface channel id - \\
  * @returns Interface channel ID or null
  */
 export function get_interface_channel_id(): string | null {
@@ -1212,7 +1258,8 @@ export function get_interface_channel_id(): string | null {
 }
 
 /**
- * - SET INTERFACE CHANNEL ID - \\
+ * - 设置界面频道 ID - \\
+ * - set interface channel id - \\
  * @param id - Interface channel ID
  * @returns Void
  */
@@ -1221,7 +1268,8 @@ export function set_interface_channel_id(id: string): void {
 }
 
 /**
- * - INIT FROM DATABASE - \\
+ * - 从数据库初始化 - \\
+ * - init from database - \\
  * @param generator_id - Generator channel ID
  * @param category_id - Category ID
  * @param channels - Channel owner mappings
@@ -1248,7 +1296,8 @@ export function init_from_database(
 }
 
 /**
- * - CREATE IN-VOICE CHAT INTERFACE - \\
+ * - 创建语音内聊天界面 - \\
+ * - create in-voice chat interface - \\
  * @param voice_channel - The voice channel to create interface for
  * @param owner - The owner of the voice channel
  * @returns The interface message ID or null if failed
@@ -1365,7 +1414,8 @@ export async function create_in_voice_interface(
 }
 
 /**
- * - DELETE IN-VOICE CHAT INTERFACE - \\
+ * - 删除语音内聊天界面 - \\
+ * - delete in-voice chat interface - \\
  * @param voice_channel_id - The voice channel ID
  * @returns True if deleted successfully
  */
@@ -1388,7 +1438,8 @@ export async function delete_in_voice_interface(voice_channel_id: string): Promi
 }
 
 /**
- * - UPDATE IN-VOICE CHAT INTERFACE - \\
+ * - 更新语音内聊天界面 - \\
+ * - update in-voice chat interface - \\
  * @param voice_channel - The voice channel
  * @param owner - The owner of the voice channel
  * @returns True if updated successfully
@@ -1453,7 +1504,8 @@ export async function update_in_voice_interface(voice_channel: VoiceChannel, own
 }
 
 /**
- * - GET IN-VOICE INTERFACE MESSAGE ID - \\
+ * - 获取语音内界面消息 ID - \\
+ * - get in-voice interface message id - \\
  * @param voice_channel_id - The voice channel ID
  * @returns The message ID or null
  */
@@ -1462,7 +1514,8 @@ export function get_in_voice_interface_id(voice_channel_id: string): string | nu
 }
 
 /**
- * - SAVE CHANNEL SETTINGS - \\
+ * - 保存频道设置 - \\
+ * - save channel settings - \\
  * @param channel - The voice channel
  * @param owner_id - The owner user ID
  * @returns Void
@@ -1473,7 +1526,8 @@ async function save_channel_settings(channel: VoiceChannel, owner_id: string): P
       .get(channel.guild.roles.everyone.id)
       ?.deny.has(PermissionFlagsBits.Connect) || false
 
-    // - GET OWNER PERMISSIONS FROM CHANNEL OVERWRITES - \\
+    // - 从频道权限覆盖中获取所有者权限 - \\
+    // - get owner permissions from channel overwrites - \\
     const owner_overwrite = channel.permissionOverwrites.cache.get(owner_id)
     const owner_permissions: string[] = []
 
@@ -1544,7 +1598,8 @@ async function save_channel_settings(channel: VoiceChannel, owner_id: string): P
 }
 
 /**
- * - RESTORE CHANNEL SETTINGS - \\
+ * - 恢复频道设置 - \\
+ * - restore channel settings - \\
  * @param channel - The voice channel to restore settings to
  * @param owner - The owner member
  * @returns True if settings were restored
@@ -1559,7 +1614,8 @@ export async function restore_channel_settings(channel: VoiceChannel, owner: Gui
     await channel.setName(settings.name)
     await channel.setUserLimit(settings.user_limit)
 
-    // - RESTORE OWNER PERMISSIONS - \\
+    // - 恢复所有者权限 - \\
+    // - restore owner permissions - \\
     if (settings.owner_permissions && settings.owner_permissions.length > 0) {
       const permissions_map: { [key: string]: any } = {}
 
@@ -1633,7 +1689,8 @@ export async function restore_channel_settings(channel: VoiceChannel, owner: Gui
 }
 
 /**
- * - GET SAVED SETTINGS - \\
+ * - 获取已保存设置 - \\
+ * - get saved settings - \\
  * @param user_id - The user ID
  * @returns The saved settings or null
  */
@@ -1642,7 +1699,8 @@ export function get_saved_settings(user_id: string): saved_channel_settings | nu
 }
 
 /**
- * - CLEAR SAVED SETTINGS - \\
+ * - 清除已保存设置 - \\
+ * - clear saved settings - \\
  * @param user_id - The user ID
  * @returns Void
  */
@@ -1657,7 +1715,8 @@ export async function clear_saved_settings(user_id: string): Promise<void> {
 }
 
 /**
- * - LOAD SAVED SETTINGS FROM DATABASE - \\
+ * - 从数据库加载已保存设置 - \\
+ * - load saved settings from database - \\
  * @param guild_id - The guild ID to load settings for
  * @returns Void
  */

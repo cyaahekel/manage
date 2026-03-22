@@ -24,7 +24,7 @@ import { is_admin, is_staff }             from "@shared/database/settings/permis
 const __softban_delete_seconds = 1 * 24 * 60 * 60
 
 /**
- * @description Build a simple component v2 message
+ * @description build a simple component v2 message
  * @param lines - Text lines for the message
  * @returns Message payload
  */
@@ -46,7 +46,7 @@ const phising_softban: MessageContextMenuCommand = {
     .setDMPermission(false) as ContextMenuCommandBuilder,
 
   /**
-   * @description Softban the author of a message for phishing - DMs them then bans + unbans
+   * @description softban the author of a message for phishing - DMs them then bans + unbans
    * @param interaction - Message context menu interaction
    */
   async execute(interaction: MessageContextMenuCommandInteraction): Promise<void> {

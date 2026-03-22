@@ -21,7 +21,7 @@ export const command: Command = {
     .setDescription("Pause the current track"),
 
   /**
-   * @description Handles /pause. Pauses playback if something is playing and not already paused.
+   * @description handles /pause. Pauses playback if something is playing and not already paused.
    * @param {ChatInputCommandInteraction} interaction
    * @returns {Promise<void>}
    */

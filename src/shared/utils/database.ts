@@ -72,8 +72,9 @@ export function is_connected(): boolean {
 }
 
 /**
- * - GET CONNECTION POOL STATS - \\
- * @returns {object} Pool statistics
+ * - 获取连接池统计 - \\
+ * - get connection pool stats - \\
+ * @returns {object} pool statistics
  */
 export function get_pool_stats() {
   if (!pool) return null
@@ -1306,8 +1307,8 @@ export async function update_jsonb_field(
 // - Legacy TIMESTAMP fields are converted to Date objects - \\
 
 /**
- * @param {any} row - Database row object
- * @returns {T} Converted object with proper types
+ * @param {any} row - database row object
+ * @returns {T} converted object with proper types
  */
 function convert_row_to_object<T>(row: any): T {
   const result: any = {}
@@ -1339,7 +1340,8 @@ export async function raw_query<T = any>(query: string, values: any[] = []): Pro
 }
 
 /**
- * - INCREMENT TOTAL BYPASS COUNT - \\
+ * - 增加绕过次数总计 - \\
+ * - increment total bypass count - \\
  * @returns Updated total count
  */
 export async function increment_bypass_count(): Promise<number> {
@@ -1355,7 +1357,8 @@ export async function increment_bypass_count(): Promise<number> {
 }
 
 /**
- * - RECORD PER-GUILD BYPASS STAT FOR TODAY - \\
+ * - 记录当日每服务器绕过统计 - \\
+ * - record per-guild bypass stat for today - \\
  * @param guild_id - Discord guild ID
  * @returns Promise<void>
  */
@@ -1374,7 +1377,8 @@ export async function record_bypass_guild_stat(guild_id: string): Promise<void> 
 }
 
 /**
- * - CLEANUP EXPIRED BYPASS CACHE - \\
+ * - 清理过期绕过缓存 - \\
+ * - cleanup expired bypass cache - \\
  */
 export async function cleanup_expired_bypass_cache(): Promise<void> {
   try {
@@ -1387,7 +1391,8 @@ export async function cleanup_expired_bypass_cache(): Promise<void> {
   }
 }
 
-// - INSERT BYPASS LOG - \\
+// - 插入绕过日志 - \\
+// - insert bypass log - \\
 
 interface bypass_log_entry {
   guild_id   : string

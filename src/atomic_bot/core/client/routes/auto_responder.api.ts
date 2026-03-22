@@ -13,7 +13,7 @@ import { Router, Request, Response } from "express"
 import * as database                 from "@shared/utils/database"
 
 /**
- * @description Create auto-responder CRUD API router
+ * @description create auto-responder CRUD API router
  * @param guild_id - Main guild ID
  * @returns Express Router
  */

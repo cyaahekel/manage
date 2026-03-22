@@ -35,9 +35,10 @@ let __auto_disable_timer           : NodeJS.Timeout | null = null
 let __auto_disable_expires_at      : number | null         = null
 
 /**
- * - CHECK IF ERROR IS RATE LIMITED - \\
- * @param {string} error_message - Error message to check
- * @returns {boolean} True if rate limited
+ * - 检查错误是否为限速 - \\
+ * - check if error is rate limited - \\
+ * @param {string} error_message - error message to check
+ * @returns {boolean} true if rate limited
  */
 function is_rate_limited(error_message?: string): boolean {
   if (!error_message) return false
@@ -46,9 +47,10 @@ function is_rate_limited(error_message?: string): boolean {
 }
 
 /**
- * - CHECK IF USER NOT FOUND - \\
- * @param {string | undefined} error_message - Error message to check
- * @returns {boolean} True if user is not found
+ * - 检查用户是否不存在 - \\
+ * - check if user not found - \\
+ * @param {string | undefined} error_message - error message to check
+ * @returns {boolean} true if user is not found
  */
 function is_user_not_found(error_message?: string): boolean {
   if (!error_message) return false
@@ -57,9 +59,10 @@ function is_user_not_found(error_message?: string): boolean {
 }
 
 /**
- * - CREATE RATE LIMIT MESSAGE - \\
- * @param {string} feature_name - Feature name being rate limited
- * @returns {object} Component message for rate limit
+ * - 创建限速消息 - \\
+ * - create rate limit message - \\
+ * @param {string} feature_name - feature name being rate limited
+ * @returns {object} component message for rate limit
  */
 export function create_rate_limit_message(feature_name: string) {
   const retry_timestamp = Math.floor(Date.now() / 1000) + 60
@@ -109,9 +112,10 @@ interface cached_user {
 }
 
 /**
- * - GET CACHED USER FROM DATABASE - \\
- * @param {string} user_id - Discord user ID
- * @returns {Promise<luarmor.luarmor_user | null>} Cached user data or null
+ * - 从数据库获取缓存用户 - \\
+ * - get cached user from database - \\
+ * @param {string} user_id - discord user ID
+ * @returns {Promise<luarmor.luarmor_user | null>} cached user data or null
  */
 async function get_cached_user(user_id: string): Promise<luarmor.luarmor_user | null> {
   try {
@@ -142,9 +146,10 @@ async function get_cached_user(user_id: string): Promise<luarmor.luarmor_user | 
 }
 
 /**
- * - SAVE USER TO CACHE - \\
- * @param {string} user_id - Discord user ID
- * @param {luarmor.luarmor_user} user_data - User data to cache
+ * - 保存用户到缓存 - \\
+ * - save user to cache - \\
+ * @param {string} user_id - discord user ID
+ * @param {luarmor.luarmor_user} user_data - user data to cache
  * @returns {Promise<void>}
  */
 async function save_cached_user(user_id: string, user_data: luarmor.luarmor_user): Promise<void> {
@@ -197,8 +202,9 @@ interface hwid_reset_cache_entry {
 }
 
 /**
- * - GET CACHED RESET COUNT - \\
- * @returns {Promise<number | null>} Cached reset count or null
+ * - 获取缓存的重置次数 - \\
+ * - get cached reset count - \\
+ * @returns {Promise<number | null>} cached reset count or null
  */
 async function get_cached_reset_count(): Promise<number | null> {
   try {
@@ -218,8 +224,9 @@ async function get_cached_reset_count(): Promise<number | null> {
 }
 
 /**
- * - SAVE RESET COUNT TO CACHE - \\
- * @param {number} reset_count - Reset count to cache
+ * - 保存重置次数到缓存 - \\
+ * - save reset count to cache - \\
+ * @param {number} reset_count - reset count to cache
  * @returns {Promise<void>}
  */
 async function save_reset_count_cache(reset_count: number): Promise<void> {
@@ -236,8 +243,9 @@ async function save_reset_count_cache(reset_count: number): Promise<void> {
 }
 
 /**
- * - TRACK HWID RESET REQUEST - \\
- * @param {string} user_id - Discord user ID
+ * - 追踪 HWID 重置请求 - \\
+ * - track hwid reset request - \\
+ * @param {string} user_id - discord user ID
  * @returns {Promise<void>}
  */
 async function track_hwid_reset(user_id: string): Promise<void> {
@@ -254,8 +262,9 @@ async function track_hwid_reset(user_id: string): Promise<void> {
 }
 
 /**
- * - CHECK AND AUTO-ENABLE HWID LESS - \\
- * @param {Client} client - Discord client
+ * - 检查并自动启用无 HWID 模式 - \\
+ * - check and auto-enable hwid less - \\
+ * @param {Client} client - discord client
  * @returns {Promise<void>}
  */
 async function check_and_enable_hwid_less(client: Client): Promise<void> {
@@ -384,9 +393,10 @@ async function check_and_enable_hwid_less(client: Client): Promise<void> {
 }
 
 /**
- * - SCHEDULE AUTO DISABLE HWID LESS - \\
- * @param {Client} client - Discord client
- * @param {number} expires_at - Expiration timestamp (ms)
+ * - 定时自动禁用无 HWID 模式 - \\
+ * - schedule auto disable hwid less - \\
+ * @param {Client} client - discord client
+ * @param {number} expires_at - expiration timestamp (ms)
  * @returns {void}
  */
 function schedule_auto_disable(client: Client, expires_at: number): void {
@@ -405,9 +415,10 @@ function schedule_auto_disable(client: Client, expires_at: number): void {
 }
 
 /**
- * - RUN AUTO DISABLE HWID LESS - \\
- * @param {Client} client - Discord client
- * @param {number} expected_expires_at - Expected expiration timestamp (ms)
+ * - 执行自动禁用无 HWID 模式 - \\
+ * - run auto disable hwid less - \\
+ * @param {Client} client - discord client
+ * @param {number} expected_expires_at - expected expiration timestamp (ms)
  * @returns {Promise<void>}
  */
 async function run_auto_disable(client: Client, expected_expires_at: number): Promise<void> {
@@ -493,10 +504,11 @@ async function run_auto_disable(client: Client, expected_expires_at: number): Pr
 }
 
 /**
- * - GET USER WITH CACHE FALLBACK - \\
- * @param {string} user_id - Discord user ID
- * @param {Client} client - Discord client
- * @returns {Promise<object>} Result with user data
+ * - 带缓存回退获取用户 - \\
+ * - get user with cache fallback - \\
+ * @param {string} user_id - discord user ID
+ * @param {Client} client - discord client
+ * @returns {Promise<object>} result with user data
  */
 async function get_user_with_cache(user_id: string, client: Client): Promise<{ success: boolean; data?: luarmor.luarmor_user; error?: string; from_cache?: boolean }> {
   const cached = await get_cached_user(user_id)
@@ -529,9 +541,10 @@ async function get_user_with_cache(user_id: string, client: Client): Promise<{ s
 }
 
 /**
- * - GET USER SCRIPT - \\
- * @param {object} options - Options containing client and user_id
- * @returns {Promise<object>} Result with script or error
+ * - 获取用户脚本 - \\
+ * - get user script - \\
+ * @param {object} options - options containing client and user_id
+ * @returns {Promise<object>} result with script or error
  */
 export async function get_user_script(options: { client: Client; user_id: string }): Promise<{ success: boolean; script?: string; error?: string; message?: any }> {
   try {
@@ -595,9 +608,10 @@ export async function get_user_script(options: { client: Client; user_id: string
 }
 
 /**
- * - RESET USER HWID - \\
- * @param {object} options - Options containing client and user_id
- * @returns {Promise<object>} Result with success status
+ * - 重置用户 HWID - \\
+ * - reset user hwid - \\
+ * @param {object} options - options containing client and user_id
+ * @returns {Promise<object>} result with success status
  */
 export async function reset_user_hwid(options: { client: Client; user_id: string }): Promise<{ success: boolean; message?: any; error?: string }> {
   try {
@@ -636,9 +650,10 @@ export async function reset_user_hwid(options: { client: Client; user_id: string
 }
 
 /**
- * - GET USER STATS - \\
- * @param {object} options - Options containing client and user_id
- * @returns {Promise<object>} Result with user stats and leaderboard
+ * - 获取用户统计数据 - \\
+ * - get user stats - \\
+ * @param {object} options - options containing client and user_id
+ * @returns {Promise<object>} result with user stats and leaderboard
  */
 export async function get_user_stats(options: { client: Client; user_id: string }): Promise<{ success: boolean; data?: any; error?: string; message?: any }> {
   try {
@@ -708,9 +723,10 @@ export async function get_user_stats(options: { client: Client; user_id: string 
 }
 
 /**
- * - REDEEM USER KEY - \\
- * @param {object} options - Options containing client, user_id, and user_key
- * @returns {Promise<object>} Result with success status and script
+ * - 兑换用户密钥 - \\
+ * - redeem user key - \\
+ * @param {object} options - options containing client, user_id, and user_key
+ * @returns {Promise<object>} result with success status and script
  */
 export async function redeem_user_key(options: { client: Client; user_id: string; user_key: string }): Promise<{ success: boolean; message?: string; error?: string; script?: string }> {
   try {
@@ -777,9 +793,10 @@ export async function redeem_user_key(options: { client: Client; user_id: string
 }
 
 /**
- * - TRACK AND CHECK HWID RESET - \\
- * @param {Client} client - Discord client
- * @param {string} user_id - Discord user ID
+ * - 追踪并检查 HWID 重置 - \\
+ * - track and check hwid reset - \\
+ * @param {Client} client - discord client
+ * @param {string} user_id - discord user ID
  * @returns {Promise<void>}
  */
 export async function track_and_check_hwid_reset(client: Client, user_id: string): Promise<void> {
@@ -788,9 +805,10 @@ export async function track_and_check_hwid_reset(client: Client, user_id: string
 }
 
 /**
- * - GET EXECUTION LEADERBOARD - \\
- * @param {object} options - Options containing client
- * @returns {Promise<object>} Result with leaderboard data
+ * - 获取执行次数排行榜 - \\
+ * - get execution leaderboard - \\
+ * @param {object} options - options containing client
+ * @returns {Promise<object>} result with leaderboard data
  */
 export async function get_execution_leaderboard(options: { client: Client }): Promise<{ success: boolean; data?: any[]; error?: string }> {
   try {

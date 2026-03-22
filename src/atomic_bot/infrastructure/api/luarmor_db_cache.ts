@@ -30,8 +30,8 @@ interface cached_user_record {
 
 /**
  * - check unique violation error - \\
- * @param {unknown} error - Error object
- * @returns {boolean} True if unique constraint violation
+ * @param {unknown} error - error object
+ * @returns {boolean} true if unique constraint violation
  */
 function is_unique_violation(error: unknown): boolean {
   const err = error as { code?: string } | null
@@ -40,9 +40,9 @@ function is_unique_violation(error: unknown): boolean {
 
 /**
  * - get user from database cache - \\
- * @param {string} discord_id - Discord ID
- * @param {boolean} allow_stale - Allow stale data if fresh data unavailable
- * @returns {Promise<luarmor_user | null>} Cached user data or null
+ * @param {string} discord_id - discord ID
+ * @param {boolean} allow_stale - allow stale data if fresh data unavailable
+ * @returns {Promise<luarmor_user | null>} cached user data or null
  */
 export async function get_cached_user_from_db(discord_id: string, allow_stale: boolean = false): Promise<luarmor_user | null> {
   try {
@@ -79,8 +79,8 @@ export async function get_cached_user_from_db(discord_id: string, allow_stale: b
 
 /**
  * - save user to database cache - \\
- * @param {string} discord_id - Discord ID
- * @param {luarmor_user} user_data - User data
+ * @param {string} discord_id - discord ID
+ * @param {luarmor_user} user_data - user data
  * @returns {Promise<void>}
  */
 export async function save_user_to_db_cache(discord_id: string, user_data: luarmor_user): Promise<void> {
@@ -126,7 +126,7 @@ export async function save_user_to_db_cache(discord_id: string, user_data: luarm
 
 /**
  * - delete user from database cache - \\
- * @param {string} discord_id - Discord ID
+ * @param {string} discord_id - discord ID
  * @returns {Promise<void>}
  */
 export async function delete_user_from_db_cache(discord_id: string): Promise<void> {

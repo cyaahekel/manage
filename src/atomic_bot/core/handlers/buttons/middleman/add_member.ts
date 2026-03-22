@@ -14,8 +14,8 @@ import { component } from "@shared/utils"
 import { get_ticket_config } from "@shared/database/unified_ticket"
 
 /**
- * @description Shows user select to add member to middleman ticket
- * @param {ButtonInteraction} interaction - The button interaction
+ * @description shows user select to add member to middleman ticket
+ * @param {ButtonInteraction} interaction - the button interaction
  * @returns {Promise<boolean>} - Returns true if handled
  */
 export async function handle_middleman_add_member(interaction: ButtonInteraction): Promise<boolean> {

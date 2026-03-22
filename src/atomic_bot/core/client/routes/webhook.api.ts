@@ -14,7 +14,7 @@ import { Client }                    from "discord.js"
 import { handle_github_webhook }     from "../../../infrastructure/webhooks/github"
 
 /**
- * @description Create webhook router
+ * @description create webhook router
  * @param client - Discord client instance
  * @returns Express Router
  */

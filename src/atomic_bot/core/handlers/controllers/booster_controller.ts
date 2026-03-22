@@ -15,22 +15,24 @@ import { log_error }         from "@shared/utils/error_logger"
 import * as booster_manager  from "@shared/database/managers/booster_manager"
 
 /**
- * - WAIT FOR MS - \\
+ * - 等待指定毫秒 - \\
+ * - wait for ms - \\
  * @param ms Delay in milliseconds
- * @returns {Promise<void>} Resolves after delay
+ * @returns {Promise<void>} resolves after delay
  */
 function wait_ms(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
 
 /**
- * - SEND BOOSTER LOG - \\
+ * - 发送 Booster 日志 - \\
+ * - send booster log - \\
  * @param client Discord client
  * @param channel_id Target channel id
  * @param user_id Booster user id
  * @param boost_count Total boost count
  * @param media_url Optional media url
- * @returns {Promise<api.api_response>} API response
+ * @returns {Promise<api.api_response>} aPI response
  */
 export async function send_booster_log(
   client      : Client,
@@ -79,7 +81,8 @@ export async function send_booster_log(
       ? retry_after_value > 1000 ? retry_after_value : Math.ceil(retry_after_value * 1000)
       : 1500
 
-    // - RETRY ONCE AFTER COOLDOWN - \\
+    // - 冷却后重试一次 - \\
+    // - retry once after cooldown - \\
     await wait_ms(retry_after_ms)
 
     try {
@@ -108,10 +111,11 @@ export async function send_booster_log(
 }
 
 /**
- * - HANDLE BOOSTER CLAIM - \\
+ * - 处理 Booster 领取 - \\
+ * - handle booster claim - \\
  * @param user_id Booster user id
  * @param guild_id Guild id
- * @returns {Promise<string>} Result message
+ * @returns {Promise<string>} result message
  */
 export async function handle_claim(user_id: string, guild_id: string): Promise<string> {
   const is_whitelisted = await booster_manager.is_whitelisted(user_id, guild_id)

@@ -14,8 +14,9 @@ import { log_error }         from "@shared/utils/error_logger"
 import * as share_settings   from "@atomic/core/handlers/shared/controller/share_settings_controller"
 
 /**
- * - HANDLE SHARE SETTINGS PAGINATION - \\
- * @param {ButtonInteraction} interaction - Button interaction
+ * - 处理分享设置翻页 - \\
+ * - handle share settings pagination - \\
+ * @param {ButtonInteraction} interaction - button interaction
  * @returns {Promise<void>}
  */
 export async function handle_share_settings_pagination(interaction: ButtonInteraction): Promise<void> {

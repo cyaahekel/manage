@@ -10,7 +10,8 @@
 import { Client } from "discord.js"
 import { LoaStatus } from "@shared/enums"
 
-// - LOA DB MODEL - \\
+// - LOA 数据库模型 - \\
+// - LOA db model - \\
 export interface loa_data {
   _id?               : any
   message_id         : string
@@ -29,7 +30,8 @@ export interface loa_data {
   channel_id?        : string
 }
 
-// - CONTROLLER OPTION INTERFACES - \\
+// - 控制器选项接口 - \\
+// - controller option interfaces - \\
 export interface request_loa_options {
   user_id    : string
   user_tag   : string

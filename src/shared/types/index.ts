@@ -7,7 +7,8 @@
  * See the LICENSE file for more information.
  */
 
-// - BARREL EXPORT FOR SHARED TYPES - \\
+// - 共享类型的统一导出 - \\
+// - barrel export for shared types - \\
 export * from "./command"
 export * from "./interaction"
 export * from "./sub_command"

@@ -14,9 +14,10 @@ import { remove_afk }                                                  from "../
 import { build_simple_message }                                        from "./afk_utils"
 
 /**
- * - BUILD AFK MOD CLEAR SUBCOMMAND - \\
- * @param {SlashCommandSubcommandBuilder} subcommand - Subcommand builder
- * @returns {SlashCommandSubcommandBuilder} Updated subcommand builder
+ * - 构建 AFK 管理清除子命令 - \\
+ * - build afk mod clear subcommand - \\
+ * @param {SlashCommandSubcommandBuilder} subcommand - subcommand builder
+ * @returns {SlashCommandSubcommandBuilder} updated subcommand builder
  */
 export function build_afk_mod_clear_subcommand(subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder {
   return subcommand
@@ -31,8 +32,9 @@ export function build_afk_mod_clear_subcommand(subcommand: SlashCommandSubcomman
 }
 
 /**
- * - HANDLE AFK MOD CLEAR - \\
- * @param {ChatInputCommandInteraction} interaction - Discord interaction
+ * - 处理 AFK 管理清除 - \\
+ * - handle afk mod clear - \\
+ * @param {ChatInputCommandInteraction} interaction - discord interaction
  * @returns {Promise<void>}
  */
 export async function handle_afk_mod_clear(interaction: ChatInputCommandInteraction): Promise<void> {

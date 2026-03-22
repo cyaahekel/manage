@@ -18,10 +18,10 @@ export type NextFunction       = () => Promise<void>
 export type MiddlewareFunction = (ctx: MiddlewareContext, next: NextFunction) => Promise<void>
 
 /**
- * @description Runs a series of middlewares before executing the final handler
- * @param {MiddlewareFunction[]} middlewares - Array of middleware functions
- * @param {MiddlewareContext} ctx - Context object containing interaction and client
- * @param {NextFunction} final_handler - Final function to execute if all middlewares pass
+ * @description runs a series of middlewares before executing the final handler
+ * @param {MiddlewareFunction[]} middlewares - array of middleware functions
+ * @param {MiddlewareContext} ctx - context object containing interaction and client
+ * @param {NextFunction} final_handler - final function to execute if all middlewares pass
  * @returns {Promise<void>}
  */
 export async function run_middleware(

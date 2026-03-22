@@ -13,14 +13,16 @@ import { db }                                   from "@shared/utils"
 const __dev_id = "1118453649727823974"
 
 /**
- * - VIEW REQUEST LOG BUTTON - \\
+ * - 查看请求日志按钮 - \\
+ * - view request log button - \\
  *
- * @param {ButtonInteraction} interaction - Button interaction
+ * @param {ButtonInteraction} interaction - button interaction
  * @returns {Promise<void>}
  */
 export async function handle_bypass_request_log(interaction: ButtonInteraction): Promise<void> {
   try {
-    // - DEVELOPER ONLY - \\
+    // - 仅开发者可用 - \\
+    // - developer only - \\
     if (interaction.user.id !== __dev_id) {
       await interaction.reply({
         content   : "This button is restricted to developers only.", ephemeral: true,

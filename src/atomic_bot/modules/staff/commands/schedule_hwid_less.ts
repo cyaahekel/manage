@@ -234,7 +234,8 @@ async function start_scheduler(client: any): Promise<void> {
           const result = await update_project_settings(__project_id, schedule.enabled)
 
           if (result.success) {
-            // - USE SAFER FILTER WITH ID - \\
+            // - 使用更安全的 ID 过滤方式 - \\
+            // - use safer filter with id - \\
             const filter_query = schedule.id 
               ? { id: schedule.id }
               : { 

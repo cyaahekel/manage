@@ -12,7 +12,8 @@ import { Cache } from "@shared/utils/cache"
 const __rate_limit_window_ms = 30_000
 const __rate_limit_max       = 20
 
-// - DM ANTI-SPAM: 1 REQUEST PER 2 SECONDS PER USER - \\
+// - DM 防刷板：每用户每 2 秒最多 1 次请求 - \\
+// - dm anti-spam: 1 request per 2 seconds per user - \\
 const __dm_cooldown_ms = 2_000
 
 type rate_limit_state = {

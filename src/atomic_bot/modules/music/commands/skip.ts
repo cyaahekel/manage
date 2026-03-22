@@ -29,7 +29,7 @@ export const command: Command = {
     ) as SlashCommandBuilder,
 
   /**
-   * @description Handles /skip. Calls handle_skip and replies with result.
+   * @description handles /skip. Calls handle_skip and replies with result.
    * @param {ChatInputCommandInteraction} interaction
    * @returns {Promise<void>}
    */

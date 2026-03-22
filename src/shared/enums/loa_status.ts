@@ -7,7 +7,8 @@
  * See the LICENSE file for more information.
  */
 
-// - LOA STATUS ENUM - \\
+// - LOA 状态枚举 - \\
+// - LOA status enum - \\
 export enum LoaStatus {
   pending  = "pending",
   approved = "approved",

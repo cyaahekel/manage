@@ -21,7 +21,7 @@ import {
 
 // ─── SKIP ─────────────────────────────────────────────────────────────────────
 /**
- * @description Handles the music_skip button interaction.
+ * @description handles the music_skip button interaction.
  * @param {ButtonInteraction} interaction
  * @returns {Promise<void>}
  */
@@ -70,7 +70,7 @@ export async function handle_music_skip(interaction: ButtonInteraction): Promise
 
 // ─── PAUSE / RESUME ────────────────────────────────────────────────────────────
 /**
- * @description Handles the music_pause_resume button interaction. Toggles pause state.
+ * @description handles the music_pause_resume button interaction. Toggles pause state.
  * @param {ButtonInteraction} interaction
  * @returns {Promise<void>}
  */
@@ -116,7 +116,7 @@ export async function handle_music_pause_resume(interaction: ButtonInteraction):
 
 // ─── STOP ─────────────────────────────────────────────────────────────────────
 /**
- * @description Handles the music_stop button interaction.
+ * @description handles the music_stop button interaction.
  * @param {ButtonInteraction} interaction
  * @returns {Promise<void>}
  */
@@ -159,7 +159,7 @@ export async function handle_music_stop(interaction: ButtonInteraction): Promise
 
 // ─── QUEUE PAGE ────────────────────────────────────────────────────────────────
 /**
- * @description Handles the music_queue:{page} button interaction. Shows paginated queue.
+ * @description handles the music_queue:{page} button interaction. Shows paginated queue.
  * @param {ButtonInteraction} interaction
  * @returns {Promise<void>}
  */

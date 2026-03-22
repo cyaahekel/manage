@@ -13,7 +13,7 @@ import { Router, Request, Response } from "express"
 import { Client }                    from "discord.js"
 
 /**
- * @description Create health & root API router
+ * @description create health & root API router
  * @param get_bot_ready - Getter for bot_ready flag
  * @param client        - Discord client instance
  * @param port          - HTTP server port

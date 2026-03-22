@@ -64,7 +64,8 @@ export class InteractionRegistry {
           }
         }
 
-        // - FALLBACK: UNKNOWN BUTTON - \\
+        // - 回退：未知按鈕 - \\
+        // - fallback: unknown button - \\
         if (!interaction.replied && !interaction.deferred) {
           await interaction.reply({
             content  : "This button is no longer active.", ephemeral: true,
@@ -113,5 +114,6 @@ export class InteractionRegistry {
   }
 }
 
-// - GLOBAL INSTANCE - \\
+// - 全局实例 - \\
+// - global instance - \\
 export const interactions = new InteractionRegistry()

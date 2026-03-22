@@ -130,7 +130,8 @@ import "../atomic_bot/core/handlers/events/voice/voice_state_update"
 import "../atomic_bot/core/handlers/events/message/message_delete"
 
 /**
- * - JOIN VOICE CHANNEL WITH AUTO-RECONNECT - \\
+ * - 进语音频道，断了会自动重连，主打一个稳 - \\
+ * - join voice channel with auto-reconnect, keeping it steady - \\
  */
 async function join_voice_channel(): Promise<void> {
   const voice_channel_id = "1427737274983907408"
@@ -206,7 +207,8 @@ function update_presence(): void {
 }
 
 /**
- * - START PERSISTENT TYPING - \\
+ * - 频道里一直显示「正在输入」，主打一个在忙 - \\
+ * - start persistent typing, keeping that typing status up - \\
  * @returns {Promise<void>}
  */
 async function start_persistent_typing(): Promise<void> {
@@ -361,6 +363,7 @@ client.on("messageCreate", async (message: Message) => {
 
   if (check_spam(message, client)) return
 
+  // - 音乐命令前缀 (a!play, a!skip, a!stop, a!pause, a!resume, a!queue) - \\
   // - music prefix commands (a!play, a!skip, a!stop, a!pause, a!resume, a!queue) - \\
   if (message.content.startsWith("a!")) {
     if (await handle_music_prefix_command(message, client)) return
@@ -402,7 +405,8 @@ client.on("error", (error) => {
   log_error(client, error, "Discord Client", {}).catch(() => {})
 })
 
-// - WEBSOCKET RECONNECTION HANDLING - \\
+// - 掉线重连处理，别让 Webhook 断了联系 - \\
+// - websocket reconnection handling, stay connected - \\
 client.ws.on("disconnect" as any, () => {
   console.log("[WebSocket] Disconnected from Discord gateway")
   set_bot_ready(false)

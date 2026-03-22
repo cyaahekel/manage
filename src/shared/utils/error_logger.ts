@@ -14,7 +14,8 @@ import { Cache }                     from "./cache"
 
 const error_log_channel_id = "1452322637609963530"
 
-// - ERROR PAYLOAD CACHE WITH 24-HOUR PERSISTENCE - \\
+// - 错误载荷缓存，24 小时持久化 - \\
+// - error payload cache with 24-hour persistence - \\
 const __twenty_four_hours_ms = 24 * 60 * 60 * 1000
 const error_payload_store    = new Cache<string>(__twenty_four_hours_ms, 10000, 5 * 60 * 1000, 'error_payloads')
 const error_context_count    = new Cache<number>(__twenty_four_hours_ms, 1000, 5 * 60 * 1000, 'error_counts')

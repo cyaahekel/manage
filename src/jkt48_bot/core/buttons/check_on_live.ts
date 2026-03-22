@@ -12,9 +12,10 @@ import { log_error }                                    from "@shared/utils/erro
 import { build_live_message, get_live_rooms }           from "../controllers/jkt48_live_controller"
 
 /**
- * - HANDLE CHECK ON LIVE BUTTON - \\
- * @param {ButtonInteraction} interaction - Button interaction
- * @returns {Promise<void>} Void
+ * - 处理检查直播按钮 - \\
+ * - handle check on live button - \\
+ * @param {ButtonInteraction} interaction - button interaction
+ * @returns {Promise<void>} void
  */
 export async function handle_check_on_live_button(interaction: ButtonInteraction): Promise<void> {
   try {

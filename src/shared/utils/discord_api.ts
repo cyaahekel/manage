@@ -14,9 +14,10 @@ const base_url             = "https://discord.com/api/v10"
 const __discord_api_timeout = 10000
 
 /**
- * - SAFE JSON PARSE RESPONSE - \\
- * @param {Response} response - Fetch response
- * @returns {Promise<unknown>} Parsed response body
+ * - 安全 JSON 解析响应 - \\
+ * - safe json parse response - \\
+ * @param {Response} response - fetch response
+ * @returns {Promise<unknown>} parsed response body
  */
 async function safe_parse_response_json(response: Response): Promise<unknown> {
   const body_text = await response.text()
@@ -39,9 +40,10 @@ async function safe_parse_response_json(response: Response): Promise<unknown> {
 }
 
 /**
- * - ENSURE API RESPONSE OBJECT - \\
- * @param {unknown} value - Parsed value
- * @returns {api_response} Object response
+ * - 确保 API 响应为对象 - \\
+ * - ensure api response object - \\
+ * @param {unknown} value - parsed value
+ * @returns {api_response} object response
  */
 function as_api_response(value: unknown): api_response {
   if (value && typeof value === "object" && !Array.isArray(value)) {
@@ -634,14 +636,15 @@ export function avatar_url(user_id: string, avatar_hash: string, format: string 
 }
 
 /**
- * @description Check if a GuildMember has a specific role using raw role IDs.
+ * @description check if a GuildMember has a specific role using raw role IDs.
  * This is safe to use when the guild's role cache is disabled (makeCache: () => new Collection()).
  * @param member - GuildMember (from REST fetch or interaction)
  * @param role_id - The role ID to check
  * @returns {boolean} true if member has the role
  */
 export function member_has_role(member: { roles: any }, role_id: string): boolean {
-  // - DIRECT ACCESS: check raw _roles array when guild roles cache is empty - \\
+  // - 直接访问：服务器角色缓存为空时检查原始 _roles 数组 - \\
+  // - direct access: check raw _roles array when guild roles cache is empty - \\
   const raw_roles = (member.roles as any)?._roles as string[] | undefined
   if (raw_roles) return raw_roles.includes(role_id)
   return member.roles?.cache?.has?.(role_id) ?? false

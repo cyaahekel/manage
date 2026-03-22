@@ -14,9 +14,10 @@ import { update_afk_reason }                                           from "../
 import { build_simple_message }                                        from "./afk_utils"
 
 /**
- * - BUILD AFK MOD RESET SUBCOMMAND - \\
- * @param {SlashCommandSubcommandBuilder} subcommand - Subcommand builder
- * @returns {SlashCommandSubcommandBuilder} Updated subcommand builder
+ * - 构建 AFK 管理重置子命令 - \\
+ * - build afk mod reset subcommand - \\
+ * @param {SlashCommandSubcommandBuilder} subcommand - subcommand builder
+ * @returns {SlashCommandSubcommandBuilder} updated subcommand builder
  */
 export function build_afk_mod_reset_subcommand(subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder {
   return subcommand
@@ -31,8 +32,9 @@ export function build_afk_mod_reset_subcommand(subcommand: SlashCommandSubcomman
 }
 
 /**
- * - HANDLE AFK MOD RESET - \\
- * @param {ChatInputCommandInteraction} interaction - Discord interaction
+ * - 处理 AFK 管理重置 - \\
+ * - handle afk mod reset - \\
+ * @param {ChatInputCommandInteraction} interaction - discord interaction
  * @returns {Promise<void>}
  */
 export async function handle_afk_mod_reset(interaction: ChatInputCommandInteraction): Promise<void> {

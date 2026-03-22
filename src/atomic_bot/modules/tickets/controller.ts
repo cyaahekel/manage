@@ -80,7 +80,7 @@ export function generate_ticket_id(): string {
 }
 
 /**
- * @description Check if member has priority role — uses resolved roles from GuildMember
+ * @description check if member has priority role — uses resolved roles from GuildMember
  * @param member - GuildMember fetched via REST (not from cache)
  * @returns {boolean} true if member has priority role
  */

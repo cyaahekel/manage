@@ -11,9 +11,9 @@
 
 /**
  * Generates a random integer between min and max (inclusive)
- * @param {number} min - The minimum value
- * @param {number} max - The maximum value
- * @returns {number} Random integer between min and max
+ * @param {number} min - the minimum value
+ * @param {number} max - the maximum value
+ * @returns {number} random integer between min and max
  */
 export function random_int(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min
@@ -21,9 +21,9 @@ export function random_int(min: number, max: number): number {
 
 /**
  * Generates a random float between min and max
- * @param {number} min - The minimum value
- * @param {number} max - The maximum value
- * @returns {number} Random float between min and max
+ * @param {number} min - the minimum value
+ * @param {number} max - the maximum value
+ * @returns {number} random float between min and max
  */
 export function random_float(min: number, max: number): number {
   return Math.random() * (max - min) + min
@@ -31,8 +31,8 @@ export function random_float(min: number, max: number): number {
 
 /**
  * Returns a random element from an array
- * @param {T[]} array - The array to select from
- * @returns {T} Random element from the array
+ * @param {T[]} array - the array to select from
+ * @returns {T} random element from the array
  */
 export function random_element<T>(array: T[]): T {
   return array[Math.floor(Math.random() * array.length)]
@@ -40,9 +40,9 @@ export function random_element<T>(array: T[]): T {
 
 /**
  * Returns multiple random elements from an array without replacement
- * @param {T[]} array - The array to select from
- * @param {number} count - Number of elements to select
- * @returns {T[]} Array of random elements
+ * @param {T[]} array - the array to select from
+ * @param {number} count - number of elements to select
+ * @returns {T[]} array of random elements
  */
 export function random_elements<T>(array: T[], count: number): T[] {
   const shuffled = shuffle([...array])
@@ -51,8 +51,8 @@ export function random_elements<T>(array: T[], count: number): T[] {
 
 /**
  * Shuffles an array using Fisher-Yates algorithm
- * @param {T[]} array - The array to shuffle
- * @returns {T[]} New shuffled array
+ * @param {T[]} array - the array to shuffle
+ * @returns {T[]} new shuffled array
  */
 export function shuffle<T>(array: T[]): T[] {
   const result = [...array]
@@ -68,9 +68,9 @@ export function shuffle<T>(array: T[]): T[] {
 
 /**
  * Splits an array into chunks of specified size
- * @param {T[]} array - The array to chunk
- * @param {number} size - Size of each chunk
- * @returns {T[][]} Array of chunks
+ * @param {T[]} array - the array to chunk
+ * @param {number} size - size of each chunk
+ * @returns {T[][]} array of chunks
  */
 export function chunk<T>(array: T[], size: number): T[][] {
   const result: T[][] = []
@@ -82,8 +82,8 @@ export function chunk<T>(array: T[], size: number): T[][] {
 
 /**
  * Returns unique elements from an array
- * @param {T[]} array - The array to process
- * @returns {T[]} Array with unique elements
+ * @param {T[]} array - the array to process
+ * @returns {T[]} array with unique elements
  */
 export function unique<T>(array: T[]): T[] {
   return [...new Set(array)]
@@ -91,8 +91,8 @@ export function unique<T>(array: T[]): T[] {
 
 /**
  * Flattens a nested array by one level
- * @param {T[][]} array - The nested array to flatten
- * @returns {T[]} Flattened array
+ * @param {T[][]} array - the nested array to flatten
+ * @returns {T[]} flattened array
  */
 export function flatten<T>(array: T[][]): T[] {
   return array.flat()
@@ -100,9 +100,9 @@ export function flatten<T>(array: T[][]): T[] {
 
 /**
  * Groups array elements by a specified key
- * @param {T[]} array - The array to group
- * @param {keyof T} key - The key to group by
- * @returns {Record<string, T[]>} Object with grouped elements
+ * @param {T[]} array - the array to group
+ * @param {keyof T} key - the key to group by
+ * @returns {Record<string, T[]>} object with grouped elements
  */
 export function group_by<T>(array: T[], key: keyof T): Record<string, T[]> {
   return array.reduce((result, item) => {
@@ -117,10 +117,10 @@ export function group_by<T>(array: T[], key: keyof T): Record<string, T[]> {
 
 /**
  * Sorts array by a specified key
- * @param {T[]} array - The array to sort
- * @param {keyof T} key - The key to sort by
- * @param {"asc" | "desc"} order - Sort order (ascending or descending)
- * @returns {T[]} Sorted array
+ * @param {T[]} array - the array to sort
+ * @param {keyof T} key - the key to sort by
+ * @param {"asc" | "desc"} order - sort order (ascending or descending)
+ * @returns {T[]} sorted array
  */
 export function sort_by<T>(array: T[], key: keyof T, order: "asc" | "desc" = "asc"): T[] {
   return [...array].sort((a, b) => {
@@ -137,8 +137,8 @@ export function sort_by<T>(array: T[], key: keyof T, order: "asc" | "desc" = "as
 
 /**
  * Returns the first element of an array
- * @param {T[]} array - The array
- * @returns {T | undefined} First element or undefined
+ * @param {T[]} array - the array
+ * @returns {T | undefined} first element or undefined
  */
 export function first<T>(array: T[]): T | undefined {
   return array[0]
@@ -146,8 +146,8 @@ export function first<T>(array: T[]): T | undefined {
 
 /**
  * Returns the last element of an array
- * @param {T[]} array - The array
- * @returns {T | undefined} Last element or undefined
+ * @param {T[]} array - the array
+ * @returns {T | undefined} last element or undefined
  */
 export function last<T>(array: T[]): T | undefined {
   return array[array.length - 1]
@@ -158,8 +158,8 @@ export function last<T>(array: T[]): T | undefined {
 
 /**
  * Calculates the sum of all numbers in an array
- * @param {number[]} numbers - Array of numbers
- * @returns {number} Sum of all numbers
+ * @param {number[]} numbers - array of numbers
+ * @returns {number} sum of all numbers
  */
 export function sum(numbers: number[]): number {
   return numbers.reduce((total, n) => total + n, 0)
@@ -167,8 +167,8 @@ export function sum(numbers: number[]): number {
 
 /**
  * Calculates the average of numbers in an array
- * @param {number[]} numbers - Array of numbers
- * @returns {number} Average value
+ * @param {number[]} numbers - array of numbers
+ * @returns {number} average value
  */
 export function average(numbers: number[]): number {
   if (numbers.length === 0) return 0
@@ -177,8 +177,8 @@ export function average(numbers: number[]): number {
 
 /**
  * Finds the minimum value in an array
- * @param {number[]} numbers - Array of numbers
- * @returns {number} Minimum value
+ * @param {number[]} numbers - array of numbers
+ * @returns {number} minimum value
  */
 export function min(numbers: number[]): number {
   return Math.min(...numbers)
@@ -186,8 +186,8 @@ export function min(numbers: number[]): number {
 
 /**
  * Finds the maximum value in an array
- * @param {number[]} numbers - Array of numbers
- * @returns {number} Maximum value
+ * @param {number[]} numbers - array of numbers
+ * @returns {number} maximum value
  */
 export function max(numbers: number[]): number {
   return Math.max(...numbers)
@@ -195,10 +195,10 @@ export function max(numbers: number[]): number {
 
 /**
  * Creates an array of numbers from start to end with a step
- * @param {number} start - Start value
- * @param {number} end - End value (exclusive)
- * @param {number} step - Step increment
- * @returns {number[]} Array of numbers
+ * @param {number} start - start value
+ * @param {number} end - end value (exclusive)
+ * @param {number} step - step increment
+ * @returns {number[]} array of numbers
  */
 export function range(start: number, end: number, step: number = 1): number[] {
   const result: number[] = []
@@ -210,9 +210,9 @@ export function range(start: number, end: number, step: number = 1): number[] {
 
 /**
  * Creates an array with a value repeated count times
- * @param {T} value - Value to repeat
- * @param {number} count - Number of repetitions
- * @returns {T[]} Array with repeated values
+ * @param {T} value - value to repeat
+ * @param {number} count - number of repetitions
+ * @returns {T[]} array with repeated values
  */
 export function repeat<T>(value: T, count: number): T[] {
   return Array(count).fill(value)
@@ -223,9 +223,9 @@ export function repeat<T>(value: T, count: number): T[] {
 
 /**
  * Combines two arrays into an array of tuples
- * @param {T[]} array1 - First array
- * @param {U[]} array2 - Second array
- * @returns {[T, U][]} Array of tuples
+ * @param {T[]} array1 - first array
+ * @param {U[]} array2 - second array
+ * @returns {[T, U][]} array of tuples
  */
 export function zip<T, U>(array1: T[], array2: U[]): [T, U][] {
   const length = Math.min(array1.length, array2.length)
@@ -238,9 +238,9 @@ export function zip<T, U>(array1: T[], array2: U[]): [T, U][] {
 
 /**
  * Returns elements common to both arrays
- * @param {T[]} array1 - First array
- * @param {T[]} array2 - Second array
- * @returns {T[]} Array of common elements
+ * @param {T[]} array1 - first array
+ * @param {T[]} array2 - second array
+ * @returns {T[]} array of common elements
  */
 export function intersection<T>(array1: T[], array2: T[]): T[] {
   const set2 = new Set(array2)
@@ -249,9 +249,9 @@ export function intersection<T>(array1: T[], array2: T[]): T[] {
 
 /**
  * Returns elements in array1 that are not in array2
- * @param {T[]} array1 - First array
- * @param {T[]} array2 - Second array
- * @returns {T[]} Array of different elements
+ * @param {T[]} array1 - first array
+ * @param {T[]} array2 - second array
+ * @returns {T[]} array of different elements
  */
 export function difference<T>(array1: T[], array2: T[]): T[] {
   const set2 = new Set(array2)
@@ -260,8 +260,8 @@ export function difference<T>(array1: T[], array2: T[]): T[] {
 
 /**
  * Removes null and undefined values from an array
- * @param {(T | null | undefined)[]} array - Array with potential null/undefined values
- * @returns {T[]} Array with nullish values removed
+ * @param {(T | null | undefined)[]} array - array with potential null/undefined values
+ * @returns {T[]} array with nullish values removed
  */
 export function compact<T>(array: (T | null | undefined)[]): T[] {
   return array.filter((item): item is T => item !== null && item !== undefined)
@@ -269,9 +269,9 @@ export function compact<T>(array: (T | null | undefined)[]): T[] {
 
 /**
  * Counts elements that match a predicate
- * @param {T[]} array - The array to count from
- * @param {(item: T) => boolean} predicate - Function to test elements
- * @returns {number} Count of matching elements
+ * @param {T[]} array - the array to count from
+ * @param {(item: T) => boolean} predicate - function to test elements
+ * @returns {number} count of matching elements
  */
 export function count<T>(array: T[], predicate: (item: T) => boolean): number {
   return array.filter(predicate).length
@@ -279,9 +279,9 @@ export function count<T>(array: T[], predicate: (item: T) => boolean): number {
 
 /**
  * Splits array into two arrays based on a predicate
- * @param {T[]} array - The array to partition
- * @param {(item: T) => boolean} predicate - Function to test elements
- * @returns {[T[], T[]]} Tuple of [passing, failing] elements
+ * @param {T[]} array - the array to partition
+ * @param {(item: T) => boolean} predicate - function to test elements
+ * @returns {[T[], T[]]} tuple of [passing, failing] elements
  */
 export function partition<T>(array: T[], predicate: (item: T) => boolean): [T[], T[]] {
   const pass: T[] = []

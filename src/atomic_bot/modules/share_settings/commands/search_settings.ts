@@ -20,8 +20,9 @@ import { log_error }      from "@shared/utils/error_logger"
 import * as share_settings from "../controller"
 
 /**
- * - EXECUTE SEARCH SETTINGS COMMAND - \\
- * @param {ChatInputCommandInteraction} interaction - Command interaction
+ * - 执行搜索设置命令 - \\
+ * - execute search settings command - \\
+ * @param {ChatInputCommandInteraction} interaction - command interaction
  * @returns {Promise<void>}
  */
 async function execute_search_settings(interaction: ChatInputCommandInteraction): Promise<void> {
@@ -84,8 +85,9 @@ async function execute_search_settings(interaction: ChatInputCommandInteraction)
 }
 
 /**
- * - AUTOCOMPLETE SEARCH SETTINGS - \\
- * @param {AutocompleteInteraction} interaction - Autocomplete interaction
+ * - 搜索设置自动补全 - \\
+ * - autocomplete search settings - \\
+ * @param {AutocompleteInteraction} interaction - autocomplete interaction
  * @returns {Promise<void>}
  */
 async function autocomplete_search_settings(interaction: AutocompleteInteraction): Promise<void> {

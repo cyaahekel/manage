@@ -61,7 +61,8 @@ export async function whitelist(options: whitelist_options) {
     })
 
     if (!result.success || !result.data) {
-      // - BETTER ERROR MESSAGES - \\
+      // - 更详细的错误提示 - \\
+      // - better error messages - \\
       const error_msg = result.error || "Failed to create whitelist key"
       console.error(`[ - WHITELIST - ] Failed for ${user.id}:`, error_msg)
       
@@ -228,7 +229,8 @@ export async function edit_whitelist(options: edit_whitelist_options) {
       }
     }
 
-    // - DELETE OLD KEY - \\
+    // - 删除旧密匙 - \\
+    // - delete old key - \\
     const deleted = await luarmor.delete_user_from_project(project_id, user.id)
     if (!deleted) {
       console.warn(`[ - EDIT WHITELIST - ] Failed to delete old key for ${user.id}, continuing...`)

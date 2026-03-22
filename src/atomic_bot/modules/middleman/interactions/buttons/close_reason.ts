@@ -15,8 +15,8 @@ import { get_ticket_config } from "@shared/database/unified_ticket"
 import { ButtonHandler }     from "@shared/types/interaction"
 
 /**
- * @description Shows modal to input close reason for middleman ticket
- * @param {ButtonInteraction} interaction - The button interaction
+ * @description shows modal to input close reason for middleman ticket
+ * @param {ButtonInteraction} interaction - the button interaction
  * @returns {Promise<boolean>} - Returns true if handled
  */
 export async function handle_middleman_close_reason(interaction: ButtonInteraction): Promise<boolean> {

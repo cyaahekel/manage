@@ -21,10 +21,10 @@ interface attachment_ref {
 const __attachment_cache = new Map<string, attachment_ref>()
 
 /**
- * @description Stores an attachment URL+filename in memory and returns a short key
- * @param {string} url      - Discord attachment CDN URL
- * @param {string} filename - Original filename
- * @returns {string} Short 8-char hex key
+ * @description stores an attachment url+filename in memory and returns a short key
+ * @param {string} url      - discord attachment cdn url
+ * @param {string} filename - original filename
+ * @returns {string} short 8-char hex key
  */
 function store_attachment(url: string, filename: string): string {
   const key = randomBytes(4).toString("hex")
@@ -33,8 +33,8 @@ function store_attachment(url: string, filename: string): string {
 }
 
 /**
- * @description Retrieves an attachment ref by its short key
- * @param {string} key - The 8-char hex key
+ * @description retrieves an attachment ref by its short key
+ * @param {string} key - the 8-char hex key
  * @returns {attachment_ref | undefined}
  */
 export function resolve_attachment(key: string): attachment_ref | undefined {
@@ -42,8 +42,8 @@ export function resolve_attachment(key: string): attachment_ref | undefined {
 }
 
 /**
- * @description Fetches text content from a URL and counts its lines
- * @param {string} url - URL to fetch
+ * @description fetches text content from a url and counts its lines
+ * @param {string} url - url to fetch
  * @returns {Promise<{ content: string; line_count: number }>}
  */
 async function fetch_file_content(url: string): Promise<{ content: string; line_count: number }> {
@@ -55,14 +55,14 @@ async function fetch_file_content(url: string): Promise<{ content: string; line_
 }
 
 /**
- * @description Builds the select menu component block shared by both message builders
- * @param {string} ref_key       - Short attachment cache key
- * @param {string} filename      - Original filename for display
- * @param {number} line_count    - Number of lines in the file
- * @param {string} placeholder   - Select menu placeholder text
- * @param {string} script_id     - Currently selected script_id (or "none")
- * @param {Array}  select_options - Options array for the select menu
- * @returns {any[]} Array of components for the select container
+ * @description builds the select menu component block shared by both message builders
+ * @param {string} ref_key       - short attachment cache key
+ * @param {string} filename      - original filename for display
+ * @param {number} line_count    - number of lines in the file
+ * @param {string} placeholder   - select menu placeholder text
+ * @param {string} script_id     - currently selected script_id (or "none")
+ * @param {Array}  select_options - options array for the select menu
+ * @returns {any[]} array of components for the select container
  */
 function build_select_container(
   ref_key        : string,
@@ -115,10 +115,10 @@ function build_select_container(
 }
 
 /**
- * @description Builds the initial /push-script message
- * @param {string} attachment_url - Discord attachment URL
- * @param {string} filename       - Original filename for display
- * @returns {Promise<object>} Component V2 message object
+ * @description builds the initial /push-script message
+ * @param {string} attachment_url - discord attachment url
+ * @param {string} filename       - original filename for display
+ * @returns {Promise<object>} component v2 message object
  */
 export async function build_update_script_message(attachment_url: string, filename: string): Promise<object> {
   const ref_key        = store_attachment(attachment_url, filename)
@@ -146,10 +146,10 @@ export async function build_update_script_message(attachment_url: string, filena
 }
 
 /**
- * @description Builds the message after a script is chosen from the dropdown
- * @param {string} ref_key   - Short attachment cache key
- * @param {string} script_id - Selected Luarmor script ID
- * @returns {Promise<object>} Component V2 message object
+ * @description builds the message after a script is chosen from the dropdown
+ * @param {string} ref_key   - short attachment cache key
+ * @param {string} script_id - selected luarmor script id
+ * @returns {Promise<object>} component v2 message object
  */
 export async function build_select_update_message(ref_key: string, script_id: string): Promise<object> {
   const ref = resolve_attachment(ref_key)
@@ -190,10 +190,10 @@ export interface perform_update_result {
 }
 
 /**
- * @description Fetches attachment content and PUTs it to Luarmor, then returns version diff
- * @param {string} ref_key   - Short attachment cache key
- * @param {string} script_id - Luarmor script ID to update
- * @returns {Promise<perform_update_result>} Result with version info
+ * @description fetches attachment content and puts it to luarmor, then returns version diff
+ * @param {string} ref_key   - short attachment cache key
+ * @param {string} script_id - luarmor script id to update
+ * @returns {Promise<perform_update_result>} result with version info
  */
 export async function perform_script_update(ref_key: string, script_id: string): Promise<perform_update_result> {
   const ref = resolve_attachment(ref_key)

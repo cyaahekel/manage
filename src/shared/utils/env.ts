@@ -12,9 +12,9 @@
 
 /**
  * Gets an environment variable with optional fallback
- * @param {string} key - Environment variable name
- * @param {string} fallback - Default value if not found
- * @returns {string} Environment variable value or fallback
+ * @param {string} key - environment variable name
+ * @param {string} fallback - default value if not found
+ * @returns {string} environment variable value or fallback
  */
 export function get(key: string, fallback?: string): string {
   return process.env[key] ?? fallback ?? ""
@@ -22,8 +22,8 @@ export function get(key: string, fallback?: string): string {
 
 /**
  * Gets a required environment variable or throws error
- * @param {string} key - Environment variable name
- * @returns {string} Environment variable value
+ * @param {string} key - environment variable name
+ * @returns {string} environment variable value
  * @throws {Error} If environment variable is not set
  */
 export function required(key: string): string {
@@ -34,9 +34,9 @@ export function required(key: string): string {
 
 /**
  * Parses an environment variable as integer
- * @param {string} key - Environment variable name
- * @param {number} fallback - Default value if not found or invalid
- * @returns {number} Parsed integer value
+ * @param {string} key - environment variable name
+ * @param {number} fallback - default value if not found or invalid
+ * @returns {number} parsed integer value
  */
 export function int(key: string, fallback: number = 0): number {
   const value = process.env[key]
@@ -47,9 +47,9 @@ export function int(key: string, fallback: number = 0): number {
 
 /**
  * Parses an environment variable as float
- * @param {string} key - Environment variable name
- * @param {number} fallback - Default value if not found or invalid
- * @returns {number} Parsed float value
+ * @param {string} key - environment variable name
+ * @param {number} fallback - default value if not found or invalid
+ * @returns {number} parsed float value
  */
 export function float(key: string, fallback: number = 0): number {
   const value = process.env[key]
@@ -60,9 +60,9 @@ export function float(key: string, fallback: number = 0): number {
 
 /**
  * Parses an environment variable as boolean
- * @param {string} key - Environment variable name
- * @param {boolean} fallback - Default value if not found
- * @returns {boolean} Parsed boolean value
+ * @param {string} key - environment variable name
+ * @param {boolean} fallback - default value if not found
+ * @returns {boolean} parsed boolean value
  */
 export function bool(key: string, fallback: boolean = false): boolean {
   const value = process.env[key]?.toLowerCase()
@@ -72,9 +72,9 @@ export function bool(key: string, fallback: boolean = false): boolean {
 
 /**
  * Parses an environment variable as array
- * @param {string} key - Environment variable name
- * @param {string} separator - Separator character for splitting
- * @returns {string[]} Array of trimmed values
+ * @param {string} key - environment variable name
+ * @param {string} separator - separator character for splitting
+ * @returns {string[]} array of trimmed values
  */
 export function array(key: string, separator: string = ","): string[] {
   const value = process.env[key]
@@ -84,9 +84,9 @@ export function array(key: string, separator: string = ","): string[] {
 
 /**
  * Parses an environment variable as JSON
- * @param {string} key - Environment variable name
- * @param {T} fallback - Default value if not found or invalid JSON
- * @returns {T | undefined} Parsed JSON value
+ * @param {string} key - environment variable name
+ * @param {T} fallback - default value if not found or invalid JSON
+ * @returns {T | undefined} parsed JSON value
  */
 export function json<T>(key: string, fallback?: T): T | undefined {
   const value = process.env[key]
@@ -103,7 +103,7 @@ export function json<T>(key: string, fallback?: T): T | undefined {
 
 /**
  * Checks if running in production environment
- * @returns {boolean} True if NODE_ENV is production
+ * @returns {boolean} true if NODE_ENV is production
  */
 export function is_production(): boolean {
   return process.env.NODE_ENV === "production"
@@ -111,7 +111,7 @@ export function is_production(): boolean {
 
 /**
  * Checks if running in development environment
- * @returns {boolean} True if NODE_ENV is development or not set
+ * @returns {boolean} true if NODE_ENV is development or not set
  */
 export function is_development(): boolean {
   return process.env.NODE_ENV === "development" || !process.env.NODE_ENV
@@ -119,7 +119,7 @@ export function is_development(): boolean {
 
 /**
  * Checks if running in test environment
- * @returns {boolean} True if NODE_ENV is test
+ * @returns {boolean} true if NODE_ENV is test
  */
 export function is_test(): boolean {
   return process.env.NODE_ENV === "test"
@@ -127,7 +127,7 @@ export function is_test(): boolean {
 
 /**
  * Gets the current NODE_ENV value
- * @returns {string} Current environment name
+ * @returns {string} current environment name
  */
 export function node_env(): string {
   return process.env.NODE_ENV ?? "development"

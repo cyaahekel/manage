@@ -20,8 +20,9 @@ import { log_error }       from "@shared/utils/error_logger"
 import * as share_settings from "../controller"
 
 /**
- * - EXECUTE ADD ROD COMMAND - \\
- * @param {ChatInputCommandInteraction} interaction - Command interaction
+ * - 执行添加钓竿命令 - \\
+ * - execute add rod command - \\
+ * @param {ChatInputCommandInteraction} interaction - command interaction
  * @returns {Promise<void>}
  */
 async function execute_add_rod(interaction: ChatInputCommandInteraction): Promise<void> {

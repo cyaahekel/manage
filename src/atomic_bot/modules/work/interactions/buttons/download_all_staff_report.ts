@@ -37,8 +37,8 @@ interface WorkReport {
 }
 
 /**
- * @param {ButtonInteraction} interaction - Button interaction
- * @returns {Promise<void>} No return value
+ * @param {ButtonInteraction} interaction - button interaction
+ * @returns {Promise<void>} no return value
  */
 export async function handle_download_all_staff_report(interaction: ButtonInteraction): Promise<void> {
   try {

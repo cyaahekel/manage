@@ -36,7 +36,7 @@ interface quarantine_history_record {
 }
 
 /**
- * @description Add member to quarantine list
+ * @description add member to quarantine list
  * @param user_id - Discord user ID
  * @param guild_id - Discord guild ID
  * @param quarantine_role_id - ID of the quarantine role
@@ -72,7 +72,7 @@ export async function add_quarantine(
 }
 
 /**
- * @description Remove member from quarantine list
+ * @description remove member from quarantine list
  * @param user_id - Discord user ID
  * @param guild_id - Discord guild ID
  * @returns Promise<void>
@@ -82,7 +82,7 @@ export async function remove_quarantine(user_id: string, guild_id: string): Prom
 }
 
 /**
- * @description Get quarantine data for a member
+ * @description get quarantine data for a member
  * @param user_id - Discord user ID
  * @param guild_id - Discord guild ID
  * @returns Promise with quarantine data or null
@@ -92,7 +92,7 @@ export async function get_quarantine(user_id: string, guild_id: string): Promise
 }
 
 /**
- * @description Check if member is quarantined
+ * @description check if member is quarantined
  * @param user_id - Discord user ID
  * @param guild_id - Discord guild ID
  * @returns Promise<boolean>
@@ -103,7 +103,7 @@ export async function is_quarantined(user_id: string, guild_id: string): Promise
 }
 
 /**
- * @description Get all quarantined members for a guild
+ * @description get all quarantined members for a guild
  * @param guild_id - Discord guild ID
  * @returns Promise with array of quarantined members
  */
@@ -112,7 +112,7 @@ export async function get_guild_quarantines(guild_id: string): Promise<quarantin
 }
 
 /**
- * @description Get all members quarantined by the auto tag guard
+ * @description get all members quarantined by the auto tag guard
  * @param guild_id - Discord guild ID
  * @returns Promise with array of auto-tag-quarantined members
  */
@@ -121,7 +121,7 @@ export async function get_auto_tag_quarantines(guild_id: string): Promise<quaran
 }
 
 /**
- * @description Get all members due for release
+ * @description get all members due for release
  * @returns Promise with array of quarantined members
  */
 export async function get_expired_quarantines(): Promise<quarantined_member[]> {
@@ -131,7 +131,7 @@ export async function get_expired_quarantines(): Promise<quarantined_member[]> {
 }
 
 /**
- * @description Record a quarantine event in history
+ * @description record a quarantine event in history
  * @param user_id        - Discord user ID
  * @param guild_id       - Discord guild ID
  * @param reason         - Reason for quarantine
@@ -157,7 +157,7 @@ export async function add_quarantine_history(
 }
 
 /**
- * @description Get all quarantine history for a user
+ * @description get all quarantine history for a user
  * @param user_id  - Discord user ID
  * @param guild_id - Discord guild ID
  * @returns Promise with array of history records sorted newest first
@@ -171,7 +171,7 @@ export async function get_quarantine_history(
 }
 
 /**
- * @description Get total quarantine count for a user
+ * @description get total quarantine count for a user
  * @param user_id  - Discord user ID
  * @param guild_id - Discord guild ID
  * @returns Promise<number>

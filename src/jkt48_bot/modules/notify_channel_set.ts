@@ -52,7 +52,8 @@ export const command: Command = {
       const channel_option = interaction.options.getChannel("channel", true)
       const platform        = interaction.options.getString("platform", true)
 
-      // - FETCH FULL CHANNEL FROM GUILD - \\
+      // - 从服务器获取完整频道 - \\
+      // - fetch full channel from guild - \\
       const channel = await interaction.guild.channels.fetch(channel_option.id)
       if (!channel) {
         await interaction.editReply({
@@ -61,7 +62,8 @@ export const command: Command = {
         return
       }
 
-      // - VERIFY CHANNEL PERMISSIONS - \\
+      // - 验证频道权限 - \\
+      // - verify channel permissions - \\
       if (!channel.isTextBased()) {
         await interaction.editReply({
           content: "Please select a valid text or announcement channel.",
@@ -69,7 +71,8 @@ export const command: Command = {
         return
       }
 
-      // - CHECK BOT PERMISSIONS IN CHANNEL - \\
+      // - 检查频道中的机器人权限 - \\
+      // - check bot permissions in channel - \\
       const bot_member = interaction.guild.members.cache.get(interaction.client.user!.id)
       const permissions = channel.permissionsFor(bot_member!)
 
@@ -80,7 +83,8 @@ export const command: Command = {
         return
       }
 
-      // - SAVE TO DATABASE - \\
+      // - 保存到数据库 - \\
+      // - save to database - \\
       const settings = {
         guild_id   : interaction.guild.id,
         channel_id : channel.id,
@@ -96,7 +100,8 @@ export const command: Command = {
         true
       )
 
-      // - IF BOTH, SAVE FOR IDN AND SHOWROOM SEPARATELY - \\
+      // - 若两者全选，分别保存 IDN 和 Showroom - \\
+      // - if both, save for IDN and Showroom separately - \\
       if (platform === "both") {
         await db.update_one(
           __guild_notification_settings_collection,

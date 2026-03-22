@@ -16,7 +16,8 @@ import { get_supported_services }  from "@shared/services/bypass_service"
 import { component, api, cache }   from "@shared/utils"
 
 /**
- * - BYPASS SUPPORT COMMAND - \\
+ * - 绕过支持命令 - \\
+ * - bypass support command - \\
  */
 const bypass_support_command: Command = {
   data: new SlashCommandBuilder()
@@ -64,7 +65,8 @@ const bypass_support_command: Command = {
         return
       }
 
-      // - GROUP SERVICES BY TYPE - \\
+      // - 按类型分组服务 - \\
+      // - group services by type - \\
       const grouped_services: Record<string, any[]> = {}
       
       for (const service of services) {
@@ -75,11 +77,13 @@ const bypass_support_command: Command = {
         grouped_services[type].push(service)
       }
 
-      // - CACHE SERVICES DATA - \\
+      // - 缓存服务数据 - \\
+      // - cache services data - \\
       const cache_key = `bypass_services_${interaction.id}`
       cache.set(cache_key, grouped_services, 300000)
 
-      // - BUILD DROPDOWN OPTIONS - \\
+      // - 构建下拉选项 - \\
+      // - build dropdown options - \\
       const types          = Object.keys(grouped_services).sort()
       const dropdown_options = types.map(type => ({
         label       : type,

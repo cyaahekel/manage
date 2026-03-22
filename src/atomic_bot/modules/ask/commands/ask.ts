@@ -104,7 +104,8 @@ export async function create_thread_for_message(
         content: `<@${user_id}> Staff will answer your question here.`,
       })
 
-      // - DELETE "STARTED A THREAD" SYSTEM MESSAGE - \\
+      // - 删除「启动了一个子线程」系统消息 - \\
+      // - delete "started a thread" system message - \\
       try {
         const recent = await channel.messages.fetch({ limit: 5 })
         const system_msg = recent.find(

@@ -15,10 +15,10 @@ import { Client }               from "discord.js"
 let __shoukaku: Shoukaku | null = null
 
 /**
- * @description Initializes the Shoukaku Lavalink client and attaches it to the Discord client.
+ * @description initializes the Shoukaku Lavalink client and attaches it to the Discord client.
  *              Must be called once after the Discord client is created.
- * @param {Client} client - Discord.js client instance
- * @returns {Shoukaku} Shoukaku instance
+ * @param {Client} client - discord.js client instance
+ * @returns {Shoukaku} shoukaku instance
  */
 export function init_shoukaku(client: Client): Shoukaku {
   const host     = process.env.LAVALINK_HOST     ?? "localhost"
@@ -46,8 +46,8 @@ export function init_shoukaku(client: Client): Shoukaku {
 }
 
 /**
- * @description Returns the Shoukaku singleton. Throws if not yet initialized.
- * @returns {Shoukaku} Shoukaku instance
+ * @description returns the Shoukaku singleton. Throws if not yet initialized.
+ * @returns {Shoukaku} shoukaku instance
  */
 export function get_shoukaku(): Shoukaku {
   if (!__shoukaku) throw new Error("[ - LAVALINK - ] Shoukaku not initialized — call init_shoukaku first")

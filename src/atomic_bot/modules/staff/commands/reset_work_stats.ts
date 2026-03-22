@@ -15,7 +15,8 @@ import { component, db } from "@shared/utils"
 import { WorkReport, WorkLog } from "@shared/database/trackers/work_tracker"
 
 /**
- * - RECALCULATE WORK STATS FROM LOGS - \\
+ * - 从日志重计工作统计 - \\
+ * - recalculate work stats from logs - \\
  */
 const reset_work_stats: Command = {
   data: new SlashCommandBuilder()
@@ -36,7 +37,8 @@ const reset_work_stats: Command = {
 
     try {
       if (user) {
-        // - RECALCULATE FOR SINGLE USER - \\
+        // - 重新计算单个用户 - \\
+        // - recalculate for single user - \\
         const existing_report = await db.find_one<WorkReport>("work_reports", { staff_id: user.id })
 
         if (!existing_report) {
@@ -100,7 +102,8 @@ const reset_work_stats: Command = {
           })
         )
       } else {
-        // - RECALCULATE FOR ALL STAFF - \\
+        // - 重新计算所有员工 - \\
+        // - recalculate for all staff - \\
         const all_reports = await db.find_many<WorkReport>("work_reports", {})
 
         if (all_reports.length === 0) {

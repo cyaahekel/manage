@@ -24,7 +24,8 @@ client.on(Events.VoiceStateUpdate, async (old_state: VoiceState, new_state: Voic
     console.error("[tempvoice] Voice state update error:", error)
   }
 
-  // - SKIP BOTS - \\
+  // - 跳过机器人 - \\
+  // - skip bots - \\
   const member = new_state.member ?? old_state.member
   if (!member || member.user.bot) return
 
@@ -35,13 +36,16 @@ client.on(Events.VoiceStateUpdate, async (old_state: VoiceState, new_state: Voic
   const joined_channel = new_state.channelId
 
   if (!left_channel && joined_channel) {
-    // - JOINED VOICE - \\
+    // - 加入语音 - \\
+    // - joined voice - \\
     on_voice_join(user_id, guild_id, joined_channel)
   } else if (left_channel && !joined_channel) {
-    // - LEFT VOICE ENTIRELY - \\
+    // - 完全离开语音 - \\
+    // - left voice entirely - \\
     await on_voice_leave(user_id, guild_id)
   } else if (left_channel && joined_channel && left_channel !== joined_channel) {
-    // - CHANNEL SWITCH: UPDATE IN-MEMORY SESSION, NO DB WRITE - \\
+    // - 切换频道：更新内存会话，不写入数据库 - \\
+    // - channel switch: update in-memory session, no db write - \\
     on_voice_join(user_id, guild_id, joined_channel)
   }
 })

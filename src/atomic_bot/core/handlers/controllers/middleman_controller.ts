@@ -59,8 +59,8 @@ interface OpenMiddlemanTicketResult {
 }
 
 /**
- * @description Opens a middleman service ticket with transaction details
- * @param {OpenMiddlemanTicketOptions} options - Options for opening the ticket
+ * @description opens a middleman service ticket with transaction details
+ * @param {OpenMiddlemanTicketOptions} options - options for opening the ticket
  * @returns {Promise<OpenMiddlemanTicketResult>} - Result of the operation
  */
 export async function open_middleman_ticket(options: OpenMiddlemanTicketOptions): Promise<OpenMiddlemanTicketResult> {
@@ -81,7 +81,8 @@ export async function open_middleman_ticket(options: OpenMiddlemanTicketOptions)
   const user_id            = interaction.user.id
   const existing_thread_id = get_user_open_ticket(ticket_type, user_id)
 
-  // - CHECK MAX TICKET LIMIT PER USER (5 TICKETS) - \\
+  // - 检查每用户的最大工单数量（5 个） - \\
+  // - check max ticket limit per user (5 tickets) - \\
   const user_ticket_count = await count_user_active_tickets(user_id)
   const partner_ticket_count = await count_user_active_tickets(partner_id)
   
@@ -216,7 +217,8 @@ export async function open_middleman_ticket(options: OpenMiddlemanTicketOptions)
       }
     }
 
-    // - SAVE TO DATABASE FOR PERSISTENCE - \\
+    // - 存入数据库以持久化 - \\
+    // - save to database for persistence - \\
     await create_middleman_ticket({
       thread_id        : thread.id,
       ticket_id        : ticket_id,
@@ -233,7 +235,8 @@ export async function open_middleman_ticket(options: OpenMiddlemanTicketOptions)
       log_message_id   : log_message_id,
     })
 
-    // - SAVE TICKET IMMEDIATELY TO PREVENT RACE CONDITION - \\
+    // - 立即保存工单以防止竞争条件 - \\
+    // - save ticket immediately to prevent race condition - \\
     await save_ticket_immediate(thread.id)
 
     return {

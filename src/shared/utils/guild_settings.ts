@@ -14,17 +14,19 @@ const is_production = process.env.NODE_ENV === "production"
 const __guild_settings_ttl = 5 * 60 * 1000 // - 5 minutes - \\
 
 /**
- * - GENERATE CACHE KEY FOR GUILD SETTINGS - \\
- * @param {string} guild_id - Guild ID
- * @returns {string} Cache key
+ * - 生成服务器设置缓存键 - \\
+ * - generate cache key for guild settings - \\
+ * @param {string} guild_id - guild ID
+ * @returns {string} cache key
  */
 function get_guild_cache_key(guild_id: string): string {
   return `guild_settings:${guild_id}`
 }
 
 /**
- * - INVALIDATE GUILD SETTINGS CACHE - \\
- * @param {string} guild_id - Guild ID
+ * - 使服务器设置缓存失效 - \\
+ * - invalidate guild settings cache - \\
+ * @param {string} guild_id - guild ID
  * @returns {void}
  */
 function invalidate_guild_cache(guild_id: string): void {
@@ -63,9 +65,9 @@ export interface guild_settings_data {
 }
 
 /**
- * @param {string} guild_id - Guild ID
- * @param {guild_setting_key} key - Setting key to get
- * @returns {Promise<string | null>} Setting value or null
+ * @param {string} guild_id - guild ID
+ * @param {guild_setting_key} key - setting key to get
+ * @returns {Promise<string | null>} setting value or null
  */
 export async function get_guild_setting(
   guild_id: string,
@@ -104,8 +106,8 @@ export async function get_guild_setting(
 }
 
 /**
- * @param {string} guild_id - Guild ID
- * @returns {Promise<guild_settings_data | null>} All guild settings or null
+ * @param {string} guild_id - guild ID
+ * @returns {Promise<guild_settings_data | null>} all guild settings or null
  */
 export async function get_all_guild_settings(
   guild_id: string
@@ -139,10 +141,10 @@ export async function get_all_guild_settings(
 }
 
 /**
- * @param {string} guild_id - Guild ID
- * @param {guild_setting_key} key - Setting key to set
- * @param {string} value - Setting value
- * @returns {Promise<boolean>} Success status
+ * @param {string} guild_id - guild ID
+ * @param {guild_setting_key} key - setting key to set
+ * @param {string} value - setting value
+ * @returns {Promise<boolean>} success status
  */
 export async function set_guild_setting(
   guild_id: string,
@@ -214,9 +216,9 @@ export async function set_guild_setting(
 }
 
 /**
- * @param {string} guild_id - Guild ID
- * @param {guild_setting_key} key - Setting key to remove
- * @returns {Promise<boolean>} Success status
+ * @param {string} guild_id - guild ID
+ * @param {guild_setting_key} key - setting key to remove
+ * @returns {Promise<boolean>} success status
  */
 export async function remove_guild_setting(
   guild_id: string,
@@ -258,8 +260,8 @@ export async function remove_guild_setting(
 }
 
 /**
- * @param {string} guild_id - Guild ID
- * @returns {Promise<boolean>} Success status
+ * @param {string} guild_id - guild ID
+ * @returns {Promise<boolean>} success status
  */
 export async function clear_all_guild_settings(guild_id: string): Promise<boolean> {
   try {

@@ -13,7 +13,7 @@ import { Router, Request, Response } from "express"
 import { Client, ChannelType }       from "discord.js"
 
 /**
- * @description Create guild & audit log API router
+ * @description create guild & audit log API router
  * @param client   - Discord client instance
  * @param guild_id - Main guild ID
  * @returns Express Router
@@ -21,7 +21,8 @@ import { Client, ChannelType }       from "discord.js"
 export function create_guild_router(client: Client | null, guild_id: string): Router {
   const router = Router()
 
-  // - GET /api/roles - \\
+  // - 获取角色列表接口 - \\
+  // - get /api/roles - \\
   router.get("/roles", async (req: Request, res: Response) => {
     try {
       if (!client?.isReady()) return res.status(503).json({ error: "Bot not ready" })
@@ -41,7 +42,8 @@ export function create_guild_router(client: Client | null, guild_id: string): Ro
     }
   })
 
-  // - GET /api/audit-logs - \\
+  // - 获取审计日志接口 - \\
+  // - get /api/audit-logs - \\
   router.get("/audit-logs", async (req: Request, res: Response) => {
     try {
       if (!client?.isReady()) return res.status(503).json({ error: "Bot not ready" })
@@ -116,7 +118,8 @@ export function create_guild_router(client: Client | null, guild_id: string): Ro
     }
   })
 
-  // - GET /api/guild/:guild_id/channels - \\
+  // - 获取服务器频道接口 - \\
+  // - get /api/guild/:guild_id/channels - \\
   router.get("/guild/:guild_id/channels", async (req: Request, res: Response) => {
     try {
       if (!client?.isReady()) return res.status(503).json({ error: "Bot not ready" })
@@ -147,7 +150,8 @@ export function create_guild_router(client: Client | null, guild_id: string): Ro
     }
   })
 
-  // - GET /api/guild/:guild_id/roles - \\
+  // - 获取服务器角色接口 - \\
+  // - get /api/guild/:guild_id/roles - \\
   router.get("/guild/:guild_id/roles", async (req: Request, res: Response) => {
     try {
       if (!client?.isReady()) return res.status(503).json({ error: "Bot not ready" })
@@ -167,7 +171,8 @@ export function create_guild_router(client: Client | null, guild_id: string): Ro
     }
   })
 
-  // - GET /api/guild/:guild_id/status - \\
+  // - 获取服务器状态接口 - \\
+  // - get /api/guild/:guild_id/status - \\
   router.get("/guild/:guild_id/status", (req: Request, res: Response) => {
     const in_guild = client?.isReady()
       ? client.guilds.cache.has(req.params.guild_id)

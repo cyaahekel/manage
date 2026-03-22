@@ -28,18 +28,20 @@ let __history_base_warned            = false
 let __idn_fallback_disabled_until    = 0
 
 /**
- * - WAIT FOR N MILLISECONDS - \\
- * @param {number} ms - Milliseconds
- * @returns {Promise<void>} Promise
+ * - 等待 N 毫秒 - \\
+ * - wait for n milliseconds - \\
+ * @param {number} ms - milliseconds
+ * @returns {Promise<void>} promise
  */
 function wait_ms(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 /**
- * - CHECK RETRYABLE REQUEST ERROR - \\
- * @param {any} error - Request error
- * @returns {boolean} Is retryable
+ * - 检查可重试请求错误 - \\
+ * - check retryable request error - \\
+ * @param {any} error - request error
+ * @returns {boolean} is retryable
  */
 function is_retryable_request_error(error: any): boolean {
   const status  = Number(error?.response?.status || 0)
@@ -58,10 +60,11 @@ function is_retryable_request_error(error: any): boolean {
 }
 
 /**
- * - AXIOS GET WITH RETRY - \\
- * @param {string} url - Request URL
- * @param {Record<string, any>} config - Axios config
- * @returns {Promise<any>} Axios response
+ * - 带重试的 axios GET 请求 - \\
+ * - axios get with retry - \\
+ * @param {string} url - request URL
+ * @param {Record<string, any>} config - axios config
+ * @returns {Promise<any>} axios response
  */
 async function axios_get_with_retry(url: string, config: Record<string, any> = {}): Promise<any> {
   let attempt    = 0
@@ -90,9 +93,10 @@ async function axios_get_with_retry(url: string, config: Record<string, any> = {
 }
 
 /**
- * - PICK FIRST VALID NUMBER - \\
- * @param {Array<any>} candidates - Number candidates
- * @returns {number | undefined} Parsed number
+ * - 获取第一个有效数字 - \\
+ * - pick first valid number - \\
+ * @param {Array<any>} candidates - number candidates
+ * @returns {number | undefined} parsed number
  */
 function pick_number(candidates: Array<any>): number | undefined {
   for (const candidate of candidates) {
@@ -106,9 +110,10 @@ function pick_number(candidates: Array<any>): number | undefined {
 }
 
 /**
- * - BUILD HISTORY DEBUG PAYLOAD - \\
- * @param {object} payload - Raw payload
- * @returns {object} Sanitized payload
+ * - 构建历史调试负载 - \\
+ * - build history debug payload - \\
+ * @param {object} payload - raw payload
+ * @returns {object} sanitized payload
  */
 function build_history_debug_payload(payload: {
   recent?: any
@@ -143,11 +148,12 @@ function build_history_debug_payload(payload: {
 }
 
 /**
- * - FETCH IDN HISTORY STATS FALLBACK - \\
- * @param {Client} client - Discord client
- * @param {string} slug - IDN live slug
- * @param {string} uuid - IDN creator UUID
- * @returns {Promise<Record<string, any>>} Stats payload
+ * - 获取 IDN 历史统计回退方案 - \\
+ * - fetch idn history stats fallback - \\
+ * @param {Client} client - discord client
+ * @param {string} slug - iDN live slug
+ * @param {string} uuid - iDN creator UUID
+ * @returns {Promise<Record<string, any>>} stats payload
  */
 async function fetch_idn_stats_fallback(client: Client, slug: string, uuid: string): Promise<Record<string, any>> {
   if (!uuid) {
@@ -218,9 +224,10 @@ function normalize_idn_username(input: string): string {
 }
 
 /**
- * - FORMAT MEMBER DISPLAY NAME - \\
- * @param {string} name - Member name
- * @returns {string} Display name with JKT48 prefix
+ * - 格式化成员显示名 - \\
+ * - format member display name - \\
+ * @param {string} name - member name
+ * @returns {string} display name with JKT48 prefix
  */
 function format_member_display_name(name: string): string {
   const trimmed = name.trim()
@@ -230,9 +237,10 @@ function format_member_display_name(name: string): string {
 }
 
 /**
- * - TITLE CASE - \\
- * @param {string} input - Text input
- * @returns {string} Title-cased text
+ * - 首字母大写 - \\
+ * - title case - \\
+ * @param {string} input - text input
+ * @returns {string} title-cased text
  */
 function to_title_case(input: string): string {
   return input
@@ -295,20 +303,23 @@ interface member_suggestion {
 
 type live_platform = "idn" | "showroom"
 
-// - IN-MEMORY CACHE FOR LIVE STATE — AVOIDS DB ROUND-TRIP ON EVERY 60S POLL CYCLE - \\
+// - 直播状态的内存缓存，避免每次 60 秒轮询时访问数据库 - \\
+// - in-memory cache for live state — avoids db round-trip on every 60s poll cycle - \\
 const live_state_cache = new Cache<live_state_record>(2 * 60 * 1000, 200, 60 * 1000, "live_state")
 
 /**
- * - SEND LIVE NOTIFICATION TO CHANNEL - \\
- * @param {Client} client - Discord client
- * @param {object} message - Message payload
- * @param {string} platform - Platform name
- * @param {string} live_key - Live key
+ * - 向频道发送直播通知 - \\
+ * - send live notification to channel - \\
+ * @param {Client} client - discord client
+ * @param {object} message - message payload
+ * @param {string} platform - platform name
+ * @param {string} live_key - live key
  * @returns {Promise<void>}
  */
 async function send_live_channel_notification(client: Client, message: object, platform: string, live_key: string): Promise<void> {
   try {
-    // - GET ALL GUILDS WITH NOTIFICATION SETTINGS FOR THIS PLATFORM - \\
+    // - 获取所有已配置该平台通知设置的服务器 - \\
+    // - get all guilds with notification settings for this platform - \\
     const guild_settings = await db.find_many<{
       guild_id   : string
       channel_id : string
@@ -320,7 +331,8 @@ async function send_live_channel_notification(client: Client, message: object, p
       return
     }
 
-    // - SEND TO ALL CONFIGURED CHANNELS IN PARALLEL - \\
+    // - 并行发送到所有已配置频道 - \\
+    // - send to all configured channels in parallel - \\
     await Promise.all(
       guild_settings.map(async (setting) => {
         try {
@@ -353,15 +365,16 @@ async function send_live_channel_notification(client: Client, message: object, p
 }
 
 /**
- * - BUILD LIVE DM MESSAGE - \\
- * @param {object} options - Message options
- * @param {string} options.member_name - Member name
- * @param {number} options.viewers - Viewer count
- * @param {number} options.started_at - Started timestamp
- * @param {string} options.url - Stream URL
- * @param {string} options.image - Thumbnail image
- * @param {string} options.platform - Platform label
- * @returns {object} Message payload
+ * - 构建直播私信消息 - \\
+ * - build live dm message - \\
+ * @param {object} options - message options
+ * @param {string} options.member_name - member name
+ * @param {number} options.viewers - viewer count
+ * @param {number} options.started_at - started timestamp
+ * @param {string} options.url - stream URL
+ * @param {string} options.image - thumbnail image
+ * @param {string} options.platform - platform label
+ * @returns {object} message payload
  */
 function build_live_dm_message(options: {
   member_name : string
@@ -405,15 +418,16 @@ function build_live_dm_message(options: {
 }
 
 /**
- * - BUILD LIVE CHANNEL MESSAGE - \\
- * @param {object} options - Message options
- * @param {string} options.member_name - Member name
- * @param {number} options.viewers - Viewer count
- * @param {number} options.started_at - Started timestamp
- * @param {string} options.url - Stream URL
- * @param {string} options.image - Thumbnail image
- * @param {string} options.platform - Platform label
- * @returns {object} Message payload
+ * - 构建直播频道消息 - \\
+ * - build live channel message - \\
+ * @param {object} options - message options
+ * @param {string} options.member_name - member name
+ * @param {number} options.viewers - viewer count
+ * @param {number} options.started_at - started timestamp
+ * @param {string} options.url - stream URL
+ * @param {string} options.image - thumbnail image
+ * @param {string} options.platform - platform label
+ * @returns {object} message payload
  */
 function build_live_channel_message(options: {
   member_name : string
@@ -457,9 +471,10 @@ function build_live_channel_message(options: {
 }
 
 /**
- * - BUILD HISTORY API URL - \\
- * @param {string} path - Path
- * @returns {string} Full URL
+ * - 构建历史 API URL - \\
+ * - build history api url - \\
+ * @param {string} path - path
+ * @returns {string} full URL
  */
 function build_history_url(path: string): string {
   const base = __history_api_base.replace(/\/+$/, "")
@@ -468,10 +483,11 @@ function build_history_url(path: string): string {
 }
 
 /**
- * - FETCH SHOWROOM HISTORY - \\
- * @param {Client} client - Discord client
- * @param {number} room_id - Showroom room ID
- * @returns {Promise<Partial<live_history_record>>} History data
+ * - 获取 Showroom 历史 - \\
+ * - fetch showroom history - \\
+ * @param {Client} client - discord client
+ * @param {number} room_id - showroom room ID
+ * @returns {Promise<Partial<live_history_record>>} history data
  */
 async function fetch_showroom_history(client: Client, room_id: number): Promise<Partial<live_history_record>> {
   if (!room_id) {
@@ -603,11 +619,12 @@ async function fetch_showroom_history(client: Client, room_id: number): Promise<
 }
 
 /**
- * - FETCH IDN HISTORY - \\
- * @param {Client} client - Discord client
- * @param {string} slug - IDN live slug
- * @param {string} [uuid] - IDN creator UUID
- * @returns {Promise<Partial<live_history_record>>} History data
+ * - 获取 IDN 历史 - \\
+ * - fetch idn history - \\
+ * @param {Client} client - discord client
+ * @param {string} slug - iDN live slug
+ * @param {string} [uuid] - iDN creator UUID
+ * @returns {Promise<Partial<live_history_record>>} history data
  */
 async function fetch_idn_history(client: Client, slug: string, uuid?: string): Promise<Partial<live_history_record>> {
   if (!slug) {
@@ -775,9 +792,10 @@ async function fetch_idn_history(client: Client, slug: string, uuid?: string): P
 }
 
 /**
- * - NORMALIZE LIVE PLATFORM - \\
- * @param {string} value - Platform value
- * @returns {live_platform} Normalized platform
+ * - 标准化直播平台 - \\
+ * - normalize live platform - \\
+ * @param {string} value - platform value
+ * @returns {live_platform} normalized platform
  */
 function normalize_live_platform(value: string): live_platform {
   const normalized = value.toLowerCase().trim()
@@ -785,9 +803,10 @@ function normalize_live_platform(value: string): live_platform {
 }
 
 /**
- * - ADD NOTIFICATION SUBSCRIPTION - \\
- * @param {object} options - Subscription options
- * @returns {Promise<object>} Result with success status
+ * - 添加通知订阅 - \\
+ * - add notification subscription - \\
+ * @param {object} options - subscription options
+ * @returns {Promise<object>} result with success status
  */
 export async function add_notification(options: { user_id: string; member_name: string; client: Client; type?: string }): Promise<{ success: boolean; message?: string; error?: string }> {
   try {
@@ -884,9 +903,10 @@ export async function add_notification(options: { user_id: string; member_name: 
 }
 
 /**
- * - REMOVE NOTIFICATION SUBSCRIPTION - \\
- * @param {object} options - Subscription options
- * @returns {Promise<object>} Result with success status
+ * - 移除通知订阅 - \\
+ * - remove notification subscription - \\
+ * @param {object} options - subscription options
+ * @returns {Promise<object>} result with success status
  */
 export async function remove_notification(options: { user_id: string; member_name: string; client: Client; type?: string }): Promise<{ success: boolean; message?: string; error?: string }> {
   try {
@@ -961,10 +981,11 @@ export async function remove_notification(options: { user_id: string; member_nam
 }
 
 /**
- * - GET USER SUBSCRIPTIONS - \\
- * @param {string} user_id - Discord user ID
- * @param {Client} client - Discord client
- * @returns {Promise<notification_subscription[]>} List of subscriptions
+ * - 获取用户订阅列表 - \\
+ * - get user subscriptions - \\
+ * @param {string} user_id - discord user ID
+ * @param {Client} client - discord client
+ * @returns {Promise<notification_subscription[]>} list of subscriptions
  */
 export async function get_user_subscriptions(user_id: string, client: Client): Promise<notification_subscription[]> {
   try {
@@ -981,9 +1002,10 @@ export async function get_user_subscriptions(user_id: string, client: Client): P
 }
 
 /**
- * - GET MEMBER SUGGESTIONS - \\
- * @param {object} options - Suggestion options
- * @returns {Promise<member_suggestion[]>} Suggestions for autocomplete
+ * - 获取成员建议 - \\
+ * - get member suggestions - \\
+ * @param {object} options - suggestion options
+ * @returns {Promise<member_suggestion[]>} suggestions for autocomplete
  */
 export async function get_member_suggestions(options: { query: string; user_id: string; client: Client; include_live?: boolean; platform?: string }): Promise<member_suggestion[]> {
   try {
@@ -991,12 +1013,14 @@ export async function get_member_suggestions(options: { query: string; user_id: 
     const platform         = normalize_live_platform(options.platform || "idn")
     const suggestions_map  = new Map<string, member_suggestion>()
 
-    // - START SUBSCRIPTION FETCH IMMEDIATELY SO IT RUNS IN PARALLEL - \\
+    // - 立即开始订阅获取以并行运行 - \\
+    // - start subscription fetch immediately so it runs in parallel - \\
     const subscriptions_promise = get_user_subscriptions(options.user_id, options.client).catch(() => [])
 
     if (options.include_live !== false) {
       if (platform === "idn") {
-        // - ROSTER + LIVE FETCHES ARE INDEPENDENT — RUN IN PARALLEL - \\
+        // - 成员名单 + 直播获取相互独立，并行运行 - \\
+        // - roster + live fetches are independent — run in parallel - \\
         const [roster_members, live_members] = await Promise.all([
           idn_live.get_idn_roster_members(options.client, {
             max_wait_ms : 2000,
@@ -1083,7 +1107,8 @@ export async function get_member_suggestions(options: { query: string; user_id: 
       platform: options.platform,
     }).catch(() => {})
     
-    // - RETURN FALLBACK SUGGESTIONS INSTEAD OF EMPTY ARRAY - \\
+    // - 返回备用建议而非空数组 - \\
+    // - return fallback suggestions instead of empty array - \\
     const fallback_query = options.query.trim()
     if (fallback_query) {
       return [{
@@ -1096,9 +1121,10 @@ export async function get_member_suggestions(options: { query: string; user_id: 
 }
 
 /**
- * - GET CURRENTLY LIVE MEMBERS - \\
- * @param {Client} client - Discord client
- * @returns {Promise<object>} Result with live rooms data
+ * - 获取当前直播成员 - \\
+ * - get currently live members - \\
+ * @param {Client} client - discord client
+ * @returns {Promise<object>} result with live rooms data
  */
 export async function get_currently_live(client: Client): Promise<{ success: boolean; data?: idn_live.live_room[]; error?: string }> {
   try {
@@ -1118,8 +1144,9 @@ export async function get_currently_live(client: Client): Promise<{ success: boo
 }
 
 /**
- * - CHECK AND NOTIFY LIVE CHANGES - \\
- * @param {Client} client - Discord client
+ * - 检查并通知直播变化 - \\
+ * - check and notify live changes - \\
+ * @param {Client} client - discord client
  * @returns {Promise<void>}
  */
 export async function check_and_notify_live_changes(client: Client): Promise<void> {
@@ -1146,16 +1173,18 @@ export async function check_and_notify_live_changes(client: Client): Promise<voi
 }
 
 /**
- * - HANDLE IDN LIVE NOTIFICATIONS - \\
- * @param {Client} client - Discord client
- * @param {idn_live.live_room[]} live_rooms - Live rooms
+ * - 处理 IDN 直播通知 - \\
+ * - handle idn live notifications - \\
+ * @param {Client} client - discord client
+ * @param {idn_live.live_room[]} live_rooms - live rooms
  * @returns {Promise<void>}
  */
 async function handle_notify_for_idn(client: Client, live_rooms: idn_live.live_room[]): Promise<void> {
   for (const room of live_rooms) {
     const live_key = `idn:${room.slug || room.username}`
 
-    // - CHECK IN-MEMORY CACHE FIRST — AVOIDS DB ON EVERY POLL CYCLE - \\
+    // - 先检查内存缓存，避免每次轮询访问数据库 - \\
+    // - check in-memory cache first — avoids db on every poll cycle - \\
     if (live_state_cache.get(live_key)) continue
 
     const existing_state = await db.find_one<live_state_record>(__live_state_collection, {
@@ -1195,7 +1224,8 @@ async function handle_notify_for_idn(client: Client, live_rooms: idn_live.live_r
 
     await send_live_channel_notification(client, channel_message, "idn", live_key)
 
-    // - BUILD DM ONCE, SEND TO ALL SUBSCRIBERS IN PARALLEL - \\
+    // - 构建一次 DM，并行发送给所有订阅者 - \\
+    // - build dm once, send to all subscribers in parallel - \\
     const dm_message = build_live_dm_message({
       member_name : room.member_name,
       viewers     : room.viewers,
@@ -1244,9 +1274,10 @@ async function handle_notify_for_idn(client: Client, live_rooms: idn_live.live_r
 }
 
 /**
- * - HANDLE SHOWROOM LIVE NOTIFICATIONS - \\
- * @param {Client} client - Discord client
- * @param {showroom_live.showroom_live_room[]} live_rooms - Live rooms
+ * - 处理 Showroom 直播通知 - \\
+ * - handle showroom live notifications - \\
+ * @param {Client} client - discord client
+ * @param {showroom_live.showroom_live_room[]} live_rooms - live rooms
  * @returns {Promise<void>}
  */
 async function handle_notify_for_showroom(client: Client, live_rooms: showroom_live.showroom_live_room[]): Promise<void> {
@@ -1329,8 +1360,9 @@ async function handle_notify_for_showroom(client: Client, live_rooms: showroom_l
 }
 
 /**
- * - SYNC ACTIVE IDN HISTORY - \\
- * @param {Client} client - Discord client
+ * - 同步活跃 IDN 历史 - \\
+ * - sync active idn history - \\
+ * @param {Client} client - discord client
  * @returns {Promise<void>}
  */
 async function sync_active_idn_history(client: Client): Promise<void> {
@@ -1383,16 +1415,18 @@ async function sync_active_idn_history(client: Client): Promise<void> {
 }
 
 /**
- * - CLEANUP LIVE STATE - \\
- * @param {Client} client - Discord client
- * @param {live_platform} platform - Live platform
- * @param {string[]} active_keys - Active live keys
+ * - 清理直播状态 - \\
+ * - cleanup live state - \\
+ * @param {Client} client - discord client
+ * @param {live_platform} platform - live platform
+ * @param {string[]} active_keys - active live keys
  * @returns {Promise<void>}
  */
 async function cleanup_live_state(client: Client, platform: live_platform, active_keys: string[]): Promise<void> {
   const active_key_set = new Set(active_keys)
 
-  // - FILTER BY PLATFORM AT DB LEVEL — ELIMINATES REDUNDANT FULL-TABLE SCAN - \\
+  // - 在数据库层按平台过滤，避免全表扫描 - \\
+  // - filter by platform at db level — eliminates redundant full-table scan - \\
   const active_states = await db.find_many<live_state_record>(__live_state_collection, {
     is_live : true,
     type    : platform,
@@ -1400,7 +1434,8 @@ async function cleanup_live_state(client: Client, platform: live_platform, activ
 
   const ended_states = active_states.filter((state) => !active_key_set.has(state.live_key))
 
-  // - PROCESS ALL ENDED STREAMS IN PARALLEL (HISTORY FETCH + DB OPS) - \\
+  // - 并行处理所有已结束的直播（历史记录获取 + 数据库操作）- \\
+  // - process all ended streams in parallel (history fetch + db ops) - \\
   await Promise.all(ended_states.map(async (state) => {
     try {
       const ended_at       = Date.now()
@@ -1446,7 +1481,8 @@ async function cleanup_live_state(client: Client, platform: live_platform, activ
         true
       )
 
-      // - USE live_key FOR DELETE — _id IS NEVER STORED IN generic_data JSONB - \\
+      // - 使用 live_key 删除，_id 从不存储在 generic_data JSONB 中 - \\
+      // - use live_key for delete — _id is never stored in generic_data JSONB - \\
       const delete_filter = state.live_key
         ? { live_key: state.live_key }
         : { slug: state.slug, is_live: true, type: state.type }
@@ -1466,10 +1502,11 @@ async function cleanup_live_state(client: Client, platform: live_platform, activ
 }
 
 /**
- * - START LIVE MONITORING - \\
- * @param {Client} client - Discord client
- * @param {number} interval_ms - Check interval in milliseconds
- * @returns {NodeJS.Timeout} Interval timer
+ * - 启动直播监控 - \\
+ * - start live monitoring - \\
+ * @param {Client} client - discord client
+ * @param {number} interval_ms - check interval in milliseconds
+ * @returns {NodeJS.Timeout} interval timer
  */
 export function start_live_monitoring(client: Client, interval_ms: number = 60000): NodeJS.Timeout {
   console.log(`[ - LIVE MONITOR - ] Starting IDN + Showroom monitoring every ${interval_ms / 1000}s`)

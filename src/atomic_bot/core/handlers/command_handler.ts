@@ -37,7 +37,8 @@ export async function load_commands(client: extended_client) {
         if (item.name === "interactions") continue
         await load_from_directory(item_path)
       } else if (item.isFile() && (item.name.endsWith(".ts") || item.name.endsWith(".js"))) {
-        // - SKIP UTILITY AND HELPER FILES - \\
+        // - 跳过工具与辅助文件 - \\
+        // - skip utility and helper files - \\
         if (item.name.includes("_utils") || item.name.includes("_mod_") || item.name.startsWith("afk_set")) {
           continue
         }
@@ -57,7 +58,8 @@ export async function load_commands(client: extended_client) {
           console.warn(`[command_handler] DUPLICATE COMMAND NAME at index ${command_index}: ${command_name} from ${item_path}`)
         }
 
-        // - ROUTE MESSAGE CONTEXT MENU COMMANDS TO SEPARATE COLLECTION - \\
+        // - 将消息右键菜单命令路由到单独集合 - \\
+        // - route message context menu commands to separate collection - \\
         if (command.data.type === ApplicationCommandType.Message) {
           console.log(`[${command_index}] (ctx-menu) ${command_name} from ${item.name}`)
           client.message_context_menu_commands!.set(command_name, command as MessageContextMenuCommand)

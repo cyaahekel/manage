@@ -21,8 +21,9 @@ import { log_error }       from "@shared/utils/error_logger"
 import * as share_settings from "../controller"
 
 /**
- * - EXECUTE DELETE SETTINGS COMMAND - \\
- * @param {ChatInputCommandInteraction} interaction - Command interaction
+ * - 执行删除设置命令 - \\
+ * - execute delete settings command - \\
+ * @param {ChatInputCommandInteraction} interaction - command interaction
  * @returns {Promise<void>}
  */
 async function execute_delete_settings(interaction: ChatInputCommandInteraction): Promise<void> {
@@ -106,8 +107,9 @@ async function execute_delete_settings(interaction: ChatInputCommandInteraction)
 }
 
 /**
- * - AUTOCOMPLETE DELETE SETTINGS - \\
- * @param {AutocompleteInteraction} interaction - Autocomplete interaction
+ * - 删除设置自动补全 - \\
+ * - autocomplete delete settings - \\
+ * @param {AutocompleteInteraction} interaction - autocomplete interaction
  * @returns {Promise<void>}
  */
 async function autocomplete_delete_settings(interaction: AutocompleteInteraction): Promise<void> {

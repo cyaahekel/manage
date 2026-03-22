@@ -7,19 +7,17 @@
  * See the LICENSE file for more information.
  */
 
-// - AV 检查器开关按钮的交互注册 - \
-// - registers the av checker toggle button interaction - \
-// - 头像查看器切换按钮 - \
-// - av checker toggle button - \
+// - AV 检查器开关按鈕的交互注册 - \\
+// - av checker toggle button - \\
 
 import { ButtonInteraction }  from "discord.js"
 import { component, api }     from "@shared/utils"
 import { log_error }          from "@shared/utils/error_logger"
 
 /**
- * @description Handle server/global avatar toggle buttons from ?av command
+ * @description handle server/global avatar toggle buttons from ?av command
  * @param interaction - The button interaction
- * @returns {Promise<boolean>} True if handled, false otherwise
+ * @returns {Promise<boolean>} true if handled, false otherwise
  */
 export async function handle_av_toggle(interaction: ButtonInteraction): Promise<boolean> {
   const { customId } = interaction

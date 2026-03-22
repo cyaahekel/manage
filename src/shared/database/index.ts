@@ -7,13 +7,15 @@
  * See the LICENSE file for more information.
  */
 
-// - BARREL EXPORT FOR SHARED DATABASE - \\
+// - 共享数据库的统一导出 - \\
+// - barrel export for shared database - \\
 export * from "./managers"
 export * from "./services"
 export * from "./settings"
 export * from "./trackers"
 
-// - RE-EXPORT WITH ORIGINAL NAMES FOR BACKWARD COMPATIBILITY - \\
+// - 向后兼容重导出 - \\
+// - re-export with original names for backward compatibility - \\
 export * from "./managers/booster_manager"
 export * from "./managers/channel_manager"
 export * from "./managers/free_script_manager"

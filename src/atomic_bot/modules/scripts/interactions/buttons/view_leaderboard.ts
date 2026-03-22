@@ -16,8 +16,8 @@ import { component, api }             from "@shared/utils"
 import { get_execution_leaderboard }  from "@atomic/modules/service_provider/controller"
 
 /**
- * @description Handles the view leaderboard button — fetches and displays the top 10 execution leaderboard.
- * @param {ButtonInteraction} interaction - Discord button interaction
+ * @description handles the view leaderboard button — fetches and displays the top 10 execution leaderboard.
+ * @param {ButtonInteraction} interaction - discord button interaction
  * @returns {Promise<void>}
  */
 export async function handle_view_leaderboard(interaction: ButtonInteraction): Promise<void> {

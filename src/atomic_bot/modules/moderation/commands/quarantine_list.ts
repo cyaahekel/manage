@@ -20,7 +20,7 @@ import { get_guild_quarantines }              from "@shared/database/managers/qu
 import { component, time }                    from "@shared/utils"
 
 /**
- * @description List all quarantined members command
+ * @description list all quarantined members command
  */
 export const command: Command = {
   data: new SlashCommandBuilder()

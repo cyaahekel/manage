@@ -16,8 +16,8 @@ import { component, api, format }          from "@shared/utils"
 import { get_user_stats }                  from "@atomic/modules/service_provider/controller"
 
 /**
- * @description Handles the get stats button — fetches Luarmor user stats and displays them.
- * @param {ButtonInteraction} interaction - Discord button interaction
+ * @description handles the get stats button — fetches Luarmor user stats and displays them.
+ * @param {ButtonInteraction} interaction - discord button interaction
  * @returns {Promise<void>}
  */
 export async function handle_get_stats(interaction: ButtonInteraction): Promise<void> {

@@ -13,8 +13,8 @@ import { UserSelectMenuInteraction } from "discord.js"
 import { component }                  from "@shared/utils"
 
 /**
- * @description Handles buyer selection — shows fee payer string-select next
- * @param {UserSelectMenuInteraction} interaction - The user select menu interaction
+ * @description handles buyer selection — shows fee payer string-select next
+ * @param {UserSelectMenuInteraction} interaction - the user select menu interaction
  * @returns {Promise<boolean>} - Returns true if handled
  */
 export async function handle_middleman_buyer_select(interaction: UserSelectMenuInteraction): Promise<boolean> {

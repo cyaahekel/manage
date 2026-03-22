@@ -86,7 +86,8 @@ export async function publish_devlog(options: devlog_options) {
       changelog_components.push(component.divider(2))
     }
 
-    // - REMOVE LAST DIVIDER - \\
+    // - 移除最后一个分隔符 - \\
+    // - remove last divider - \\
     if (changelog_components.length > 0) {
       changelog_components.pop()
     }

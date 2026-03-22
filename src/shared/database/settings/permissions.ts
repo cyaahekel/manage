@@ -23,7 +23,7 @@ const moderator_role_id = config.moderator_role_id
 export const staff_role_id = config.staff_role_id ?? ""
 
 /**
- * @description Check if a member has the admin role
+ * @description check if a member has the admin role
  * @param member - GuildMember fetched via REST
  * @returns {boolean}
  */
@@ -33,7 +33,7 @@ export function is_admin(member: GuildMember): boolean {
 }
 
 /**
- * @description Check if a member has the moderator role
+ * @description check if a member has the moderator role
  * @param member - GuildMember fetched via REST
  * @returns {boolean}
  */
@@ -44,7 +44,7 @@ export function is_moderator(member: GuildMember): boolean {
 }
 
 /**
- * @description Check if a member has the staff role
+ * @description check if a member has the staff role
  * @param member - GuildMember fetched via REST
  * @returns {boolean}
  */

@@ -105,11 +105,11 @@ export interface message_payload {
 }
 
 /**
- * @param {string} label - Button label
- * @param {string} custom_id - Custom identifier
- * @param {{ id?: string; name: string }} emoji - Optional emoji
- * @param {boolean} disabled - Whether button is disabled
- * @returns {button_component} Primary styled button
+ * @param {string} label - button label
+ * @param {string} custom_id - custom identifier
+ * @param {{ id?: string; name: string }} emoji - optional emoji
+ * @param {boolean} disabled - whether button is disabled
+ * @returns {button_component} primary styled button
  */
 export function primary_button(label: string, custom_id: string, emoji?: { id?: string; name: string }, disabled?: boolean): button_component {
   return {
@@ -123,11 +123,11 @@ export function primary_button(label: string, custom_id: string, emoji?: { id?: 
 }
 
 /**
- * @param {string} label - Button label
- * @param {string} custom_id - Custom identifier
- * @param {{ id?: string; name: string }} emoji - Optional emoji
- * @param {boolean} disabled - Whether button is disabled
- * @returns {button_component} Secondary styled button
+ * @param {string} label - button label
+ * @param {string} custom_id - custom identifier
+ * @param {{ id?: string; name: string }} emoji - optional emoji
+ * @param {boolean} disabled - whether button is disabled
+ * @returns {button_component} secondary styled button
  */
 export function secondary_button(label: string, custom_id: string, emoji?: { id?: string; name: string }, disabled?: boolean): button_component {
   return {
@@ -141,11 +141,11 @@ export function secondary_button(label: string, custom_id: string, emoji?: { id?
 }
 
 /**
- * @param {string} label - Button label
- * @param {string} custom_id - Custom identifier
- * @param {{ id?: string; name: string }} emoji - Optional emoji
- * @param {boolean} disabled - Whether button is disabled
- * @returns {button_component} Success styled button
+ * @param {string} label - button label
+ * @param {string} custom_id - custom identifier
+ * @param {{ id?: string; name: string }} emoji - optional emoji
+ * @param {boolean} disabled - whether button is disabled
+ * @returns {button_component} success styled button
  */
 export function success_button(label: string, custom_id: string, emoji?: { id?: string; name: string }, disabled?: boolean): button_component {
   return {
@@ -159,11 +159,11 @@ export function success_button(label: string, custom_id: string, emoji?: { id?: 
 }
 
 /**
- * @param {string} label - Button label
- * @param {string} custom_id - Custom identifier
- * @param {{ id?: string; name: string }} emoji - Optional emoji
- * @param {boolean} disabled - Whether button is disabled
- * @returns {button_component} Danger styled button
+ * @param {string} label - button label
+ * @param {string} custom_id - custom identifier
+ * @param {{ id?: string; name: string }} emoji - optional emoji
+ * @param {boolean} disabled - whether button is disabled
+ * @returns {button_component} danger styled button
  */
 export function danger_button(label: string, custom_id: string, emoji?: { id?: string; name: string }, disabled?: boolean): button_component {
   return {
@@ -177,11 +177,11 @@ export function danger_button(label: string, custom_id: string, emoji?: { id?: s
 }
 
 /**
- * @param {string} label - Button label
- * @param {string} url - Link URL
- * @param {{ id?: string; name: string }} emoji - Optional emoji
- * @param {boolean} disabled - Whether button is disabled
- * @returns {button_component} Link styled button
+ * @param {string} label - button label
+ * @param {string} url - link URL
+ * @param {{ id?: string; name: string }} emoji - optional emoji
+ * @param {boolean} disabled - whether button is disabled
+ * @returns {button_component} link styled button
  */
 export function link_button(label: string, url: string, emoji?: { id?: string; name: string }, disabled?: boolean): button_component {
   return {
@@ -195,10 +195,11 @@ export function link_button(label: string, url: string, emoji?: { id?: string; n
 }
 
 /**
- * - CREATE ACTION ROW - \\
+ * - 创建操作行 - \\
+ * - create action row - \\
  * 
- * @param {...button_component[]} components - Buttons to include in action row
- * @returns {action_row_component} Action row component
+ * @param {...button_component[]} components - buttons to include in action row
+ * @returns {action_row_component} action row component
  */
 export function action_row(...components: button_component[]): action_row_component {
   return {
@@ -208,12 +209,13 @@ export function action_row(...components: button_component[]): action_row_compon
 }
 
 /**
- * - CREATE SELECT MENU - \\
+ * - 创建下拉选单 - \\
+ * - create select menu - \\
  * 
- * @param {string} custom_id - Custom identifier
- * @param {string} placeholder - Placeholder text
- * @param {select_option[]} options - Select options
- * @returns {action_row_component} Select menu in action row
+ * @param {string} custom_id - custom identifier
+ * @param {string} placeholder - placeholder text
+ * @param {select_option[]} options - select options
+ * @returns {action_row_component} select menu in action row
  */
 export function select_menu(custom_id: string, placeholder: string, options: select_option[]): action_row_component {
   return {
@@ -238,11 +240,12 @@ export interface user_select_component {
 }
 
 /**
- * - CREATE USER SELECT MENU - \\
+ * - 创建用户选择菜单 - \\
+ * - create user select menu - \\
  * 
- * @param {string} custom_id - Custom identifier
- * @param {string} placeholder - Placeholder text
- * @returns {action_row_component} User select menu in action row
+ * @param {string} custom_id - custom identifier
+ * @param {string} placeholder - placeholder text
+ * @returns {action_row_component} user select menu in action row
  */
 export function user_select(custom_id: string, placeholder: string): action_row_component {
   return {
@@ -258,10 +261,11 @@ export function user_select(custom_id: string, placeholder: string): action_row_
 }
 
 /**
- * - CREATE THUMBNAIL COMPONENT - \\
+ * - 创建缩略图组件 - \\
+ * - create thumbnail component - \\
  * 
- * @param {string} url - Image URL
- * @returns {thumbnail_component} Thumbnail component
+ * @param {string} url - image URL
+ * @returns {thumbnail_component} thumbnail component
  */
 export function thumbnail(url: string): thumbnail_component {
   return {
@@ -271,10 +275,11 @@ export function thumbnail(url: string): thumbnail_component {
 }
 
 /**
- * - CREATE TEXT COMPONENT - \\
+ * - 创建文本组件 - \\
+ * - create text component - \\
  * 
- * @param {string | string[]} content - Text content
- * @returns {text_component} Text component
+ * @param {string | string[]} content - text content
+ * @returns {text_component} text component
  */
 export function text(content: string | string[]): text_component {
   return {
@@ -284,15 +289,16 @@ export function text(content: string | string[]): text_component {
 }
 
 /**
- * - CREATE SECTION COMPONENT - \\
+ * - 创建区块组件 - \\
+ * - create section component - \\
  * Supports accessory as button or thumbnail
  * 
- * @param {object} options - Section options
- * @param {string | string[]} options.content - Section content
- * @param {string} options.thumbnail - Optional thumbnail URL (fallback)
- * @param {string} options.media - Optional media URL (fallback)
- * @param {thumbnail_component | button_component} options.accessory - Optional accessory (button or thumbnail)
- * @returns {section_component} Section component with optional accessory
+ * @param {object} options - section options
+ * @param {string | string[]} options.content - section content
+ * @param {string} options.thumbnail - optional thumbnail URL (fallback)
+ * @param {string} options.media - optional media URL (fallback)
+ * @param {thumbnail_component | button_component} options.accessory - optional accessory (button or thumbnail)
+ * @returns {section_component} section component with optional accessory
  * 
  * @example
  * // Section with thumbnail
@@ -319,7 +325,8 @@ export function section(options: {
     components: [text(options.content)],
   }
 
-  // - HANDLE EXPLICIT ACCESSORY (BUTTON OR MEDIA) - \\
+  // - 处理显式配件（按鈕或媒体） - \\
+  // - handle explicit accessory (button or media) - \\
   if (options.accessory) {
     if (
       (options.accessory.type === component_type.thumbnail && (options.accessory as any).media?.url) ||
@@ -328,7 +335,8 @@ export function section(options: {
       result.accessory = options.accessory
     }
   }
-  // - FALLBACK TO MEDIA/THUMBNAIL - \\
+  // - 回退到媒体/缩略图 - \\
+  // - fallback to media/thumbnail - \\
   else {
     const media_url = options.media || options.thumbnail
 
@@ -341,10 +349,11 @@ export function section(options: {
 }
 
 /**
- * - CREATE DIVIDER COMPONENT - \\
+ * - 创建分隔线组件 - \\
+ * - create divider component - \\
  * 
- * @param {number} spacing - Optional spacing (1-4)
- * @returns {divider_component} Divider component
+ * @param {number} spacing - optional spacing (1-4)
+ * @returns {divider_component} divider component
  */
 export function divider(spacing?: number): divider_component {
   const result: divider_component = {
@@ -359,23 +368,25 @@ export function divider(spacing?: number): divider_component {
 }
 
 /**
- * - CREATE SEPARATOR (ALIAS FOR DIVIDER) - \\
+ * - 创建分隔符（分隔线别名） - \\
+ * - create separator (alias for divider) - \\
  * 
- * @param {number} spacing - Optional spacing (1-4)
- * @returns {divider_component} Divider component
+ * @param {number} spacing - optional spacing (1-4)
+ * @returns {divider_component} divider component
  */
 export function separator(spacing?: number): divider_component {
   return divider(spacing)
 }
 
 /**
- * - CREATE CONTAINER COMPONENT - \\
+ * - 创建容器组件 - \\
+ * - create container component - \\
  * 
- * @param {object} options - Container options
- * @param {array} options.components - Components to include in container
- * @param {number | object} options.accent_color - Optional accent color
- * @param {boolean} options.spoiler - Optional spoiler flag
- * @returns {container_component} Container component
+ * @param {object} options - container options
+ * @param {array} options.components - components to include in container
+ * @param {number | object} options.accent_color - optional accent color
+ * @param {boolean} options.spoiler - optional spoiler flag
+ * @returns {container_component} container component
  */
 export function container(options: {
   components: (section_component | text_component | divider_component | action_row_component)[]
@@ -403,12 +414,13 @@ export function container(options: {
 }
 
 /**
- * - BUILD MESSAGE PAYLOAD - \\
+ * - 构建消息载荷 - \\
+ * - build message payload - \\
  * 
- * @param {object} options - Message options
- * @param {array} options.components - Message components
- * @param {string} options.content - Optional text content
- * @returns {message_payload} Complete message payload
+ * @param {object} options - message options
+ * @param {array} options.components - message components
+ * @param {string} options.content - optional text content
+ * @returns {message_payload} complete message payload
  */
 export function build_message(options: {
   components: (container_component | text_component)[]
@@ -422,11 +434,12 @@ export function build_message(options: {
 }
 
 /**
- * - CREATE EMOJI OBJECT - \\
+ * - 创建表情对象 - \\
+ * - create emoji object - \\
  * 
- * @param {string} name - Emoji name
- * @param {string} id - Optional emoji ID for custom emojis
- * @returns {object} Emoji object
+ * @param {string} name - emoji name
+ * @param {string} id - optional emoji ID for custom emojis
+ * @returns {object} emoji object
  */
 export function emoji_object(name: string, id?: string): { id?: string; name: string } {
   return id ? { id, name } : { name }
@@ -444,10 +457,11 @@ export interface media_gallery_component {
 }
 
 /**
- * - CREATE MEDIA GALLERY - \\
+ * - 创建媒体画廘 - \\
+ * - create media gallery - \\
  * 
- * @param {gallery_item[]} items - Gallery items
- * @returns {media_gallery_component} Media gallery component
+ * @param {gallery_item[]} items - gallery items
+ * @returns {media_gallery_component} media gallery component
  */
 export function media_gallery(items: gallery_item[]): media_gallery_component {
   return {
@@ -457,12 +471,13 @@ export function media_gallery(items: gallery_item[]): media_gallery_component {
 }
 
 /**
- * - CREATE GALLERY ITEM - \\
+ * - 创建画廘项目 - \\
+ * - create gallery item - \\
  * 
- * @param {string} url - Media URL
- * @param {string} description - Optional description
- * @param {boolean} spoiler - Optional spoiler flag
- * @returns {gallery_item} Gallery item
+ * @param {string} url - media URL
+ * @param {string} description - optional description
+ * @param {boolean} spoiler - optional spoiler flag
+ * @returns {gallery_item} gallery item
  */
 export function gallery_item(url: string, description?: string, spoiler?: boolean): gallery_item {
   return {
@@ -473,10 +488,11 @@ export function gallery_item(url: string, description?: string, spoiler?: boolea
 }
 
 /**
- * - CONVERT HEX COLOR TO NUMBER - \\
+ * - 将十六进制颜色转换为数字 - \\
+ * - convert hex color to number - \\
  * 
- * @param {string} hex - Hex color code (e.g., "#FF0000")
- * @returns {number} Color as number
+ * @param {string} hex - hex color code (e.g., "#FF0000")
+ * @returns {number} color as number
  */
 export function from_hex(hex: string): number {
   const cleaned = hex.replace(/^#/, "")
@@ -489,10 +505,11 @@ export interface file_component {
 }
 
 /**
- * - CREATE FILE COMPONENT - \\
+ * - 创建文件组件 - \\
+ * - create file component - \\
  * 
- * @param {string} url - File URL
- * @returns {file_component} File component
+ * @param {string} url - file URL
+ * @returns {file_component} file component
  */
 export function file(url: string): file_component {
   return {

@@ -18,7 +18,7 @@ import { is_admin } from "@shared/database/settings/permissions"
 import { log_error } from "@shared/utils/error_logger"
 
 /**
- * @param {ChatInputCommandInteraction} interaction - Discord interaction
+ * @param {ChatInputCommandInteraction} interaction - discord interaction
  * @returns {Promise<void>}
  */
 export async function handle_setup_welcome(interaction: ChatInputCommandInteraction): Promise<void> {
@@ -104,7 +104,7 @@ export async function handle_setup_welcome(interaction: ChatInputCommandInteract
 }
 
 /**
- * @param {ChatInputCommandInteraction} interaction - Discord interaction
+ * @param {ChatInputCommandInteraction} interaction - discord interaction
  * @returns {Promise<void>}
  */
 export async function handle_setup_ticket(interaction: ChatInputCommandInteraction): Promise<void> {
@@ -162,7 +162,7 @@ export async function handle_setup_ticket(interaction: ChatInputCommandInteracti
 }
 
 /**
- * @param {ChatInputCommandInteraction} interaction - Discord interaction
+ * @param {ChatInputCommandInteraction} interaction - discord interaction
  * @returns {Promise<void>}
  */
 export async function handle_setup_logs(interaction: ChatInputCommandInteraction): Promise<void> {
@@ -222,7 +222,7 @@ export async function handle_setup_logs(interaction: ChatInputCommandInteraction
 }
 
 /**
- * @param {ChatInputCommandInteraction} interaction - Discord interaction
+ * @param {ChatInputCommandInteraction} interaction - discord interaction
  * @returns {Promise<void>}
  */
 export async function handle_setup_view(interaction: ChatInputCommandInteraction): Promise<void> {

@@ -40,7 +40,8 @@ export async function handle_work_stats_week_select(interaction: StringSelectMen
   let report = await get_work_report(staff_id)
   const logs = await get_work_logs(staff_id, week_number, year)
 
-  // - AUTO-CREATE REPORT IF NOT EXISTS - \\
+  // - 若报告不存在则自动创建 - \\
+  // - auto-create report if not exists - \\
   if (!report) {
     report = {
       staff_id,

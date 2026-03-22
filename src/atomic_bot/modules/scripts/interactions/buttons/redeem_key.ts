@@ -16,8 +16,8 @@ import * as luarmor                        from "@atomic/infrastructure/api/luar
 import { component, api, format, modal }   from "@shared/utils"
 
 /**
- * @description Handles the redeem key button — shows existing key info or opens redeem modal.
- * @param {ButtonInteraction} interaction - Discord button interaction
+ * @description handles the redeem key button — shows existing key info or opens redeem modal.
+ * @param {ButtonInteraction} interaction - discord button interaction
  * @returns {Promise<void>}
  */
 export async function handle_redeem_key(interaction: ButtonInteraction): Promise<void> {

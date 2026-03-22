@@ -20,7 +20,7 @@ import { is_admin } from "@shared/database/settings/permissions"
 import { component, api } from "@shared/utils"
 
 /**
- * @description Build marketplace rules message
+ * @description build marketplace rules message
  * @returns {object} - Message payload
  */
 function build_marketplace_rules_message() {

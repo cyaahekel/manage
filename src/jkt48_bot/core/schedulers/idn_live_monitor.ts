@@ -14,8 +14,9 @@ import { start_live_monitoring }       from "../controllers/idn_live_controller"
 const log = logger.create_logger("idn_live_monitor")
 
 /**
- * - START IDN LIVE MONITORING SCHEDULER - \\
- * @param {Client} client - Discord Client instance
+ * - 启动 IDN 直播监控调度器 - \\
+ * - start idn live monitoring scheduler - \\
+ * @param {Client} client - discord Client instance
  * @returns {Promise<void>}
  */
 export async function start_idn_live_scheduler(client: Client): Promise<void> {

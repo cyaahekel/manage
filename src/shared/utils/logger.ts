@@ -98,10 +98,11 @@ export function inspect(obj: unknown, depth: number = 2): string {
   return JSON.stringify(obj, null, 2).split("\n").slice(0, depth * 10).join("\n")
 }
 
-// - SIMPLE LOG WRAPPER (PRODUCTION SAFE) - \\
+// - 简单日志封装（生产安全） - \\
+// - simple log wrapper (production safe) - \\
 export const log = {
   /**
-   * @param {...any[]} args - Arguments to log
+   * @param {...any[]} args - arguments to log
    * @returns {void}
    */
   log: (...args: any[]): void => {
@@ -111,7 +112,7 @@ export const log = {
   },
 
   /**
-   * @param {...any[]} args - Arguments to warn
+   * @param {...any[]} args - arguments to warn
    * @returns {void}
    */
   warn: (...args: any[]): void => {
@@ -119,7 +120,7 @@ export const log = {
   },
 
   /**
-   * @param {...any[]} args - Arguments to error
+   * @param {...any[]} args - arguments to error
    * @returns {void}
    */
   error: (...args: any[]): void => {
@@ -127,7 +128,7 @@ export const log = {
   },
 
   /**
-   * @param {...any[]} args - Arguments to info
+   * @param {...any[]} args - arguments to info
    * @returns {void}
    */
   info: (...args: any[]): void => {
@@ -137,7 +138,7 @@ export const log = {
   },
 
   /**
-   * @param {...any[]} args - Arguments to debug
+   * @param {...any[]} args - arguments to debug
    * @returns {void}
    */
   debug: (...args: any[]): void => {

@@ -11,14 +11,15 @@ import { ButtonInteraction } from "discord.js"
 import { db }                from "@shared/utils"
 
 /**
- * @param {ButtonInteraction} interaction - Button interaction
+ * @param {ButtonInteraction} interaction - button interaction
  * @returns {Promise<void>}
  */
 export async function handle_bypass_mobile_copy(interaction: ButtonInteraction): Promise<void> {
   try {
     const [, user_id, cache_id] = interaction.customId.split(":")
 
-    // - VERIFY USER AUTHORIZATION - \\
+    // - 验证用户授权 - \\
+    // - verify user authorization - \\
     if (interaction.user.id !== user_id) {
       await interaction.reply({
         content   : "This button is not for you!", ephemeral: true,
@@ -26,7 +27,8 @@ export async function handle_bypass_mobile_copy(interaction: ButtonInteraction):
       return
     }
 
-    // - FETCH BYPASS RESULT FROM DATABASE - \\
+    // - 从数据库获取绕过结果 - \\
+    // - fetch bypass result from database - \\
     const cache_key = `bypass_result_${cache_id}`
     
     try {

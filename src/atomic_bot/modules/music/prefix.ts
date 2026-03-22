@@ -28,10 +28,10 @@ const __music_commands = ["play", "skip", "stop", "pause", "resume", "queue"] as
 type music_command = typeof __music_commands[number]
 
 /**
- * @description Handles music prefix commands triggered by messages starting with "a!".
+ * @description handles music prefix commands triggered by messages starting with "a!".
  *              Covers: a!play, a!skip, a!stop, a!pause, a!resume, a!queue.
- * @param {Message} message - Discord message
- * @param {Client}  client  - Discord client instance
+ * @param {Message} message - discord message
+ * @param {Client}  client  - discord client instance
  * @returns {Promise<boolean>} true if a music command was handled, false otherwise
  */
 export async function handle_music_prefix_command(message: Message, client: Client): Promise<boolean> {

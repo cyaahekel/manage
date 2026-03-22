@@ -58,7 +58,8 @@ const __persistent_typing_channel_id = "1257034070035267636"
 const __persistent_typing_interval_ms = 8000
 
 /**
- * - START PERSISTENT TYPING - \\
+ * - 启动持续输入状态 - \\
+ * - start persistent typing - \\
  * @returns {Promise<void>}
  */
 async function start_persistent_typing(): Promise<void> {
@@ -92,8 +93,9 @@ async function start_persistent_typing(): Promise<void> {
 }
 
 /**
- * - LOAD JKT48 COMMANDS - \\
- * @returns {Promise<object[]>} Array of command data for registration
+ * - 加载 JKT48 命令 - \\
+ * - load jkt48 commands - \\
+ * @returns {Promise<object[]>} array of command data for registration
  */
 async function load_jkt48_commands(): Promise<object[]> {
   const commands_data: object[] = []
@@ -122,8 +124,9 @@ async function load_jkt48_commands(): Promise<object[]> {
 }
 
 /**
- * - REGISTER JKT48 COMMANDS - \\
- * @param {object[]} commands_data - Array of command data
+ * - 注册 JKT48 命令 - \\
+ * - register jkt48 commands - \\
+ * @param {object[]} commands_data - array of command data
  */
 async function register_jkt48_commands(commands_data: object[]) {
   const rest = new REST().setToken(jkt48_token)
@@ -143,14 +146,16 @@ async function register_jkt48_commands(commands_data: object[]) {
   }
 }
 
-// - CLIENT READY EVENT - \\
+// - 机器人开机啦，准备给推发通知 - \\
+// - client ready event, ready to ping those lives - \\
 client.once("ready", async () => {
   console.log(`[ - JKT48 - ] Bot logged in as ${client.user?.tag}`)
   console.log(`[ - JKT48 - ] Serving ${client.guilds.cache.size} guilds`)
 
   await start_persistent_typing()
 
-  // - CONNECT TO DATABASE - \\
+  // - 连上数据库，不然监控没法跑 - \\
+  // - connect to database, essential for live monitoring - \\
   try {
     const mongo = await db.connect()
     if (!mongo) {
@@ -171,9 +176,11 @@ client.once("ready", async () => {
   }
 })
 
-// - INTERACTION CREATE EVENT - \\
+// - 交互事件分发 center - \\
+// - interaction create event, central hub - \\
 client.on("interactionCreate", async (interaction) => {
-  // - BUTTON HANDLERS - \\
+  // - 按钮点点点处理器 - \\
+  // - button handlers - \\
   if (interaction.isButton()) {
     try {
       if (interaction.customId.startsWith("history_live_prev:") || interaction.customId.startsWith("history_live_next:")) {
@@ -205,7 +212,8 @@ client.on("interactionCreate", async (interaction) => {
   })
 })
 
-// - ERROR HANDLERS - \\
+// - 错误捕获，守护机器人不罢工 - \\
+// - error handlers, keeping the bot up - \\
 client.on("error", (error) => {
   console.error("[ - JKT48 - ] Client error:", error)
   log_error(client, error, "JKT48 Client Error", {}).catch(() => { })
@@ -221,7 +229,8 @@ process.on("uncaughtException", (error: Error) => {
   log_error(client, error, "JKT48 Uncaught Exception", {}).catch(() => { })
 })
 
-// - LOGIN - \\
+// - 登录开启通知模式 - \\
+// - login and start notifying - \\
 client.login(jkt48_token)
   .then(() => {
     console.log("[ - JKT48 - ] Login successful")

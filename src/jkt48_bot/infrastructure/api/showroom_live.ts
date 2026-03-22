@@ -8,7 +8,8 @@
  */
 
 /**
- * - SHOWROOM LIVE API CLIENT - \\
+ * - Showroom Live API 客户端 - \\
+ * - showroom live api client - \\
  * JKT48 Showroom API integration
  */
 
@@ -59,9 +60,10 @@ export interface showroom_history_metrics {
 }
 
 /**
- * - PICK FIRST VALID NUMBER - \\
- * @param {Array<any>} candidates - Number candidates
- * @returns {number | undefined} Parsed number
+ * - 获取第一个有效数字 - \\
+ * - pick first valid number - \\
+ * @param {Array<any>} candidates - number candidates
+ * @returns {number | undefined} parsed number
  */
 function pick_number(candidates: Array<any>): number | undefined {
   for (const candidate of candidates) {
@@ -75,8 +77,9 @@ function pick_number(candidates: Array<any>): number | undefined {
 }
 
 /**
- * - ENSURE SHOWROOM SESSION - \\
- * @returns {Promise<void>} Void
+ * - 确保 Showroom 会话 - \\
+ * - ensure showroom session - \\
+ * @returns {Promise<void>} void
  */
 async function ensure_showroom_session(): Promise<void> {
   if (!showroom_sr_id) {
@@ -85,10 +88,11 @@ async function ensure_showroom_session(): Promise<void> {
 }
 
 /**
- * - SHOWROOM GET WITH SESSION RETRY - \\
- * @param {string} path - API path
- * @param {object} params - Query params
- * @returns {Promise<any>} Response data
+ * - 带会话重试的 Showroom GET 请求 - \\
+ * - showroom get with session retry - \\
+ * @param {string} path - aPI path
+ * @param {object} params - query params
+ * @returns {Promise<any>} response data
  */
 async function showroom_get_with_session(path: string, params: Record<string, any> = {}): Promise<any> {
   try {
@@ -102,8 +106,9 @@ async function showroom_get_with_session(path: string, params: Record<string, an
 }
 
 /**
- * - EXTRACT SHOWROOM SR ID - \\
- * @param {string[] | string | undefined} set_cookie - Set-Cookie header value
+ * - 提取 Showroom SR ID - \\
+ * - extract showroom sr id - \\
+ * @param {string[] | string | undefined} set_cookie - set-Cookie header value
  * @returns {string} sr_id cookie value
  */
 function extract_showroom_sr_id(set_cookie: string[] | string | undefined): string {
@@ -119,8 +124,9 @@ function extract_showroom_sr_id(set_cookie: string[] | string | undefined): stri
 }
 
 /**
- * - GET SHOWROOM DEFAULT HEADERS - \\
- * @returns {Record<string, string>} Headers
+ * - 获取 Showroom 默认请求头 - \\
+ * - get showroom default headers - \\
+ * @returns {Record<string, string>} headers
  */
 function get_showroom_headers(): Record<string, string> {
   return {
@@ -132,8 +138,9 @@ function get_showroom_headers(): Record<string, string> {
 }
 
 /**
- * - REFRESH SHOWROOM SESSION - \\
- * @returns {Promise<void>} Void
+ * - 刷新 Showroom 会话 - \\
+ * - refresh showroom session - \\
+ * @returns {Promise<void>} void
  */
 async function refresh_showroom_session(): Promise<void> {
   const response = await axios.get(`${__showroom_web_base}/`, {
@@ -149,10 +156,11 @@ async function refresh_showroom_session(): Promise<void> {
 }
 
 /**
- * - SHOWROOM GET REQUEST - \\
- * @param {string} path - API path
- * @param {object} params - Query params
- * @returns {Promise<any>} Response data
+ * - Showroom GET 请求 - \\
+ * - showroom get request - \\
+ * @param {string} path - aPI path
+ * @param {object} params - query params
+ * @returns {Promise<any>} response data
  */
 async function showroom_get(path: string, params: Record<string, any> = {}): Promise<any> {
   const url = `${__showroom_web_base}${path}`
@@ -174,9 +182,10 @@ async function showroom_get(path: string, params: Record<string, any> = {}): Pro
 
 //
 /**
- * - NORMALIZE SHOWROOM TIMESTAMP - \\
- * @param {number | string} live_at - Live timestamp value
- * @returns {number} Unix timestamp in milliseconds
+ * - 标准化 Showroom 时间戳 - \\
+ * - normalize showroom timestamp - \\
+ * @param {number | string} live_at - live timestamp value
+ * @returns {number} unix timestamp in milliseconds
  */
 function normalize_showroom_timestamp(live_at: number | string): number {
   const numeric = typeof live_at === "string" ? Number(live_at) : live_at
@@ -185,9 +194,10 @@ function normalize_showroom_timestamp(live_at: number | string): number {
 }
 
 /**
- * - NORMALIZE SHOWROOM SEARCH - \\
- * @param {string} input - Raw input
- * @returns {string} Normalized search text
+ * - 标准化 Showroom 搜索 - \\
+ * - normalize showroom search - \\
+ * @param {string} input - raw input
+ * @returns {string} normalized search text
  */
 function normalize_showroom_search(input: string): string {
   const cleaned = input.toLowerCase().trim().replace(/^@/, "")
@@ -199,9 +209,10 @@ function normalize_showroom_search(input: string): string {
 }
 
 /**
- * - LOAD SHOWROOM CFG MEMBERS - \\
- * @param {Client} client - Discord client
- * @returns {Promise<showroom_member[]>} Member list
+ * - 加载 Showroom 配置成员 - \\
+ * - load showroom cfg members - \\
+ * @param {Client} client - discord client
+ * @returns {Promise<showroom_member[]>} member list
  */
 async function load_showroom_cfg_members(client: Client): Promise<showroom_member[]> {
   try {
@@ -240,9 +251,10 @@ async function load_showroom_cfg_members(client: Client): Promise<showroom_membe
 }
 
 /**
- * - FETCH SHOWROOM MEMBERS - \\
- * @param {Client} client - Discord client
- * @returns {Promise<showroom_member[]>} Member list
+ * - 获取 Showroom 成员 - \\
+ * - fetch showroom members - \\
+ * @param {Client} client - discord client
+ * @returns {Promise<showroom_member[]>} member list
  */
 export async function fetch_showroom_members(client: Client): Promise<showroom_member[]> {
   try {
@@ -257,9 +269,10 @@ export async function fetch_showroom_members(client: Client): Promise<showroom_m
 }
 
 /**
- * - FETCH SHOWROOM LIVE ROOMS - \\
- * @param {Client} client - Discord client
- * @returns {Promise<showroom_live_room[]>} Live room list
+ * - 获取 Showroom 直播间 - \\
+ * - fetch showroom live rooms - \\
+ * @param {Client} client - discord client
+ * @returns {Promise<showroom_live_room[]>} live room list
  */
 export async function fetch_showroom_live_rooms(client: Client): Promise<showroom_live_room[]> {
   try {
@@ -306,10 +319,11 @@ export async function fetch_showroom_live_rooms(client: Client): Promise<showroo
 }
 
 /**
- * - GET SHOWROOM MEMBER BY NAME - \\
- * @param {string} name - Member name
- * @param {Client} client - Discord client
- * @returns {Promise<showroom_member | null>} Member data or null
+ * - 通过名字获取 Showroom 成员 - \\
+ * - get showroom member by name - \\
+ * @param {string} name - member name
+ * @param {Client} client - discord client
+ * @returns {Promise<showroom_member | null>} member data or null
  */
 export async function get_showroom_member_by_name(name: string, client: Client): Promise<showroom_member | null> {
   const members = await fetch_showroom_members(client)
@@ -328,10 +342,11 @@ export async function get_showroom_member_by_name(name: string, client: Client):
 }
 
 /**
- * - FETCH SHOWROOM HISTORY METRICS - \\
- * @param {Client} client - Discord client
- * @param {number} room_id - Showroom room ID
- * @returns {Promise<showroom_history_metrics>} Metrics
+ * - 获取 Showroom 历史指标 - \\
+ * - fetch showroom history metrics - \\
+ * @param {Client} client - discord client
+ * @param {number} room_id - showroom room ID
+ * @returns {Promise<showroom_history_metrics>} metrics
  */
 export async function fetch_showroom_history_metrics(client: Client, room_id: number): Promise<showroom_history_metrics> {
   if (!room_id) return {}
@@ -470,9 +485,10 @@ export async function fetch_showroom_history_metrics(client: Client, room_id: nu
 }
 
 /**
- * - FORMAT SHOWROOM LIVE COMPONENT - \\
- * @param {showroom_live_room} room - Live room data
- * @returns {object} Component container
+ * - 格式化 Showroom 直播组件 - \\
+ * - format showroom live component - \\
+ * @param {showroom_live_room} room - live room data
+ * @returns {object} component container
  */
 export function format_showroom_live_component(room: showroom_live_room) {
   const started_timestamp = Math.floor(room.started_at / 1000)

@@ -16,7 +16,8 @@ import { Command } from "@shared/types/command"
 import { component, guild_settings } from "@shared/utils"
 
 /**
- * - BYPASS ENABLED COMMAND - \\
+ * - 绕过启用命令 - \\
+ * - bypass enabled command - \\
  */
 const bypass_enabled_command: Command = {
   data: new SlashCommandBuilder()

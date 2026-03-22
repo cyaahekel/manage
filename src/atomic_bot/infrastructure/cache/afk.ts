@@ -7,8 +7,8 @@
  * See the LICENSE file for more information.
  */
 
-// - AFK 状态的内存缓存 - \
-// - in-memory cache for AFK status - \
+// - AFK 状态的内存缓存 - \\
+// - in-memory cache for AFK status - \\
 import { db } from "@shared/utils"
 
 interface AfkData {
@@ -43,7 +43,8 @@ export async function load_afk_from_db(): Promise<void> {
 }
 
 /**
- * - LOAD AFK IGNORED CHANNELS FROM DB - \\
+ * - 从数据库加载 AFK 忽略频道 - \\
+ * - load afk ignored channels from db - \\
  * @returns {Promise<void>}
  */
 export async function load_afk_ignored_channels_from_db(): Promise<void> {
@@ -98,10 +99,11 @@ export async function set_afk(user_id: string, reason: string, original_nickname
 }
 
 /**
- * - UPDATE AFK REASON - \\
- * @param {string} user_id - Discord user ID
- * @param {string} reason - New AFK reason
- * @returns {Promise<boolean>} True if updated
+ * - 更新 AFK 原因 - \\
+ * - update afk reason - \\
+ * @param {string} user_id - discord user ID
+ * @param {string} reason - new AFK reason
+ * @returns {Promise<boolean>} true if updated
  */
 export async function update_afk_reason(user_id: string, reason: string): Promise<boolean> {
   const data = afk_users.get(user_id)
@@ -144,8 +146,9 @@ export async function remove_afk(user_id: string): Promise<AfkData | null> {
 }
 
 /**
- * - GET ALL AFK USERS - \\
- * @returns {AfkData[]} AFK data list
+ * - 获取所有 AFK 用户 - \\
+ * - get all afk users - \\
+ * @returns {AfkData[]} aFK data list
  */
 export function get_all_afk(): AfkData[] {
   return Array.from(afk_users.values())
@@ -160,10 +163,11 @@ export function is_afk(user_id: string): boolean {
 }
 
 /**
- * - CHECK IGNORED CHANNEL - \\
- * @param {string} guild_id - Discord guild ID
- * @param {string} channel_id - Discord channel ID
- * @returns {boolean} True if ignored
+ * - 检查忽略频道 - \\
+ * - check ignored channel - \\
+ * @param {string} guild_id - discord guild ID
+ * @param {string} channel_id - discord channel ID
+ * @returns {boolean} true if ignored
  */
 export function is_ignored_channel(guild_id: string, channel_id: string): boolean {
   const set = ignored_channels.get(guild_id)
@@ -172,9 +176,10 @@ export function is_ignored_channel(guild_id: string, channel_id: string): boolea
 }
 
 /**
- * - GET IGNORED CHANNELS - \\
- * @param {string} guild_id - Discord guild ID
- * @returns {string[]} Channel IDs
+ * - 获取忽略频道列表 - \\
+ * - get ignored channels - \\
+ * @param {string} guild_id - discord guild ID
+ * @returns {string[]} channel IDs
  */
 export function get_ignored_channels(guild_id: string): string[] {
   const set = ignored_channels.get(guild_id)
@@ -183,11 +188,12 @@ export function get_ignored_channels(guild_id: string): string[] {
 }
 
 /**
- * - ADD IGNORED CHANNEL - \\
- * @param {string} guild_id - Discord guild ID
- * @param {string} channel_id - Discord channel ID
- * @param {string} added_by - Moderator ID
- * @returns {Promise<boolean>} True if added
+ * - 添加忽略频道 - \\
+ * - add ignored channel - \\
+ * @param {string} guild_id - discord guild ID
+ * @param {string} channel_id - discord channel ID
+ * @param {string} added_by - moderator ID
+ * @returns {Promise<boolean>} true if added
  */
 export async function add_ignored_channel(guild_id: string, channel_id: string, added_by: string): Promise<boolean> {
   const set = ignored_channels.get(guild_id) || new Set<string>()
@@ -216,10 +222,11 @@ export async function add_ignored_channel(guild_id: string, channel_id: string, 
 }
 
 /**
- * - REMOVE IGNORED CHANNEL - \\
- * @param {string} guild_id - Discord guild ID
- * @param {string} channel_id - Discord channel ID
- * @returns {Promise<boolean>} True if removed
+ * - 移除忽略频道 - \\
+ * - remove ignored channel - \\
+ * @param {string} guild_id - discord guild ID
+ * @param {string} channel_id - discord channel ID
+ * @returns {Promise<boolean>} true if removed
  */
 export async function remove_ignored_channel(guild_id: string, channel_id: string): Promise<boolean> {
   const set = ignored_channels.get(guild_id)

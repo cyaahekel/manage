@@ -15,7 +15,8 @@ import * as luarmor_db_cache from "./luarmor_db_cache"
 const __base_url                              = "https://api.luarmor.net/v3"
 const __log                                   = logger.create_logger("luarmor")
 
-// - CACHE CONFIGURATION (EXTENDED TTL TO REDUCE API CALLS) - \\
+// - 缓存配置（延长 TTL 以减少 API 调用） - \\
+// - cache configuration (extended TTL to reduce API calls) - \\
 let __users_cache: luarmor_user[] | null      = null
 let __users_cache_timestamp                   = 0
 const __users_cache_duration                  = 30 * 60 * 1000
@@ -26,15 +27,18 @@ let __user_cache_timestamp: Map<string, number> = new Map()
 const __user_cache_duration                   = 30 * 60 * 1000
 const __user_cache_stale_duration             = 60 * 60 * 1000
 
-// - REQUEST DEDUPLICATION - \\
+// - 请求去重 - \\
+// - request deduplication - \\
 const __pending_requests: Map<string, Promise<any>> = new Map()
 
-// - RATE LIMIT TRACKING (ADAPTIVE) - \\
+// - 限流跟踪（自适应） - \\
+// - rate limit tracking (adaptive) - \\
 const __rate_limit_cooldowns: Map<string, number> = new Map()
 const __rate_limit_cooldown_duration          = 120 * 1000
 const __rate_limit_backoff_multiplier         = 2
 
-// - REQUEST QUEUE (PREVENTS CONCURRENT OVERLOAD) - \\
+// - 请求队列（防止并发过负） - \\
+// - request queue (prevents concurrent overload) - \\
 const __request_queue: Array<{
   resolve: (value: any) => void
   reject: (error: any) => void
@@ -46,23 +50,27 @@ let __request_queue_processing                = false
 const __max_concurrent_requests               = 3
 let __active_requests                         = 0
 
-// - CIRCUIT BREAKER (EXTENDED TIMEOUT) - \\
+// - 熟断器（延长超时） - \\
+// - circuit breaker (extended timeout) - \\
 let __circuit_breaker_failures                = 0
 let __circuit_breaker_last_failure            = 0
 const __circuit_breaker_threshold             = 10
 const __circuit_breaker_timeout               = 30 * 1000
 const __circuit_breaker_half_open_timeout     = 15 * 1000
 
-// - EXPONENTIAL BACKOFF CONFIGURATION - \\
+// - 指数退退配置 - \\
+// - exponential backoff configuration - \\
 const __backoff_initial_delay                 = 1000
 const __backoff_max_delay                     = 30000
 const __backoff_max_retries                   = 3
 
-// - PERFORMANCE OPTIMIZATION - \\
+// - 性能优化 - \\
+// - performance optimization - \\
 const __default_timeout                       = 15000
 const __fast_timeout                          = 8000
 
-// - HTTP ERROR CLASSIFICATION - \\
+// - HTTP 错误分类 - \\
+// - HTTP error classification - \\
 enum error_type {
   client_error = "CLIENT_ERROR",
   server_error = "SERVER_ERROR",
@@ -89,7 +97,8 @@ function get_project_id(): string {
 }
 
 /**
- * - VALIDATE INPUT PARAMETERS - \\
+ * - 验证输入参数 - \\
+ * - validate input parameters - \\
  * @param discord_id Discord ID to validate
  * @returns true if valid
  */
@@ -100,7 +109,8 @@ function validate_discord_id(discord_id: string): boolean {
 }
 
 /**
- * - VALIDATE USER KEY - \\
+ * - 验证用户密鑰 - \\
+ * - validate user key - \\
  * @param user_key User key to validate
  * @returns true if valid
  */
@@ -109,14 +119,16 @@ function validate_user_key(user_key: string): boolean {
   const trimmed = user_key.trim()
   if (trimmed.length === 0) return false
   if (trimmed.length > 255) return false
-  // - CHECK FOR COMMON INVALID VALUES - \\
+  // - 检查常见无效值 - \\
+  // - check for common invalid values - \\
   const invalid_values = ["null", "undefined", "none", ""]
   if (invalid_values.includes(trimmed.toLowerCase())) return false
   return true
 }
 
 /**
- * - CHECK CIRCUIT BREAKER STATE - \\
+ * - 检查断路器状态 - \\
+ * - check circuit breaker state - \\
  * @returns true if circuit is open (blocked)
  */
 function is_circuit_open(): boolean {
@@ -126,14 +138,16 @@ function is_circuit_open(): boolean {
 
   const elapsed = Date.now() - __circuit_breaker_last_failure
 
-  // - FULL TIMEOUT: RESET CIRCUIT - \\
+  // - 完全超时：重置熟断器 - \\
+  // - full timeout: reset circuit - \\
   if (elapsed > __circuit_breaker_timeout) {
     __log.info("Circuit breaker reset after full timeout")
     __circuit_breaker_failures = 0
     return false
   }
 
-  // - HALF-OPEN: ALLOW ONE REQUEST TO TEST - \\
+  // - 半开状态：允许一个请求测试 - \\
+  // - half-open: allow one request to test - \\
   if (elapsed > __circuit_breaker_half_open_timeout) {
     __log.info("Circuit breaker half-open, allowing test request")
     return false
@@ -143,7 +157,8 @@ function is_circuit_open(): boolean {
 }
 
 /**
- * - RECORD CIRCUIT BREAKER FAILURE - \\
+ * - 记录断路器故障 - \\
+ * - record circuit breaker failure - \\
  */
 function record_failure(): void {
   __circuit_breaker_failures++
@@ -151,14 +166,16 @@ function record_failure(): void {
 }
 
 /**
- * - RESET CIRCUIT BREAKER - \\
+ * - 重置断路器 - \\
+ * - reset circuit breaker - \\
  */
 function reset_circuit(): void {
   __circuit_breaker_failures = 0
 }
 
 /**
- * - CHECK RATE LIMIT COOLDOWN - \\
+ * - 检查速率限制冷却 - \\
+ * - check rate limit cooldown - \\
  * @param key Rate limit key (endpoint or user)
  * @returns true if in cooldown
  */
@@ -175,7 +192,8 @@ function is_rate_limited(key: string): boolean {
 }
 
 /**
- * - SET RATE LIMIT COOLDOWN WITH ADAPTIVE BACKOFF - \\
+ * - 设置自适应退避速率限制冷却 - \\
+ * - set rate limit cooldown with adaptive backoff - \\
  * @param key Rate limit key
  * @param duration Cooldown duration in ms
  * @param retry_count Number of retries (for exponential backoff)
@@ -188,7 +206,8 @@ function set_rate_limit_cooldown(key: string, duration: number = __rate_limit_co
 }
 
 /**
- * - PROCESS REQUEST QUEUE - \\
+ * - 处理请求队列 - \\
+ * - process request queue - \\
  */
 async function process_request_queue(): Promise<void> {
   if (__request_queue_processing) return
@@ -215,7 +234,8 @@ async function process_request_queue(): Promise<void> {
 }
 
 /**
- * - QUEUE REQUEST WITH PRIORITY - \\
+ * - 按优先级排队请求 - \\
+ * - queue request with priority - \\
  * @param fn Request function
  * @param priority Request priority (higher = more important)
  * @returns Promise with result
@@ -235,7 +255,8 @@ function queue_request<T>(fn: () => Promise<T>, priority: number = 0): Promise<T
 }
 
 /**
- * - SLEEP UTILITY - \\
+ * - 睡眠工具函数 - \\
+ * - sleep utility - \\
  * @param ms Milliseconds to sleep
  */
 function sleep(ms: number): Promise<void> {
@@ -243,7 +264,8 @@ function sleep(ms: number): Promise<void> {
 }
 
 /**
- * - EXPONENTIAL BACKOFF DELAY - \\
+ * - 指数退避延迟 - \\
+ * - exponential backoff delay - \\
  * @param retry_count Current retry count
  * @returns Delay in milliseconds
  */
@@ -254,14 +276,16 @@ function get_backoff_delay(retry_count: number): number {
 }
 
 /**
- * - CLASSIFY HTTP ERROR - \\
+ * - 分类 HTTP 错误 - \\
+ * - classify http error - \\
  * @param error Error object
  * @param status HTTP status code
  * @param response_data Response data if available
  * @returns Classified error
  */
 function classify_error(error: any, status?: number, response_data?: any): api_error {
-  // - TIMEOUT ERROR - \\
+  // - 超时错误 - \\
+  // - timeout error - \\
   if (error.name === "AbortError" || error.message?.includes("abort")) {
     return {
       type: error_type.timeout_error,
@@ -270,7 +294,8 @@ function classify_error(error: any, status?: number, response_data?: any): api_e
     }
   }
 
-  // - NETWORK ERROR - \\
+  // - 网络错误 - \\
+  // - network error - \\
   if (error.message?.includes("fetch") || error.message?.includes("ECONNREFUSED")) {
     return {
       type: error_type.network_error,
@@ -279,9 +304,11 @@ function classify_error(error: any, status?: number, response_data?: any): api_e
     }
   }
 
-  // - HTTP STATUS BASED CLASSIFICATION - \\
+  // - 基于 HTTP 状态码分类 - \\
+  // - HTTP status based classification - \\
   if (status) {
-    // - CLIENT ERRORS (4xx) - \\
+    // - 客户端错误 (4xx) - \\
+    // - client errors (4xx) - \\
     if (status >= 400 && status < 500) {
       if (status === 429) {
         return {
@@ -318,7 +345,8 @@ function classify_error(error: any, status?: number, response_data?: any): api_e
       }
     }
 
-    // - SERVER ERRORS (5xx) - \\
+    // - 服务器错误 (5xx) - \\
+    // - server errors (5xx) - \\
     if (status >= 500) {
       return {
         type: error_type.server_error,
@@ -329,7 +357,8 @@ function classify_error(error: any, status?: number, response_data?: any): api_e
     }
   }
 
-  // - DEFAULT: NETWORK ERROR - \\
+  // - 默认：网络错误 - \\
+  // - default: network error - \\
   return {
     type: error_type.network_error,
     message: error.message || "Unknown error",
@@ -338,7 +367,8 @@ function classify_error(error: any, status?: number, response_data?: any): api_e
 }
 
 /**
- * - SAFE JSON PARSE - \\
+ * - 安全 JSON 解析 - \\
+ * - safe json parse - \\
  * @param response Fetch response
  * @returns Parsed JSON or null
  */
@@ -358,7 +388,8 @@ async function safe_json_parse(response: Response): Promise<any> {
 }
 
 /**
- * - CENTRAL HTTP REQUEST HANDLER WITH RETRY - \\
+ * - 带重试的中央 HTTP 请求处理器 - \\
+ * - central http request handler with retry - \\
  * @param url Request URL
  * @param options Request options
  * @returns Response data
@@ -383,7 +414,8 @@ async function make_request<T>(
 }
 
 /**
- * - INTERNAL REQUEST HANDLER WITH EXPONENTIAL BACKOFF - \\
+ * - 带指数退避的内部请求处理器 - \\
+ * - internal request handler with exponential backoff - \\
  * @param url Request URL
  * @param options Request options
  * @param retry_count Current retry count
@@ -401,7 +433,8 @@ async function make_request_internal<T>(
   max_retries: number = __backoff_max_retries
 ): Promise<{ success: boolean; data?: T; error?: api_error }> {
 
-  // - CHECK CIRCUIT BREAKER - \\
+  // - 检查熟断器 - \\
+  // - check circuit breaker - \\
   if (is_circuit_open()) {
     __log.warn("Circuit breaker open, rejecting request")
     return {
@@ -414,7 +447,8 @@ async function make_request_internal<T>(
     }
   }
 
-  // - CHECK ENDPOINT RATE LIMIT - \\
+  // - 检查端点限流 - \\
+  // - check endpoint rate limit - \\
   const endpoint_key = `${options.method}:${url.split("?")[0]}`
   if (is_rate_limited(endpoint_key)) {
     __log.warn(`Endpoint rate limited, skipping: ${endpoint_key}`)
@@ -428,7 +462,8 @@ async function make_request_internal<T>(
     }
   }
 
-  // - SETUP REQUEST - \\
+  // - 配置请求 - \\
+  // - setup request - \\
   const controller = new AbortController()
   const timeout = options.timeout || __default_timeout
   const timeout_id = setTimeout(() => controller.abort(), timeout)
@@ -471,7 +506,8 @@ async function make_request_internal<T>(
         data: data,
       })
 
-      // - HANDLE RATE LIMIT WITH EXTENDED COOLDOWN - \\
+      // - 处理限流，延长冷却 - \\
+      // - handle rate limit with extended cooldown - \\
       if (error.type === error_type.rate_limit) {
         const retry_after = data?.retry_after || 120
         set_rate_limit_cooldown(endpoint_key, retry_after * 1000, retry_count)
@@ -483,7 +519,8 @@ async function make_request_internal<T>(
         record_failure()
       }
 
-      // - RETRY WITH BACKOFF FOR RETRYABLE ERRORS - \\
+      // - 错误可重试时用退退重试 - \\
+      // - retry with backoff for retryable errors - \\
       if (error.retry && retry_count < max_retries) {
         const delay = get_backoff_delay(retry_count)
         __log.info(`Retrying request in ${delay}ms (attempt ${retry_count + 2}/${max_retries + 1})`)
@@ -514,7 +551,8 @@ async function make_request_internal<T>(
       record_failure()
     }
 
-    // - RETRY WITH BACKOFF FOR RETRYABLE ERRORS - \\
+    // - 异常时用退退重试 - \\
+    // - retry with backoff for retryable errors - \\
     if (classified.retry && retry_count < max_retries) {
       const delay = get_backoff_delay(retry_count)
       __log.info(`Retrying request in ${delay}ms after exception`)
@@ -530,7 +568,8 @@ async function make_request_internal<T>(
 }
 
 /**
- * - DEDUPLICATE CONCURRENT REQUESTS - \\
+ * - 去重并发请求 - \\
+ * - deduplicate concurrent requests - \\
  * @param key Request identifier
  * @param fn Request function to execute
  * @returns Promise with request result
@@ -598,12 +637,14 @@ export interface create_key_options {
 }
 
 /**
- * - CREATE NEW USER KEY - \\
+ * - 创建新用户密鑰 - \\
+ * - create new user key - \\
  * @param options Creation options
  * @returns Response with user data
  */
 export async function create_key(options: create_key_options = {}): Promise<luarmor_response<luarmor_user>> {
-  // - VALIDATE INPUT - \\
+  // - 验证输入 - \\
+  // - validate input - \\
   if (options.discord_id && !validate_discord_id(options.discord_id)) {
     return { success: false, error: "Invalid Discord ID format" }
   }
@@ -634,7 +675,8 @@ export async function create_key(options: create_key_options = {}): Promise<luar
 }
 
 /**
- * - CREATE KEY FOR SPECIFIC PROJECT - \\
+ * - 为指定项目创建密鑰 - \\
+ * - create key for specific project - \\
  * @param project_id Project ID
  * @param options Creation options
  * @returns Response with user data
@@ -674,7 +716,8 @@ export async function create_key_for_project(
 }
 
 /**
- * - DELETE USER FROM PROJECT - \\
+ * - 从项目中删除用户 - \\
+ * - delete user from project - \\
  * @param project_id Project ID
  * @param discord_id Discord ID
  * @returns true if deleted successfully
@@ -685,14 +728,16 @@ export async function delete_user_from_project(project_id: string, discord_id: s
     return false
   }
 
-  // - CHECK RATE LIMIT - \\
+  // - 检查删除限流 - \\
+  // - check rate limit - \\
   const rate_key = `delete:${project_id}:${discord_id}`
   if (is_rate_limited(rate_key)) {
     __log.warn("Rate limited for deletion:", discord_id)
     return false
   }
 
-  // - GET USER KEYS - \\
+  // - 获取用户密匙 - \\
+  // - get user keys - \\
   const check_url = `${__base_url}/projects/${project_id}/users?discord_id=${discord_id}`
   const check_res = await make_request<any>(check_url, {
     method: "GET",
@@ -724,7 +769,8 @@ export async function delete_user_from_project(project_id: string, discord_id: s
     return true
   }
 
-  // - PARALLEL DELETE WITH LIMIT - \\
+  // - 并行限量删除 - \\
+  // - parallel delete with limit - \\
   const delete_promises = user_keys.map(async (key) => {
     const delete_url = `${__base_url}/projects/${project_id}/users?user_key=${key}`
 
@@ -747,7 +793,8 @@ export async function delete_user_from_project(project_id: string, discord_id: s
 }
 
 /**
- * - GET USER BY DISCORD ID - \\
+ * - 通过 Discord ID 获取用户 - \\
+ * - get user by discord id - \\
  * @param discord_id Discord ID
  * @param project_id Optional project ID
  * @param force_refresh Force refresh from API
@@ -768,18 +815,21 @@ export async function get_user_by_discord(
   return deduplicate_request(cache_key, async () => {
     const now = Date.now()
 
-    // - CHECK MEMORY CACHE FIRST (FASTEST) - \\
+    // - 先检查内存缓存（最快） - \\
+    // - check memory cache first (fastest) - \\
     const cached_user = __user_cache.get(discord_id)
     const cached_time = __user_cache_timestamp.get(discord_id) || 0
     const cache_age = now - cached_time
 
-    // - RETURN FRESH CACHE IMMEDIATELY - \\
+    // - 立即返回新鲜缓存 - \\
+    // - return fresh cache immediately - \\
     if (!force_refresh && cached_user && cache_age < __user_cache_duration && !project_id) {
       __log.debug("Memory cache hit (fresh):", discord_id)
       return { success: true, data: cached_user }
     }
 
-    // - CHECK DATABASE CACHE - \\
+    // - 检查数据库缓存 - \\
+    // - check database cache - \\
     if (!force_refresh && !project_id) {
       const db_cached = await luarmor_db_cache.get_cached_user_from_db(discord_id, true)
       if (db_cached) {
@@ -790,7 +840,8 @@ export async function get_user_by_discord(
       }
     }
 
-    // - CHECK USER RATE LIMIT - \\
+    // - 检查用户限流 - \\
+    // - check user rate limit - \\
     const rate_key = `get_user:${discord_id}`
     if (is_rate_limited(rate_key)) {
       if (cached_user && cache_age < __user_cache_stale_duration) {
@@ -810,7 +861,8 @@ export async function get_user_by_discord(
     })
 
     if (!result.success) {
-      // - HANDLE RATE LIMIT - \\
+      // - 处理限流 - \\
+      // - handle rate limit - \\
       if (result.error?.type === error_type.rate_limit) {
         set_rate_limit_cooldown(rate_key, 120000)
 
@@ -820,7 +872,8 @@ export async function get_user_by_discord(
         }
       }
 
-      // - RETURN STALE CACHE ON ANY ERROR - \\
+      // - 任何错误时返回过期缓存 - \\
+      // - return stale cache on any error - \\
       if (cached_user && cache_age < __user_cache_stale_duration) {
         __log.warn("Request failed, returning stale cache:", discord_id)
         return { success: true, data: cached_user }
@@ -844,7 +897,8 @@ export async function get_user_by_discord(
       __user_cache.set(discord_id, user_data)
       __user_cache_timestamp.set(discord_id, now)
 
-      // - SAVE TO DATABASE CACHE - \\
+      // - 存入数据库缓存 - \\
+      // - save to database cache - \\
       if (!project_id) {
         await luarmor_db_cache.save_user_to_db_cache(discord_id, user_data)
       }
@@ -857,7 +911,8 @@ export async function get_user_by_discord(
 }
 
 /**
- * - GET USER BY USER KEY - \\
+ * - 通过用户密鑰获取用户 - \\
+ * - get user by user key - \\
  * @param user_key User key
  * @returns Response with user data
  */
@@ -892,7 +947,8 @@ export async function get_user_by_key(user_key: string): Promise<luarmor_respons
 }
 
 /**
- * - RESET HWID BY DISCORD ID - \\
+ * - 通过 Discord ID 重置 HWID - \\
+ * - reset hwid by discord id - \\
  * @param discord_id Discord ID
  * @returns Response
  */
@@ -904,13 +960,15 @@ export async function reset_hwid_by_discord(discord_id: string): Promise<luarmor
   const cache_key = `reset_hwid:${discord_id}`
 
   return deduplicate_request(cache_key, async () => {
-    // - CHECK RATE LIMIT - \\
+    // - 检查限流 - \\
+    // - check rate limit - \\
     const rate_key = `reset:${discord_id}`
     if (is_rate_limited(rate_key)) {
       return { success: false, error: "Please wait before resetting HWID again" }
     }
 
-    // - TRY DATABASE CACHE FIRST - \\
+    // - 尝试数据库缓存 - \\
+    // - try database cache first - \\
     let user_key: string | null = null
     const db_cached = await luarmor_db_cache.get_cached_user_from_db(discord_id)
 
@@ -918,7 +976,8 @@ export async function reset_hwid_by_discord(discord_id: string): Promise<luarmor
       user_key = db_cached.user_key
       __log.debug("Using user_key from DB cache for reset:", discord_id)
     } else {
-      // - FETCH USER FROM API IF NOT IN CACHE - \\
+      // - 缓存中无数据时从 API 获取用户 - \\
+      // - fetch user from API if not in cache - \\
       const user_result = await get_user_by_discord(discord_id)
 
       if (!user_result.success || !user_result.data?.user_key) {
@@ -929,7 +988,8 @@ export async function reset_hwid_by_discord(discord_id: string): Promise<luarmor
       __log.debug("Fetched user_key from API for reset:", discord_id)
     }
 
-    // - RESET HWID USING USER_KEY - \\
+    // - 使用 user_key 重置 HWID - \\
+    // - reset HWID using user_key - \\
     const url = `${__base_url}/projects/${get_project_id()}/users/resethwid`
 
     const result = await make_request<any>(url, {
@@ -939,7 +999,8 @@ export async function reset_hwid_by_discord(discord_id: string): Promise<luarmor
     })
 
     if (!result.success) {
-      // - SET COOLDOWN ON RATE LIMIT - \\
+      // - 限流时设置冷却 - \\
+      // - set cooldown on rate limit - \\
       if (result.error?.type === error_type.rate_limit) {
         set_rate_limit_cooldown(rate_key, 60000)
       }
@@ -953,7 +1014,8 @@ export async function reset_hwid_by_discord(discord_id: string): Promise<luarmor
       __user_cache.delete(discord_id)
       __user_cache_timestamp.delete(discord_id)
 
-      // - CLEAR DATABASE CACHE - \\
+      // - 清降数据库缓存 - \\
+      // - clear database cache - \\
       await luarmor_db_cache.delete_user_from_db_cache(discord_id)
 
       return { success: true, message: "HWID reset successfully" }
@@ -964,7 +1026,8 @@ export async function reset_hwid_by_discord(discord_id: string): Promise<luarmor
 }
 
 /**
- * - RESET HWID BY USER KEY - \\
+ * - 通过用户密鑰重置 HWID - \\
+ * - reset hwid by user key - \\
  * @param user_key User key
  * @returns Response
  */
@@ -1000,7 +1063,8 @@ export async function reset_hwid_by_key(user_key: string): Promise<luarmor_respo
 }
 
 /**
- * - LINK DISCORD ACCOUNT - \\
+ * - 关联 Discord 账号 - \\
+ * - link discord account - \\
  * @param user_key User key
  * @param discord_id Discord ID
  * @returns Response
@@ -1047,8 +1111,8 @@ export interface luarmor_script {
 }
 
 /**
- * @description Fetches all scripts for the configured project
- * @returns {Promise<luarmor_response<luarmor_script[]>>} Response with script list
+ * @description fetches all scripts for the configured project
+ * @returns {Promise<luarmor_response<luarmor_script[]>>} response with script list
  */
 export async function get_project_scripts(): Promise<luarmor_response<luarmor_script[]>> {
   const url = `${__base_url}/keys/${get_api_key()}/details`
@@ -1091,10 +1155,10 @@ export async function get_project_scripts(): Promise<luarmor_response<luarmor_sc
 }
 
 /**
- * @description Updates a Luarmor script with new raw content
- * @param {string} script_id - The script ID to update
- * @param {string} script    - The raw script content
- * @returns {Promise<luarmor_response<null>>} Response
+ * @description updates a Luarmor script with new raw content
+ * @param {string} script_id - the script ID to update
+ * @param {string} script    - the raw script content
+ * @returns {Promise<luarmor_response<null>>} response
  */
 export async function update_script(script_id: string, script: string, project_id: string): Promise<luarmor_response<null>> {
   const url = `${__base_url}/projects/${project_id}/scripts/${script_id}`
@@ -1119,7 +1183,8 @@ export async function update_script(script_id: string, script: string, project_i
 }
 
 /**
- * - GET API STATS - \\
+ * - 获取 API 统计信息 - \\
+ * - get api stats - \\
  * @returns Response with stats
  */
 export async function get_stats(): Promise<luarmor_response<luarmor_stats>> {
@@ -1146,14 +1211,16 @@ export async function get_stats(): Promise<luarmor_response<luarmor_stats>> {
 }
 
 /**
- * - GET ALL USERS - \\
+ * - 获取所有用户 - \\
+ * - get all users - \\
  * @returns Response with user list
  */
 export async function get_all_users(): Promise<luarmor_response<luarmor_user[]>> {
   return deduplicate_request("all_users", async () => {
     const now = Date.now()
 
-    // - RETURN FRESH CACHE - \\
+    // - 返回新鲜缓存 - \\
+    // - return fresh cache - \\
     if (__users_cache && (now - __users_cache_timestamp) < __users_cache_duration) {
       __log.debug("Cache hit (fresh): all_users")
       return { success: true, data: __users_cache }
@@ -1167,7 +1234,8 @@ export async function get_all_users(): Promise<luarmor_response<luarmor_user[]>>
     })
 
     if (!result.success) {
-      // - RETURN STALE CACHE ON ERROR - \\
+      // - 错误时返回过期缓存 - \\
+      // - return stale cache on error - \\
       if (__users_cache && (now - __users_cache_timestamp) < __users_cache_stale_while_revalidate) {
         __log.warn("Request failed, returning stale cache: all_users")
         return { success: true, data: __users_cache }
@@ -1195,7 +1263,8 @@ export async function get_all_users(): Promise<luarmor_response<luarmor_user[]>>
 }
 
 /**
- * - UPDATE PROJECT SETTINGS - \\
+ * - 更新项目设置 - \\
+ * - update project settings - \\
  * @param project_id Project ID
  * @param hwidless Enable/disable HWID requirement
  * @returns Response
@@ -1214,7 +1283,8 @@ export async function update_project_settings(project_id: string, hwidless: bool
     instance_limit_count: 0,
   }
 
-  // - GET CURRENT SETTINGS - \\
+  // - 获取当前设置 - \\
+  // - get current settings - \\
   const get_result = await make_request<any>(get_url, {
     method: "GET",
     timeout: __fast_timeout,
@@ -1234,7 +1304,8 @@ export async function update_project_settings(project_id: string, hwidless: bool
     }
   }
 
-  // - UPDATE SETTINGS - \\
+  // - 更新设置 - \\
+  // - update settings - \\
   const url = `${__base_url}/projects/${project_id}`
   const body = { ...current_settings, hwidless }
 
@@ -1258,7 +1329,8 @@ export async function update_project_settings(project_id: string, hwidless: bool
 }
 
 /**
- * - UNBAN USER - \\
+ * - 解禁用户 - \\
+ * - unban user - \\
  * @param unban_token Unban token
  * @param project_id Optional project ID
  * @returns Response
@@ -1286,7 +1358,8 @@ export async function unban_user(unban_token: string, project_id?: string): Prom
 }
 
 /**
- * - BATCH GET USERS - \\
+ * - 批量获取用户 - \\
+ * - batch get users - \\
  * @param discord_ids Array of Discord IDs
  * @param project_id Optional project ID
  * @returns Map of discord_id -> user data
@@ -1309,7 +1382,8 @@ export async function get_users_batch(
 }
 
 /**
- * - BATCH RESET HWID - \\
+ * - 批量重置 HWID - \\
+ * - batch reset hwid - \\
  * @param discord_ids Array of Discord IDs
  * @returns Map of discord_id -> result
  */
@@ -1348,7 +1422,8 @@ export function get_full_loader_script(user_key: string): string {
 }
 
 /**
- * - INVALIDATE USER CACHE - \\
+ * - 使用户缓存失效 - \\
+ * - invalidate user cache - \\
  * @param discord_id Discord ID
  */
 export function invalidate_user_cache(discord_id: string): void {
@@ -1357,7 +1432,8 @@ export function invalidate_user_cache(discord_id: string): void {
 }
 
 /**
- * - INVALIDATE ALL USERS CACHE - \\
+ * - 使所有用户缓存失效 - \\
+ * - invalidate all users cache - \\
  */
 export function invalidate_all_users_cache(): void {
   __users_cache = null
@@ -1365,7 +1441,8 @@ export function invalidate_all_users_cache(): void {
 }
 
 /**
- * - CLEAR ALL CACHE - \\
+ * - 清除所有缓存 - \\
+ * - clear all cache - \\
  */
 export function clear_all_cache(): void {
   __user_cache.clear()
@@ -1377,7 +1454,8 @@ export function clear_all_cache(): void {
 }
 
 /**
- * - GET CIRCUIT BREAKER STATUS - \\
+ * - 获取断路器状态 - \\
+ * - get circuit breaker status - \\
  * @returns Circuit breaker information
  */
 export function get_circuit_status(): {
@@ -1392,7 +1470,8 @@ export function get_circuit_status(): {
   }
 }
 /**
- * - GET RATE LIMIT STATUS - \\
+ * - 获取速率限制状态 - \\
+ * - get rate limit status - \\
  * @returns Rate limit information
  */
 export function get_rate_limit_status(): {
@@ -1408,7 +1487,8 @@ export function get_rate_limit_status(): {
 }
 
 /**
- * - GET CACHE STATS - \\
+ * - 获取缓存统计信息 - \\
+ * - get cache stats - \\
  * @returns Cache statistics
  */
 export function get_cache_stats(): {
@@ -1425,7 +1505,8 @@ export function get_cache_stats(): {
 }
 
 /**
- * - FORCE RESET ALL RATE LIMITS - \\
+ * - 强制重置所有速率限制 - \\
+ * - force reset all rate limits - \\
  */
 export function reset_all_rate_limits(): void {
   __rate_limit_cooldowns.clear()

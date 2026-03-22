@@ -13,7 +13,8 @@ import * as db_cache_util from "./db_cache"
 const is_production = process.env.NODE_ENV === "production"
 
 /**
- * - CACHE WARMUP ON STARTUP - \\
+ * - 启动时预热缓存 - \\
+ * - cache warmup on startup - \\
  * @returns {Promise<void>}
  */
 export async function warm_caches(): Promise<void> {
@@ -33,9 +34,10 @@ export async function warm_caches(): Promise<void> {
 }
 
 /**
- * - START PERIODIC CACHE STATISTICS LOGGING - \\
- * @param {number} interval_ms - Logging interval in milliseconds
- * @returns {NodeJS.Timeout} Interval timer
+ * - 启动周期缓存统计日志 - \\
+ * - start periodic cache statistics logging - \\
+ * @param {number} interval_ms - logging interval in milliseconds
+ * @returns {NodeJS.Timeout} interval timer
  */
 export function start_cache_stats_logging(interval_ms: number = 10 * 60 * 1000): NodeJS.Timeout {
     if (!is_production) {
@@ -48,7 +50,8 @@ export function start_cache_stats_logging(interval_ms: number = 10 * 60 * 1000):
 }
 
 /**
- * - INVALIDATE ALL CACHES - \\
+ * - 使所有缓存失效 - \\
+ * - invalidate all caches - \\
  * @returns {void}
  */
 export function invalidate_all_caches(): void {
@@ -66,8 +69,9 @@ export function invalidate_all_caches(): void {
 }
 
 /**
- * - GET CACHE HEALTH - \\
- * @returns {object} Cache health metrics
+ * - 获取缓存健康指标 - \\
+ * - get cache health - \\
+ * @returns {object} cache health metrics
  */
 export function get_cache_health(): {
     healthy: boolean
@@ -102,7 +106,8 @@ export function get_cache_health(): {
 }
 
 /**
- * - OPTIMIZE CACHE SIZES - \\
+ * - 优化缓存大小 - \\
+ * - optimize cache sizes - \\
  * @returns {void}
  */
 export function optimize_cache_sizes(): void {
@@ -124,9 +129,10 @@ export function optimize_cache_sizes(): void {
 }
 
 /**
- * - PERIODIC CACHE OPTIMIZATION - \\
- * @param {number} interval_ms - Optimization interval in milliseconds
- * @returns {NodeJS.Timeout} Interval timer
+ * - 周期缓存优化 - \\
+ * - periodic cache optimization - \\
+ * @param {number} interval_ms - optimization interval in milliseconds
+ * @returns {NodeJS.Timeout} interval timer
  */
 export function start_cache_optimization(interval_ms: number = 30 * 60 * 1000): NodeJS.Timeout {
     if (!is_production) {

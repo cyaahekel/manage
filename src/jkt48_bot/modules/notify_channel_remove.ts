@@ -44,7 +44,8 @@ export const command: Command = {
 
       const platform = interaction.options.getString("platform", true)
 
-      // - REMOVE FROM DATABASE - \\
+      // - 从数据库移除 - \\
+      // - remove from database - \\
       if (platform === "both") {
         await db.delete_many(__guild_notification_settings_collection, {
           guild_id: interaction.guild.id,

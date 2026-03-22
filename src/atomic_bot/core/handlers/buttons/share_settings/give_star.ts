@@ -15,8 +15,9 @@ import { log_error }         from "@shared/utils/error_logger"
 import * as share_settings   from "@atomic/core/handlers/shared/controller/share_settings_controller"
 
 /**
- * - HANDLE GIVE STAR BUTTON - \\
- * @param {ButtonInteraction} interaction - Button interaction
+ * - 处理点星按钮 - \\
+ * - handle give star button - \\
+ * @param {ButtonInteraction} interaction - button interaction
  * @returns {Promise<void>}
  */
 export async function handle_give_star(interaction: ButtonInteraction): Promise<void> {

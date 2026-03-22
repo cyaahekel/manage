@@ -14,8 +14,9 @@ import { log_error }                   from "@shared/utils/error_logger"
 import * as share_settings             from "@atomic/core/handlers/shared/controller/share_settings_controller"
 
 /**
- * - HANDLE SHARE SETTINGS SELECT - \\
- * @param {StringSelectMenuInteraction} interaction - Select interaction
+ * - 处理分享设置选择菜单 - \\
+ * - handle share settings select - \\
+ * @param {StringSelectMenuInteraction} interaction - select interaction
  * @returns {Promise<void>}
  */
 export async function handle_share_settings_select(interaction: StringSelectMenuInteraction): Promise<void> {

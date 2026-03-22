@@ -24,31 +24,35 @@ let last_sync_time            = 0
 let consecutive_errors        = 0
 
 /**
- * @param {Client} client - Discord client instance
+ * @param {Client} client - discord client instance
  * @return {Promise<void>} Resolve when sync completes
  */
 export async function sync_service_provider_cache(client: Client): Promise<void> {
-  // - PREVENT CONCURRENT SYNCS - \\
+  // - 防止并发同步 - \\
+  // - prevent concurrent syncs - \\
   if (is_syncing) {
     console.log("[ - SERVICE PROVIDER CACHE - ] Sync already in progress, skipping")
     return
   }
 
-  // - PREVENT TOO FREQUENT SYNCS - \\
+  // - 防止过于频繁的同步 - \\
+  // - prevent too frequent syncs - \\
   const now = Date.now()
   if (now - last_sync_time < MIN_SYNC_INTERVAL_MS) {
     console.log("[ - SERVICE PROVIDER CACHE - ] Sync too recent, skipping")
     return
   }
 
-  // - CHECK CIRCUIT BREAKER STATUS - \\
+  // - 检查熟断器状态 - \\
+  // - check circuit breaker status - \\
   const circuit_status = luarmor.get_circuit_status()
   if (circuit_status.open) {
     console.log("[ - SERVICE PROVIDER CACHE - ] Circuit breaker open, skipping sync")
     return
   }
 
-  // - PAUSE ON CONSECUTIVE ERRORS - \\
+  // - 连续错误时暂停 - \\
+  // - pause on consecutive errors - \\
   if (consecutive_errors >= MAX_CONSECUTIVE_ERRORS) {
     const pause_until = last_sync_time + (consecutive_errors * CACHE_INTERVAL_MS)
     if (now < pause_until) {
@@ -84,7 +88,8 @@ export async function sync_service_provider_cache(client: Client): Promise<void>
       return
     }
 
-    // - RESET CONSECUTIVE ERRORS ON SUCCESS - \\
+    // - 成功时重置连续错误计数 - \\
+    // - reset consecutive errors on success - \\
     consecutive_errors = 0
 
     console.log(`[ - SERVICE PROVIDER CACHE - ] Fetched ${users_result.data.length} users from Luarmor`)
@@ -92,7 +97,8 @@ export async function sync_service_provider_cache(client: Client): Promise<void>
     let cached_users    = 0
     let failed_users    = 0
 
-    // - BATCH UPDATE WITH RATE LIMITING - \\
+    // - 分批限速更新 - \\
+    // - batch update with rate limiting - \\
     const batch_size = 50
     for (let i = 0; i < users_result.data.length; i += batch_size) {
       const batch = users_result.data.slice(i, i + batch_size)
@@ -122,7 +128,8 @@ export async function sync_service_provider_cache(client: Client): Promise<void>
         }
       }))
       
-      // - SMALL DELAY BETWEEN BATCHES - \\
+      // - 批次间小延迟 - \\
+      // - small delay between batches - \\
       if (i + batch_size < users_result.data.length) {
         await new Promise(r => setTimeout(r, 100))
       }
@@ -145,7 +152,7 @@ export async function sync_service_provider_cache(client: Client): Promise<void>
 }
 
 /**
- * @param {Client} client - Discord client instance
+ * @param {Client} client - discord client instance
  * @return {void}
  */
 export function start_service_provider_cache(client: Client): void {

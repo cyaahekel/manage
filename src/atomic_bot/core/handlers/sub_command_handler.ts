@@ -17,7 +17,8 @@ import { join }        from "path"
 export const sub_commands = new Collection<string, SubCommand>()
 
 /**
- * - LOAD SUB COMMANDS FROM MODULES FOLDERS - \\
+ * - 从模块文件夹加载子命令 - \\
+ * - load sub commands from modules folders - \\
  * @returns {Promise<void>}
  */
 export async function load_sub_commands(): Promise<void> {
@@ -37,7 +38,8 @@ export async function load_sub_commands(): Promise<void> {
             const file_path = join(sub_commands_path, file)
             
             try {
-              // - USE REQUIRE FOR COMMONJS MODULES - \\
+              // - 使用 require 加载 CommonJS 模块 - \\
+              // - use require for commonjs modules - \\
               const imported    = require(file_path)
               const sub_command = imported.default || imported as SubCommand
 
@@ -54,7 +56,8 @@ export async function load_sub_commands(): Promise<void> {
           }
         }
       } catch (e) {
-        // - IGNORE IF FOLDER DOESNT EXIST - \\
+        // - 文件夹不存在时跳过 - \\
+        // - ignore if folder doesnt exist - \\
       }
     }
   } catch (error) {

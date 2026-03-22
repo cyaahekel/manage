@@ -7,7 +7,8 @@
  * See the LICENSE file for more information.
  */
 
-// - BUTTON CUSTOM IDS - \\
+// - 按鈕的自定义 ID - \\
+// - button custom ids - \\
 export const __btn_loa_request  = "loa_request"
 export const __btn_loa_approve  = "loa_approve"
 export const __btn_loa_reject   = "loa_reject"
@@ -18,8 +19,10 @@ export const __btn_reminder_add_new     = "reminder_add_new"
 export const __btn_reminder_cancel      = "reminder_cancel"
 export const __btn_reminder_cancel_sel  = "reminder_cancel_select"
 
-// - SELECT MENU CUSTOM IDS - \\
+// - 下拉菜单的自定义 ID - \\
+// - select menu custom ids - \\
 export const __sel_payment_method = "payment_method_select"
 
-// - MODAL CUSTOM IDS - \\
+// - 模态框的自定义 ID - \\
+// - modal custom ids - \\
 export const __modal_loa_request = "modal_loa_request"

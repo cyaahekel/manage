@@ -18,9 +18,10 @@ import { log_error }         from "@shared/utils/error_logger"
 import * as share_settings   from "@atomic/modules/share_settings/controller"
 
 /**
- * - HANDLE SHARE SETTINGS CONTINUE - \\
- * @param {ButtonInteraction} interaction - Button interaction
- * @returns {Promise<void>} Void
+ * - 处理共享设置继续 - \\
+ * - handle share settings continue - \\
+ * @param {ButtonInteraction} interaction - button interaction
+ * @returns {Promise<void>} void
  */
 export async function handle_share_settings_continue(interaction: ButtonInteraction): Promise<void> {
   try {

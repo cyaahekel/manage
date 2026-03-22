@@ -16,9 +16,10 @@ import { build_simple_message }                                        from "./a
 const MAX_ITEMS = 25
 
 /**
- * - BUILD AFK MOD LIST SUBCOMMAND - \\
- * @param {SlashCommandSubcommandBuilder} subcommand - Subcommand builder
- * @returns {SlashCommandSubcommandBuilder} Updated subcommand builder
+ * - 构建 AFK 管理列表子命令 - \\
+ * - build afk mod list subcommand - \\
+ * @param {SlashCommandSubcommandBuilder} subcommand - subcommand builder
+ * @returns {SlashCommandSubcommandBuilder} updated subcommand builder
  */
 export function build_afk_mod_list_subcommand(subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder {
   return subcommand
@@ -27,8 +28,9 @@ export function build_afk_mod_list_subcommand(subcommand: SlashCommandSubcommand
 }
 
 /**
- * - HANDLE AFK MOD LIST - \\
- * @param {ChatInputCommandInteraction} interaction - Discord interaction
+ * - 处理 AFK 管理列表 - \\
+ * - handle afk mod list - \\
+ * @param {ChatInputCommandInteraction} interaction - discord interaction
  * @returns {Promise<void>}
  */
 export async function handle_afk_mod_list(interaction: ChatInputCommandInteraction): Promise<void> {
@@ -44,7 +46,8 @@ export async function handle_afk_mod_list(interaction: ChatInputCommandInteracti
   let total_count   = 0
 
   for (const record of all_afk) {
-    // - SKIP MEMBER CHECK: guild cache disabled, attempt fetch below - \\
+    // - 跳过成员检查：服务器缓存已禁用，将在下方尝试获取 - \\
+    // - skip member check: guild cache disabled, attempt fetch below - \\
     total_count += 1
 
     if (lines.length < MAX_ITEMS) {

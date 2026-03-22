@@ -27,8 +27,8 @@ interface AutoReplyConfig {
 const channel_cooldowns = new Map<string, number>()
 const __cooldown_ms = 15000
 
-// - 启动时加载一次配置，避免每次消息都读磁盘 - \\
-// - loaded once at startup, avoids disk read on every message - \\
+// - 开机刷一遍配置，省得每次消息都去读硬盘 - \\
+// - cache config at boot, no disk stress on every msg - \\
 let __cached_configs: AutoReplyConfig[] | null = null
 
 function load_auto_reply_configs(): AutoReplyConfig[] {

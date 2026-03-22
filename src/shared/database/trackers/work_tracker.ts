@@ -135,7 +135,8 @@ export async function update_work_report(
     const current_salary_week     = Math.max(0, parseInt(String(existing.salary_this_week || 0)))
     const new_salary              = Math.max(0, parseInt(String(salary)))
 
-    // - VALIDATE AND PREVENT CORRUPTION - \\
+    // - 验证并防止数据损坏 - \\
+    // - validate and prevent corruption - \\
     if (current_total_salary > 1000000000) {
       log.error(`Corrupted data detected for ${staff_id}, resetting total_salary from ${current_total_salary}`)
       await db.update_one(__work_reports_collection, { staff_id }, {

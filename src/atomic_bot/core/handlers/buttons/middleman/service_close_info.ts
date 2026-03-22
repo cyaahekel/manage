@@ -15,7 +15,7 @@ import { api, component } from "@shared/utils"
 /**
  * Handle button click for middleman service close info
  *
- * @param {ButtonInteraction} interaction - Button interaction
+ * @param {ButtonInteraction} interaction - button interaction
  * @returns {Promise<void>}
  */
 export async function handle_middleman_service_close_info(interaction: ButtonInteraction): Promise<void> {

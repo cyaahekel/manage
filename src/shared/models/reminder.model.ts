@@ -9,7 +9,8 @@
 
 import { Client } from "discord.js"
 
-// - REMINDER DB MODEL - \\
+// - 提醒数据库模型 - \\
+// - reminder db model - \\
 export interface reminder_data {
   _id?       : any
   user_id    : string
@@ -19,7 +20,8 @@ export interface reminder_data {
   guild_id?  : string
 }
 
-// - CONTROLLER OPTION INTERFACES - \\
+// - 控制器选项接口 - \\
+// - controller option interfaces - \\
 export interface reminder_list_options {
   user_id: string
   client : Client

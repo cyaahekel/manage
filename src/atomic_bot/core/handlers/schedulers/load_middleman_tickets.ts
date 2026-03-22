@@ -18,13 +18,14 @@ import { set_user_open_ticket } from "@shared/database/unified_ticket"
 const log = logger.create_logger("load_middleman_tickets")
 
 /**
- * @description Load all active middleman tickets from database on startup
- * @param {Client} client - Discord client
+ * @description load all active middleman tickets from database on startup
+ * @param {Client} client - discord client
  * @returns {Promise<void>}
  */
 export async function load_middleman_tickets_on_startup(client: Client): Promise<void> {
   try {
-    // - LOAD MIDDLEMAN SERVICE STATUSES - \\
+    // - 加载中间人服务状态 - \\
+    // - load middleman service statuses - \\
     await load_all_middleman_service_statuses()
 
     log.info("Loading active middleman tickets from database")
@@ -41,14 +42,16 @@ export async function load_middleman_tickets_on_startup(client: Client): Promise
 
     for (const ticket of active_tickets) {
       try {
-        // - VERIFY THREAD STILL EXISTS - \\
+        // - 验证线程仍存在 - \\
+        // - verify thread still exists - \\
         const thread = await client.channels.fetch(ticket.thread_id).catch((err) => {
           if (err.code === 10003 || err.code === 50001 || err.code === 10008) return null // Unknown Channel / Missing Access / Unknown Message
           throw err
         })
 
         if (thread && thread.isThread() && !thread.locked && !thread.archived) {
-          // - SET USER OPEN TICKET IN MEMORY - \\
+          // - 把用户未关闭工单存入内存 - \\
+          // - set user open ticket in memory - \\
           set_user_open_ticket("middleman", ticket.requester_id, ticket.thread_id)
           loaded_count++
           log.info(`Loaded ticket ${ticket.ticket_id} for user ${ticket.requester_id}`)

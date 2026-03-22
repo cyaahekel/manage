@@ -38,7 +38,8 @@ export async function submit_review(options: submit_review_options) {
     }
   }
 
-  // - CHECK DAILY REVIEW LIMIT - \\
+  // - 检查每日评价限制 - \\
+  // - check daily review limit - \\
   const can_submit = await review_manager.can_submit_review(user_id)
   
   if (!can_submit) {
@@ -53,10 +54,12 @@ export async function submit_review(options: submit_review_options) {
     const stars     = "⭐️".repeat(rating)
     const timestamp = time.now()
 
-    // - VALIDATE AVATAR URL - \\
+    // - 验证头像 URL - \\
+    // - validate avatar url - \\
     const valid_avatar = user_avatar && user_avatar.startsWith("http") ? user_avatar : undefined
 
-    // - BUILD REVIEW DETAILS SECTION - \\
+    // - 构建评价详情区块 - \\
+    // - build review details section - \\
     const review_section_options: any = {
       content: [
         `- **Review:** ${review_text}`,
@@ -111,7 +114,8 @@ export async function submit_review(options: submit_review_options) {
       }
     }
 
-    // - SAVE REVIEW TO DATABASE - \\
+    // - 保存评价到数据库 - \\
+    // - save review to database - \\
     await review_manager.save_review(
       user_id,
       review_text,

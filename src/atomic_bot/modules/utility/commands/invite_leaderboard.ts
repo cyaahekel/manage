@@ -24,9 +24,10 @@ interface invite_leaderboard_record {
 }
 
 /**
- * - EXECUTE INVITE LEADERBOARD COMMAND - \\
- * @param {ChatInputCommandInteraction} interaction - Command interaction
- * @returns {Promise<void>} Void
+ * - 执行邀请排行榜命令 - \\
+ * - execute invite leaderboard command - \\
+ * @param {ChatInputCommandInteraction} interaction - command interaction
+ * @returns {Promise<void>} void
  */
 async function execute_invite_leaderboard(interaction: ChatInputCommandInteraction): Promise<void> {
   await interaction.deferReply({ ephemeral: false })

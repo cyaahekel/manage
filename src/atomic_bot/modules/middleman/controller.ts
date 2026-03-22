@@ -52,8 +52,8 @@ const __fee_labels: Record<string, string> = {
 }
 
 /**
- * @description Opens a middleman service ticket with transaction details
- * @param {OpenMiddlemanTicketOptions} options - Options for opening the ticket
+ * @description opens a middleman service ticket with transaction details
+ * @param {OpenMiddlemanTicketOptions} options - options for opening the ticket
  * @returns {Promise<OpenMiddlemanTicketResult>} - Result of the operation
  */
 export async function open_middleman_ticket(options: OpenMiddlemanTicketOptions): Promise<OpenMiddlemanTicketResult> {
@@ -77,7 +77,8 @@ export async function open_middleman_ticket(options: OpenMiddlemanTicketOptions)
   const penjual_id = transaction?.penjual_id || user_id
   const pembeli_id = transaction?.pembeli_id || partner_id
 
-  // - CHECK MAX TICKET LIMIT PER USER (5 TICKETS) - \\
+  // - 检查每个用户的最大工单数量（5个） - \\
+  // - check max ticket limit per user (5 tickets) - \\
   const unique_parties = [...new Set([user_id, penjual_id, pembeli_id])]
   const ticket_counts  = await Promise.all(unique_parties.map(id => count_user_active_tickets(id)))
 
@@ -102,7 +103,8 @@ export async function open_middleman_ticket(options: OpenMiddlemanTicketOptions)
       autoArchiveDuration: ThreadAutoArchiveDuration.OneWeek,
     })
 
-    // - ADD ALL PARTIES TO THREAD - \\
+    // - 将所有相关方添加到频道 - \\
+    // - add all parties to thread - \\
     const thread_members = [...new Set([user_id, penjual_id, pembeli_id])]
     for (const member_id of thread_members) {
       await thread.members.add(member_id).catch(() => {})
@@ -227,7 +229,8 @@ export async function open_middleman_ticket(options: OpenMiddlemanTicketOptions)
       }
     }
 
-    // - SAVE TO DATABASE FOR PERSISTENCE - \\
+    // - 保存到数据库以持久化 - \\
+    // - save to database for persistence - \\
     const penjual_user = await interaction.client.users.fetch(penjual_id).catch(() => null)
 
     await create_middleman_ticket({
@@ -246,7 +249,8 @@ export async function open_middleman_ticket(options: OpenMiddlemanTicketOptions)
       log_message_id   : log_message_id,
     })
 
-    // - SAVE TICKET IMMEDIATELY TO PREVENT RACE CONDITION - \\
+    // - 立即保存工单以防止竞争条件 - \\
+    // - save ticket immediately to prevent race condition - \\
     await save_ticket_immediate(thread.id)
 
     return {

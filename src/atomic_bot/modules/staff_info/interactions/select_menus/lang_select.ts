@@ -16,9 +16,10 @@ import { StringSelectMenuInteraction } from "discord.js"
 import { log_error }                   from "@shared/utils/error_logger"
 
 /**
- * - HANDLE STAFF INFO LANGUAGE SELECT - \\
+ * - 处理员工信息语言选择 - \\
+ * - handle staff info language select - \\
  * 
- * @param {StringSelectMenuInteraction} interaction - Select menu interaction
+ * @param {StringSelectMenuInteraction} interaction - select menu interaction
  * @returns {Promise<void>}
  */
 export async function handle_staff_info_lang_select(interaction: StringSelectMenuInteraction): Promise<void> {

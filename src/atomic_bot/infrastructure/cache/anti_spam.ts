@@ -54,7 +54,7 @@ const LOG_CHANNEL_ID       = "1452086939866894420"
 const SUPPORT_ROLE_ID      = "1264915024707588208"
 
 /**
- * @param {GuildMember} member - Guild member to check
+ * @param {GuildMember} member - guild member to check
  * @return {boolean} True if member is admin or has role above support
  */
 function is_admin_or_above(member: GuildMember): boolean {
@@ -62,7 +62,8 @@ function is_admin_or_above(member: GuildMember): boolean {
     return true
   }
   
-  // - HIGHEST ROLE POSITION CHECK — cannot fetch roles synchronously, fall back to permissions - \\
+  // - 最高角色位置检查 — 无法同步获取角色，回退到权限检查 - \\
+  // - highest role position check — cannot fetch roles synchronously, fall back to permissions - \\
   return false
 }
 

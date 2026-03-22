@@ -12,8 +12,8 @@
 import { UserSelectMenuInteraction, ThreadChannel } from "discord.js"
 
 /**
- * @description Handles member selection to add to middleman ticket
- * @param {UserSelectMenuInteraction} interaction - The user select interaction
+ * @description handles member selection to add to middleman ticket
+ * @param {UserSelectMenuInteraction} interaction - the user select interaction
  * @returns {Promise<boolean>} - Returns true if handled
  */
 export async function handle_middleman_member_select(interaction: UserSelectMenuInteraction): Promise<boolean> {

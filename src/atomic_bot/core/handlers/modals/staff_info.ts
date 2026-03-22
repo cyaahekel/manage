@@ -13,10 +13,10 @@ import { ModalSubmitInteraction } from "discord.js"
 import { log_error }              from "@shared/utils/error_logger"
 
 /**
- * - HANDLE EDIT STAFF INFO MODAL - \\
- * 
- * @param {ModalSubmitInteraction} interaction - Modal submit interaction
- * @returns {Promise<boolean>} True if handled
+ * - 处理编辑员工信息模态框 - \\
+ * - handle edit staff info modal - \\
+ * @param {ModalSubmitInteraction} interaction - modal submit interaction
+ * @returns {Promise<boolean>} true if handled
  */
 export async function handle_edit_staff_info_modal(interaction: ModalSubmitInteraction): Promise<boolean> {
   if (!interaction.customId.startsWith("edit_staff_info:")) return false

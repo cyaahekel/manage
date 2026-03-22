@@ -29,8 +29,8 @@ const __transaction_ranges: Record<string, TransactionRange> = {
 }
 
 /**
- * @description Handles transaction range selection — shows seller user-select next
- * @param {StringSelectMenuInteraction} interaction - The select menu interaction
+ * @description handles transaction range selection — shows seller user-select next
+ * @param {StringSelectMenuInteraction} interaction - the select menu interaction
  * @returns {Promise<void>}
  */
 export async function handle_middleman_transaction_range_select(interaction: StringSelectMenuInteraction): Promise<void> {

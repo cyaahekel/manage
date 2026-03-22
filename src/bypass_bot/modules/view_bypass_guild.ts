@@ -25,7 +25,8 @@ const __allowed_user_id = "1118453649727823974"
 const __max_rows        = 40
 
 /**
- * - VIEW BYPASS GUILD COMMAND - \\
+ * - 查看绕过服务器命令 - \\
+ * - view bypass guild command - \\
  */
 const view_bypass_guild_command: Command = {
   data: new SlashCommandBuilder()

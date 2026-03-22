@@ -42,9 +42,10 @@ export interface live_room_view {
 }
 
 /**
- * - NORMALIZE LIVE PLATFORM - \\
- * @param {string} value - Platform value
- * @returns {live_platform} Normalized platform
+ * - 标准化直播平台 - \\
+ * - normalize live platform - \\
+ * @param {string} value - platform value
+ * @returns {live_platform} normalized platform
  */
 export function normalize_live_platform(value: string): live_platform {
   const normalized = value.toLowerCase().trim()
@@ -52,9 +53,10 @@ export function normalize_live_platform(value: string): live_platform {
 }
 
 /**
- * - BUILD HISTORY KEY FOR DEDUPLICATION - \\
- * @param {live_history_record} record - History record
- * @returns {string} Unique key for deduplication
+ * - 构建去重历史键 - \\
+ * - build history key for deduplication - \\
+ * @param {live_history_record} record - history record
+ * @returns {string} unique key for deduplication
  */
 function build_history_key(record: live_history_record): string {
   if (record.live_key) return record.live_key
@@ -66,9 +68,10 @@ function build_history_key(record: live_history_record): string {
 }
 
 /**
- * - FORMAT DURATION - \\
- * @param {number} duration_ms - Duration in milliseconds
- * @returns {string} Human readable duration
+ * - 格式化时长 - \\
+ * - format duration - \\
+ * @param {number} duration_ms - duration in milliseconds
+ * @returns {string} human readable duration
  */
 function format_duration(duration_ms: number): string {
   const total_seconds = Math.max(0, Math.floor(duration_ms / 1000))
@@ -88,10 +91,11 @@ function format_duration(duration_ms: number): string {
 }
 
 /**
- * - GET HISTORY RECORDS - \\
- * @param {Client} client - Discord client
- * @param {string} platform - Live platform
- * @returns {Promise<live_history_record[]>} History records
+ * - 获取历史记录 - \\
+ * - get history records - \\
+ * @param {Client} client - discord client
+ * @param {string} platform - live platform
+ * @returns {Promise<live_history_record[]>} history records
  */
 export async function get_history_records(client: Client, platform: string): Promise<live_history_record[]> {
   try {
@@ -122,13 +126,14 @@ export async function get_history_records(client: Client, platform: string): Pro
 }
 
 /**
- * - BUILD HISTORY MESSAGE - \\
- * @param {object} options - Options
- * @param {string} options.platform - Platform
- * @param {live_history_record[]} options.records - History records
- * @param {number} options.index - Record index
- * @param {string} options.requester - Requester name
- * @returns {object} Message payload
+ * - 构建历史消息 - \\
+ * - build history message - \\
+ * @param {object} options - options
+ * @param {string} options.platform - platform
+ * @param {live_history_record[]} options.records - history records
+ * @param {number} options.index - record index
+ * @param {string} options.requester - requester name
+ * @returns {object} message payload
  */
 export function build_history_message(options: {
   platform  : string
@@ -225,10 +230,11 @@ export function build_history_message(options: {
 }
 
 /**
- * - GET LIVE ROOMS - \\
- * @param {Client} client - Discord client
- * @param {string} platform - Platform
- * @returns {Promise<live_room_view[]>} Live rooms
+ * - 获取直播间列表 - \\
+ * - get live rooms - \\
+ * @param {Client} client - discord client
+ * @param {string} platform - platform
+ * @returns {Promise<live_room_view[]>} live rooms
  */
 export async function get_live_rooms(client: Client, platform: string): Promise<live_room_view[]> {
   try {
@@ -273,13 +279,14 @@ export async function get_live_rooms(client: Client, platform: string): Promise<
 }
 
 /**
- * - BUILD LIVE MESSAGE - \\
- * @param {object} options - Options
- * @param {string} options.platform - Platform
- * @param {live_room_view[]} options.rooms - Live rooms
- * @param {number} options.index - Room index
- * @param {string} options.requester - Requester name
- * @returns {object} Message payload
+ * - 构建直播消息 - \\
+ * - build live message - \\
+ * @param {object} options - options
+ * @param {string} options.platform - platform
+ * @param {live_room_view[]} options.rooms - live rooms
+ * @param {number} options.index - room index
+ * @param {string} options.requester - requester name
+ * @returns {object} message payload
  */
 export function build_live_message(options: {
   platform  : string

@@ -14,7 +14,7 @@ import { Client }                    from "discord.js"
 import * as database                 from "@shared/utils/database"
 
 /**
- * @description Create activity logs & transcripts API router
+ * @description create activity logs & transcripts API router
  * @param client   - Discord client instance
  * @param guild_id - Main guild ID
  * @returns Express Router
@@ -22,7 +22,8 @@ import * as database                 from "@shared/utils/database"
 export function create_logs_router(client: Client | null, guild_id: string): Router {
   const router = Router()
 
-  // - GET /api/activity-logs - \\
+  // - 获取活动日志接口 - \\
+  // - get /api/activity-logs - \\
   router.get("/activity-logs", async (req: Request, res: Response) => {
     try {
       const all_logs = await database.find_many("activity_logs", { guild_id })
@@ -38,7 +39,8 @@ export function create_logs_router(client: Client | null, guild_id: string): Rou
     }
   })
 
-  // - GET /api/transcripts - \\
+  // - 获取聊天记录接口 - \\
+  // - get /api/transcripts - \\
   router.get("/transcripts", async (req: Request, res: Response) => {
     try {
       const auth_header    = req.headers.authorization

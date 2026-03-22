@@ -7,7 +7,8 @@
  * See the LICENSE file for more information.
  */
 
-// - BARREL EXPORT FOR SHARED MODELS - \\
+// - 共享模型的统一导出 - \\
+// - barrel export for shared models - \\
 export * from "./loa.model"
 export * from "./middleman.model"
 export * from "./quarantine.model"

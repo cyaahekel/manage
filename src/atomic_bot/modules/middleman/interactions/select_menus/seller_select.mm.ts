@@ -14,8 +14,8 @@ import { is_middleman_service_open }  from "@shared/database/managers/middleman_
 import { component }                  from "@shared/utils"
 
 /**
- * @description Handles seller selection — shows buyer user-select next
- * @param {UserSelectMenuInteraction} interaction - The user select menu interaction
+ * @description handles seller selection — shows buyer user-select next
+ * @param {UserSelectMenuInteraction} interaction - the user select menu interaction
  * @returns {Promise<boolean>} - Returns true if handled
  */
 export async function handle_middleman_seller_select(interaction: UserSelectMenuInteraction): Promise<boolean> {

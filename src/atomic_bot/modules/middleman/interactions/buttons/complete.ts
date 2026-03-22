@@ -38,8 +38,8 @@ const __transaction_ranges: Record<string, TransactionRange> = {
 }
 
 /**
- * @description Marks middleman ticket as complete and closes it
- * @param {ButtonInteraction} interaction - The button interaction
+ * @description marks middleman ticket as complete and closes it
+ * @param {ButtonInteraction} interaction - the button interaction
  * @returns {Promise<boolean>} - Returns true if handled
  */
 export async function handle_middleman_complete(interaction: ButtonInteraction): Promise<boolean> {
@@ -80,7 +80,8 @@ export async function handle_middleman_complete(interaction: ButtonInteraction):
 
     if (db.is_connected() && range_data) {
       try {
-        // - SAVE TRANSACTION TO DATABASE - \\
+        // - 保存交易记录到数据库 - \\
+        // - save transaction to database - \\
         await db.insert_one("middleman_transactions", {
           ticket_id        : ticket_data.ticket_id,
           requester_id     : ticket_data.owner_id,
@@ -95,7 +96,8 @@ export async function handle_middleman_complete(interaction: ButtonInteraction):
           guild_id         : interaction.guildId || "",
         })
         
-        // - MARK TICKET AS COMPLETED IN DATABASE - \\
+        // - 标记工单为已完成 - \\
+        // - mark ticket as completed in database - \\
         await complete_middleman_ticket(thread.id, interaction.user.id)
         
         console.log(`[ - MIDDLEMAN - ] Transaction saved to database: ${ticket_data.ticket_id}`)
@@ -135,7 +137,8 @@ export async function handle_middleman_complete(interaction: ButtonInteraction):
       await api.send_components_v2(log_channel.id, token, log_message)
     }
 
-    // - DELETE OPEN LOG MESSAGE IF EXISTS - \\
+    // - 删除已有的开单日志消息 - \\
+    // - delete open log message if exists - \\
     if (db_ticket?.log_message_id) {
       const open_log_channel = interaction.client.channels.cache.get(config.log_channel_id) as TextChannel
       if (open_log_channel) {

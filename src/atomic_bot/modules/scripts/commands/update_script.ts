@@ -27,7 +27,7 @@ export const command: Command = {
     ) as SlashCommandBuilder,
 
   /**
-   * @description Handles /push-script. Validates user, then builds the script selection message.
+   * @description handles /push-script. Validates user, then builds the script selection message.
    * @param {ChatInputCommandInteraction} interaction
    * @returns {Promise<void>}
    */

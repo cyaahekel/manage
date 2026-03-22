@@ -19,8 +19,8 @@ import { member_has_role }                 from "@shared/utils/discord_api"
 const __script_role_id = env.get("LUARMOR_SCRIPT_ROLE_ID", "1398313779380617459")
 
 /**
- * @description Handles the get script role button — verifies Luarmor key then assigns the script role.
- * @param {ButtonInteraction} interaction - Discord button interaction
+ * @description handles the get script role button — verifies Luarmor key then assigns the script role.
+ * @param {ButtonInteraction} interaction - discord button interaction
  * @returns {Promise<void>}
  */
 export async function handle_get_role(interaction: ButtonInteraction): Promise<void> {

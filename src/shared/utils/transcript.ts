@@ -14,8 +14,8 @@ import { randomUUID } from "crypto"
 import { db, time } from "../utils"
 
 /**
- * @param {string} length - Transcript ID length (IGNORED, NOW USES UUID)
- * @returns {string} Generated transcript ID (UUID)
+ * @param {string} length - transcript ID length (IGNORED, NOW USES UUID)
+ * @returns {string} generated transcript ID (UUID)
  */
 export function generate_transcript_id(length: number = 12): string {
   return randomUUID()
@@ -53,9 +53,9 @@ export interface transcript_data {
 }
 
 /**
- * @param {ThreadChannel} thread - Discord thread channel
- * @param {number} limit - Maximum messages to fetch
- * @returns {Promise<transcript_message[]>} Array of transcript messages
+ * @param {ThreadChannel} thread - discord thread channel
+ * @param {number} limit - maximum messages to fetch
+ * @returns {Promise<transcript_message[]>} array of transcript messages
  */
 export async function fetch_thread_messages(thread: ThreadChannel, limit: number = 500): Promise<transcript_message[]> {
   const messages: transcript_message[] = []
@@ -70,12 +70,14 @@ export async function fetch_thread_messages(thread: ThreadChannel, limit: number
     if (!(fetched instanceof Collection) || fetched.size === 0) break
 
     for (const [id, msg] of fetched.entries()) {
-      // - CAPTURE FULL COMPONENT V2 DATA - \\
+      // - 捕获完整的 Component V2 数据 - \\
+      // - capture full component v2 data - \\
       const components_data = msg.components?.length > 0 
         ? JSON.parse(JSON.stringify(msg.components))
         : []
 
-      // - CAPTURE EMBEDS WITH ALL FIELDS - \\
+      // - 捕获带全属性的嵌入 - \\
+      // - capture embeds with all fields - \\
       const embeds_data = msg.embeds.map((e: any) => {
         const embed_json = e.toJSON()
         // - Ensure thumbnail and image are captured - \\
@@ -150,7 +152,7 @@ export async function fetch_thread_messages(thread: ThreadChannel, limit: number
 }
 
 /**
- * @param {transcript_data} data - Transcript data to save
+ * @param {transcript_data} data - transcript data to save
  * @returns {Promise<void>}
  */
 export async function save_transcript(data: transcript_data): Promise<void> {
@@ -235,8 +237,8 @@ export async function save_transcript(data: transcript_data): Promise<void> {
 }
 
 /**
- * @param {string} transcript_id - Transcript ID to fetch
- * @returns {Promise<transcript_data | null>} Transcript data or null
+ * @param {string} transcript_id - transcript ID to fetch
+ * @returns {Promise<transcript_data | null>} transcript data or null
  */
 export async function get_transcript(transcript_id: string): Promise<transcript_data | null> {
   if (!db.is_connected()) return null
@@ -267,17 +269,17 @@ export async function get_transcript(transcript_id: string): Promise<transcript_
 }
 
 /**
- * @param {ThreadChannel} thread - Thread channel
- * @param {Client} client - Discord client
- * @param {string} ticket_id - Ticket ID
- * @param {string} ticket_type - Ticket type
- * @param {string} owner_id - Owner user ID
- * @param {number} open_time - Open timestamp
- * @param {string} closed_by - Closer user ID or "System"
- * @param {string} claimed_by - Claimer user ID
- * @param {string} issue_type - Issue type
- * @param {string} description - Ticket description
- * @returns {Promise<string>} Generated transcript ID
+ * @param {ThreadChannel} thread - thread channel
+ * @param {Client} client - discord client
+ * @param {string} ticket_id - ticket ID
+ * @param {string} ticket_type - ticket type
+ * @param {string} owner_id - owner user ID
+ * @param {number} open_time - open timestamp
+ * @param {string} closed_by - closer user ID or "System"
+ * @param {string} claimed_by - claimer user ID
+ * @param {string} issue_type - issue type
+ * @param {string} description - ticket description
+ * @returns {Promise<string>} generated transcript ID
  */
 export async function generate_transcript(
   thread: ThreadChannel,

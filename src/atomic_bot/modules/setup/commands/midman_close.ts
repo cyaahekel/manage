@@ -45,7 +45,8 @@ export const command: Command = {
     }
 
     try {
-      // - UPDATE MIDDLEMAN SERVICE STATUS - \\
+      // - 更新中间人服务状态 - \\
+      // - update middleman service status - \\
       const success = await set_middleman_service_status(
         interaction.guildId || "",
         false,
@@ -59,7 +60,8 @@ export const command: Command = {
         return
       }
 
-      // - SEND ANNOUNCEMENT MESSAGE - \\
+      // - 发送公告消息 - \\
+      // - send announcement message - \\
       const token = api.get_token()
 
       const announcement_message = component.build_message({

@@ -105,12 +105,14 @@ export async function claim_ticket(interaction: ButtonInteraction, ticket_type: 
     return
   }
 
-  // - ACTIVATE COOLDOWN IMMEDIATELY TO PREVENT RACE CONDITIONS - \\
+  // - 立即激活冷却时间以防止竞争条件 - \\
+  // - activate cooldown immediately to prevent race conditions - \\
   activate_join_claim_cooldown(interaction.user.id)
 
   let data = get_ticket(thread.id)
 
-  // - FALLBACK: LOAD FROM DATABASE - \\
+  // - 回退：从数据库加载 - \\
+  // - fallback: load from database - \\
   if (!data) {
     const loaded = await load_ticket(thread.id)
     if (!loaded) {
@@ -138,7 +140,8 @@ export async function claim_ticket(interaction: ButtonInteraction, ticket_type: 
 
   set_ticket(thread.id, data)
 
-  // - PARALLEL OPERATIONS - \\
+  // - 并行操作 - \\
+  // - parallel operations - \\
   const parallel_tasks: Promise<any>[] = [
     thread.send({ content: `<@${interaction.user.id}> has claimed this ticket.` }).catch(() => { })
   ]

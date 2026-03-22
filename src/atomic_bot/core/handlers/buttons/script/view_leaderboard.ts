@@ -14,8 +14,8 @@ import { component, api } from "@shared/utils"
 import { get_execution_leaderboard } from "../../controllers/service_provider_controller"
 
 /**
- * @description Handles viewing execution leaderboard for service provider script
- * @param {ButtonInteraction} interaction - Discord button interaction
+ * @description handles viewing execution leaderboard for service provider script
+ * @param {ButtonInteraction} interaction - discord button interaction
  */
 export async function handle_view_leaderboard(interaction: ButtonInteraction): Promise<void> {
   await interaction.deferReply({ flags: 64 })

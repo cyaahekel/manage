@@ -38,7 +38,7 @@ interface OpenTicketOptions {
 }
 
 /**
- * @description Build thread limit message
+ * @description build thread limit message
  * @param channel_id - Parent channel ID
  * @returns Message payload
  */
@@ -60,7 +60,7 @@ function build_thread_limit_message(channel_id: string): message_payload {
 }
 
 /**
- * @description Build simple error message
+ * @description build simple error message
  * @param text - Message text
  * @returns Message payload
  */
@@ -75,7 +75,7 @@ function build_simple_error_message(text: string): message_payload {
 }
 
 /**
- * @description Archive oldest active threads to free slots
+ * @description archive oldest active threads to free slots
  * @param channel - Ticket parent channel
  * @param limit - Max threads to archive
  * @returns Number of threads archived
@@ -203,7 +203,8 @@ export async function open_ticket(options: OpenTicketOptions): Promise<void> {
   const avatar_url = interaction.user.displayAvatarURL({ size: 128 })
   const token = api.get_token()
 
-  // - PARSE APPLICATION DATA FOR CONTENT CREATOR - \\
+  // - 解析内容创作者的申请数据 - \\
+  // - parse application data for content creator - \\
   let application_data: any = undefined
   if (ticket_type === "content_creator" && description) {
     try {
@@ -338,7 +339,8 @@ export async function open_ticket(options: OpenTicketOptions): Promise<void> {
       })
       return
     } catch {
-      // - CC PARSE FAILED, SEND GENERIC WELCOME - \\
+      // - CC 解析失败，发送默认欢迎消息 - \\
+      // - cc parse failed, send generic welcome - \\
       const fallback_message = component.build_message({
         components: [
           component.container({
@@ -368,7 +370,8 @@ export async function open_ticket(options: OpenTicketOptions): Promise<void> {
   }
 
   if (ticket_type !== "content_creator") {
-    // - BUILD INFO LINES - \\
+    // - 构建信息行 - \\
+    // - build info lines - \\
     const info_lines: string[] = []
 
     if (description) {
@@ -413,7 +416,8 @@ export async function open_ticket(options: OpenTicketOptions): Promise<void> {
     }
   }
 
-  // - PARALLEL OPERATIONS FOR SPEED - \\
+  // - 并行操作以提升速度 - \\
+  // - parallel operations for speed - \\
   const parallel_tasks = []
 
   if (config.show_payment_message) {
@@ -496,7 +500,8 @@ export async function open_ticket(options: OpenTicketOptions): Promise<void> {
     )
   }
 
-  // - SEND DM IN PARALLEL - \\
+  // - 并行发送 DM - \\
+  // - send dm in parallel - \\
   parallel_tasks.push(
     interaction.user.createDM()
       .then(dm_channel => {
@@ -531,10 +536,12 @@ export async function open_ticket(options: OpenTicketOptions): Promise<void> {
       .catch(() => { })
   )
 
-  // - WAIT FOR ALL PARALLEL TASKS - \\
+  // - 等待所有并行任务 - \\
+  // - wait for all parallel tasks - \\
   await Promise.allSettled(parallel_tasks)
 
-  // - SAVE IMMEDIATELY TO PREVENT RACE CONDITION - \\
+  // - 立即保存以防止竞争条件 - \\
+  // - save immediately to prevent race condition - \\
   await save_ticket_immediate(thread.id).catch(() => {})
 
   const reply_message = component.build_message({

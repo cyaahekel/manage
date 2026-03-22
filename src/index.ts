@@ -8,11 +8,13 @@
  */
 
 /**
- * - MULTI-BOT LAUNCHER - \\
+ * - 多机器人启动器 - \\
+ * - multi-bot launcher - \\
  * Main entry point that starts all bots
  */
 
-// - DISABLE CONSOLE.LOG IN PRODUCTION - \\
+// - 生产环境禁用 console.log - \\
+// - disable console.log in production - \\
 const is_production = process.env.NODE_ENV === "production"
 if (is_production) {
   console.log = () => {}

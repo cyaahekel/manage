@@ -9,14 +9,16 @@
 
 import { UserSelectMenuInteraction, ModalSubmitInteraction } from "discord.js"
 
-// - MIDDLEMAN TRANSACTION RANGE MODEL - \\
+// - 中间人交易范围模型 - \\
+// - middleman transaction range model - \\
 export interface TransactionRange {
   label : string
   range : string
   fee   : string
 }
 
-// - MIDDLEMAN TRANSACTION DETAILS - \\
+// - 中间人交易详情 - \\
+// - middleman transaction details - \\
 export interface TransactionDetails {
   penjual_id : string
   pembeli_id : string
@@ -25,7 +27,8 @@ export interface TransactionDetails {
   fee_oleh   : string
 }
 
-// - OPEN MIDDLEMAN TICKET OPTIONS - \\
+// - 开苦中间人工单的选项 - \\
+// - open middleman ticket options - \\
 export interface OpenMiddlemanTicketOptions {
   interaction  : UserSelectMenuInteraction | ModalSubmitInteraction
   range_id     : string
@@ -33,7 +36,8 @@ export interface OpenMiddlemanTicketOptions {
   transaction? : TransactionDetails
 }
 
-// - OPEN MIDDLEMAN TICKET RESULT - \\
+// - 开苦中间人工单的结果 - \\
+// - open middleman ticket result - \\
 export interface OpenMiddlemanTicketResult {
   success  : boolean
   message? : string

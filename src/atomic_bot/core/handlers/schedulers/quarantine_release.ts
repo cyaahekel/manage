@@ -17,7 +17,7 @@ import { release_quarantine }       from "../../../modules/quarantine/controller
 const log = logger.create_logger("quarantine_scheduler")
 
 /**
- * @description Start quarantine auto-release scheduler
+ * @description start quarantine auto-release scheduler
  * @param client - Discord Client instance
  */
 export async function start_quarantine_scheduler(client: Client): Promise<void> {
@@ -61,10 +61,12 @@ export async function start_quarantine_scheduler(client: Client): Promise<void> 
     }
   }
 
-  // - RUN CHECK EVERY 5 MINUTES - \\
+  // - 每 5 分钟执行一次检查 - \\
+  // - run check every 5 minutes - \\
   setInterval(check_and_release, 5 * 60 * 1000)
 
-  // - RUN INITIAL CHECK AFTER 10 SECONDS - \\
+  // - 10 秒后执行初始检查 - \\
+  // - run initial check after 10 seconds - \\
   setTimeout(check_and_release, 10000)
 
   log.info("Quarantine scheduler started successfully")

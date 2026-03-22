@@ -118,7 +118,8 @@ export const command: Command = {
       return
     }
 
-    // - VALIDATE RANGE ORDER - \\
+    // - 验证日期范围顺序 - \\
+    // - validate range order - \\
     const [fd, fm, fy] = from_date.split("-").map(Number)
     const [td, tm, ty] = to_date.split("-").map(Number)
     const from_ms     = Date.UTC(fy, fm - 1, fd)
@@ -133,7 +134,8 @@ export const command: Command = {
 
     await interaction.deferReply({ ephemeral: false })
 
-    // - USE CACHED REPORT IF EXISTS AND NOT FORCING REFRESH - \\
+    // - 如果缓存存在且未强制刷新则使用缓存 - \\
+    // - use cached report if exists and not forcing refresh - \\
     if (!refresh) {
       const cached = await get_prodete_report_by_dates(from_date, to_date)
       if (cached) {
@@ -168,7 +170,8 @@ export const command: Command = {
 
     const guild_id = interaction.guildId!
 
-    // - NOTIFY USER THAT GENERATION IS STARTING (CAN TAKE MINUTES) - \\
+    // - 通知用户生成即将开始（可能需要几分钟） - \\
+    // - notify user that generation is starting (can take minutes) - \\
     const progress_msg = component.build_message({
       components: [
         component.container({
@@ -186,7 +189,8 @@ export const command: Command = {
 
     await interaction.editReply(progress_msg)
 
-    // - THROTTLED PROGRESS EDITS (MAX 1 PER 3s TO AVOID RATE LIMITS) - \\
+    // - 节流进度编辑（最多每 3 秒一次以避免频率限制） - \\
+    // - throttled progress edits (max 1 per 3s to avoid rate limits) - \\
     let last_progress_edit = Date.now()
 
     const on_progress = async (message: string, done: number, total: number): Promise<void> => {
@@ -260,7 +264,8 @@ export const command: Command = {
   },
 }
 
-// - CHANNEL COUNT FOR PROGRESS MESSAGE - \\
+// - 进度消息的频道计数 - \\
+// - channel count for progress message - \\
 const __msg_channels_count = 6
 
 export default command

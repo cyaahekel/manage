@@ -19,7 +19,7 @@ interface appeal_usage_record {
 }
 
 /**
- * @description Check if user has already used their appeal quarantine ticket
+ * @description check if user has already used their appeal quarantine ticket
  * @param user_id  - Discord user ID
  * @param guild_id - Discord guild ID
  * @returns Promise<boolean>
@@ -30,7 +30,7 @@ export async function has_used_appeal(user_id: string, guild_id: string): Promis
 }
 
 /**
- * @description Mark user as having used their appeal quarantine ticket
+ * @description mark user as having used their appeal quarantine ticket
  * @param user_id   - Discord user ID
  * @param guild_id  - Discord guild ID
  * @param thread_id - Created thread ID
@@ -46,7 +46,7 @@ export async function mark_appeal_used(user_id: string, guild_id: string, thread
 }
 
 /**
- * @description Reset a user's appeal usage (e.g. staff grants another chance)
+ * @description reset a user's appeal usage (e.g. staff grants another chance)
  * @param user_id  - Discord user ID
  * @param guild_id - Discord guild ID
  * @returns Promise<void>

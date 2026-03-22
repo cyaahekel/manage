@@ -7,8 +7,8 @@
  * See the LICENSE file for more information.
  */
 
-// - LOA 请假功能的模块控制器 - \
-// - module controller for the LOA feature - \
+// - LOA 请假功能的模块控制器 - \\
+// - module controller for the LOA feature - \\
 import { Client }                                 from "discord.js"
 import { component, time, db, api, logger }      from "@shared/utils"
 import { log_error }                             from "@shared/utils/error_logger"

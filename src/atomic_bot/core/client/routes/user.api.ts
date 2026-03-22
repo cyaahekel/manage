@@ -13,7 +13,8 @@ import { Router, Request, Response } from "express"
 import { Client }                    from "discord.js"
 import * as database                 from "@shared/utils/database"
 
-// - MEMBER CACHE - \\
+// - 成员缓存 - \\
+// - member cache - \\
 const __member_cache : Map<string, { data: any; timestamp: number }> = new Map()
 const __cache_ttl    = 5 * 60 * 1000
 const __cdn          = "https://cdn.discordapp.com"
@@ -22,7 +23,8 @@ const __two_hours    = 2 * 60 * 60 * 1000
 const __role_supporter = "1357767950421065981"
 const __role_staff     = "1264915024707588208"
 
-// - CREDITS CACHE - \\
+// - 积分成员缓存 - \\
+// - credits cache - \\
 type credits_member = { id: string; username: string; avatar_url: string }
 type credits_cache  = { supporters: credits_member[]; staff: credits_member[]; updated_at: number }
 
@@ -37,7 +39,8 @@ let __credits_mem_cache       : credits_cache | null  = null
 let __credits_refreshing      : boolean               = false
 let __credits_refresh_promise : Promise<void> | null  = null
 
-// - AVATAR URL BUILDER - \\
+// - 构建头像 URL - \\
+// - avatar url builder - \\
 function get_member_avatar(m: raw_member, guild_id: string): string {
   if (m.avatar) {
     const ext = m.avatar.startsWith("a_") ? "gif" : "png"
@@ -51,7 +54,7 @@ function get_member_avatar(m: raw_member, guild_id: string): string {
 }
 
 /**
- * @description Fetch all guild members via REST pagination and refresh in-memory credits cache
+ * @description fetch all guild members via REST pagination and refresh in-memory credits cache
  * @param client   - Discord client instance
  * @param guild_id - Main guild ID
  * @returns Promise<void>
@@ -88,7 +91,8 @@ async function refresh_credits_cache(client: Client, guild_id: string): Promise<
       __credits_mem_cache = { supporters, staff, updated_at: Date.now() }
       console.info(`[ - API CREDITS MEMBERS - ] Updated: ${supporters.length} supporters, ${staff.length} staff`)
 
-      // - PERSIST TO DB IN BACKGROUND - \\
+      // - 在后台持久化到数据库 - \\
+      // - persist to db in background - \\
       database.update_one(
         "credits_members",
         { id: "cache" },
@@ -107,7 +111,7 @@ async function refresh_credits_cache(client: Client, guild_id: string): Promise<
 }
 
 /**
- * @description Warm credits in-memory cache from DB on startup
+ * @description warm credits in-memory cache from DB on startup
  * @returns Promise<void>
  */
 export async function warm_credits_cache_from_db(): Promise<void> {
@@ -127,7 +131,7 @@ export async function warm_credits_cache_from_db(): Promise<void> {
 }
 
 /**
- * @description Create user & member API router
+ * @description create user & member API router
  * @param client   - Discord client instance
  * @param guild_id - Main guild ID
  * @returns Express Router
@@ -135,7 +139,8 @@ export async function warm_credits_cache_from_db(): Promise<void> {
 export function create_user_router(client: Client | null, guild_id: string): Router {
   const router = Router()
 
-  // - GET /api/user/:id - \\
+  // - 获取用户接口 - \\
+  // - get /api/user/:id - \\
   router.get("/user/:id", async (req: Request, res: Response) => {
     try {
       if (!client?.isReady()) return res.status(503).json({ error: "Bot not ready" })
@@ -156,7 +161,8 @@ export function create_user_router(client: Client | null, guild_id: string): Rou
     }
   })
 
-  // - GET /api/member/:id - \\
+  // - 获取成员接口 - \\
+  // - get /api/member/:id - \\
   router.get("/member/:id", async (req: Request, res: Response) => {
     try {
       if (!client?.isReady()) return res.status(503).json({ error: "Bot not ready" })
@@ -213,7 +219,8 @@ export function create_user_router(client: Client | null, guild_id: string): Rou
     }
   })
 
-  // - GET /api/credits-members - \\
+  // - 获取积分成员列表接口 - \\
+  // - get /api/credits-members - \\
   router.get("/credits-members", async (req: Request, res: Response) => {
     const force_refresh = req.query.refresh === "1"
 
@@ -247,7 +254,8 @@ export function create_user_router(client: Client | null, guild_id: string): Rou
     }
   })
 
-  // - GET /api/role-members/:role_id - \\
+  // - 获取角色成员接口 - \\
+  // - get /api/role-members/:role_id - \\
   router.get("/role-members/:role_id", async (req: Request, res: Response) => {
     try {
       if (!client?.isReady()) return res.status(503).json({ error: "Bot not ready" })

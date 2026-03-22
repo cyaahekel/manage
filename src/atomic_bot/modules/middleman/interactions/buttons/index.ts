@@ -7,9 +7,8 @@
  * See the LICENSE file for more information.
  */
 
-// - 中间人按钮交互的统一导出 - \
-// - barrel export for middleman button interactions - \
-// - MIDDLEMAN BUTTON HANDLERS - \\
+// - 中间人按鈕交互的统一导出 - \\
+// - middleman button handlers - \\
 
 export { handle_middleman_close }              from "./close"
 export { handle_middleman_close_reason }       from "./close_reason"

@@ -18,9 +18,10 @@ const log                        = logger.create_logger("share_settings_forum")
 const __forum_update_interval_ms = 15000
 
 /**
- * - UPDATE FORUM POSTS - \\
- * @param {Client} client - Discord client
- * @returns {Promise<void>} Void
+ * - 更新论坛帖子 - \\
+ * - update forum posts - \\
+ * @param {Client} client - discord client
+ * @returns {Promise<void>} void
  */
 async function update_forum_posts(client: Client): Promise<void> {
   try {
@@ -44,9 +45,10 @@ async function update_forum_posts(client: Client): Promise<void> {
 }
 
 /**
- * - START SHARE SETTINGS FORUM SCHEDULER - \\
- * @param {Client} client - Discord client
- * @returns {Promise<void>} Void
+ * - 启动分享设置论坛调度器 - \\
+ * - start share settings forum scheduler - \\
+ * @param {Client} client - discord client
+ * @returns {Promise<void>} void
  */
 export async function start_share_settings_forum_scheduler(client: Client): Promise<void> {
   log.info("Starting share settings forum updater (15s)")

@@ -13,8 +13,8 @@ import { StringSelectMenuInteraction } from "discord.js"
 import { modal }                        from "@shared/utils"
 
 /**
- * @description Handles fee payer selection — shows item detail modal
- * @param {StringSelectMenuInteraction} interaction - The string select menu interaction
+ * @description handles fee payer selection — shows item detail modal
+ * @param {StringSelectMenuInteraction} interaction - the string select menu interaction
  * @returns {Promise<boolean>} - Returns true if handled
  */
 export async function handle_middleman_fee_select(interaction: StringSelectMenuInteraction): Promise<boolean> {

@@ -15,8 +15,9 @@ import { log_error }       from "@shared/utils/error_logger"
 import * as share_settings from "../controller"
 
 /**
- * - EXECUTE SHARE SETTINGS COMMAND - \\
- * @param {ChatInputCommandInteraction} interaction - Command interaction
+ * - 执行共享设置命令 - \\
+ * - execute share settings command - \\
+ * @param {ChatInputCommandInteraction} interaction - command interaction
  * @returns {Promise<void>}
  */
 async function execute_share_settings(interaction: ChatInputCommandInteraction): Promise<void> {

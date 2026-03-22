@@ -15,8 +15,8 @@ import { cancel_middleman_ticket, get_middleman_ticket } from "@shared/database/
 import { api } from "@shared/utils"
 
 /**
- * @description Handles direct close for middleman ticket
- * @param {ButtonInteraction} interaction - The button interaction
+ * @description handles direct close for middleman ticket
+ * @param {ButtonInteraction} interaction - the button interaction
  * @returns {Promise<boolean>} - Returns true if handled
  */
 export async function handle_middleman_close(interaction: ButtonInteraction): Promise<boolean> {
@@ -43,10 +43,12 @@ export async function handle_middleman_close(interaction: ButtonInteraction): Pr
 
   await interaction.deferReply({ flags: 64 })
 
-  // - MARK TICKET AS CANCELLED IN DATABASE - \\
+  // - 标记工单为已取消 - \\
+  // - mark ticket as cancelled in database - \\
   await cancel_middleman_ticket(thread.id, "Closed by staff")
 
-  // - DELETE LOG MESSAGE IF EXISTS - \\
+  // - 删除已有日志消息 - \\
+  // - delete log message if exists - \\
   const ticket = await get_middleman_ticket(thread.id)
   if (ticket?.log_message_id) {
     const config = get_ticket_config("middleman")

@@ -20,7 +20,8 @@ import { api, cache, db, guild_settings } from "@shared/utils"
 import { check_bypass_rate_limit } from "../core/limits/bypass_rate_limit"
 
 /**
- * - BYPASS LINK COMMAND - \\
+ * - 绕过链接命令 - \\
+ * - bypass link command - \\
  */
 const bypass_command: Command = {
   data: new SlashCommandBuilder()
@@ -168,7 +169,8 @@ const bypass_command: Command = {
       const invite_url   = client_id
         ? `https://discord.com/oauth2/authorize?client_id=${client_id}&permissions=4503599694556160&integration_type=0&scope=bot`
         : "https://discord.com/oauth2/authorize"
-      // - OAUTH USER INSTALL: shows 'Send you direct messages' in auth popup - \\
+      // - OAuth 用户安装：授权弹窗显示“向您发送直接消息” - \\
+      // - OAuth user install: shows 'Send you direct messages' in auth popup - \\
       const dm_auth_url  = client_id
         ? `https://discord.com/oauth2/authorize?client_id=${client_id}&scope=applications.commands&integration_type=1`
         : invite_url
@@ -189,7 +191,8 @@ const bypass_command: Command = {
       await api.edit_deferred_reply(interaction, processing_message)
 
       const result = await bypass_link(url, async (attempt, wait_ms, is_processing) => {
-        // - SKIP RETRY MESSAGE IF SERVER IS STILL PROCESSING - \\
+        // - 服务器仍在处理中则跳过重试消息 - \\
+        // - skip retry message if server is still processing - \\
         if (is_processing) return
 
         const wait_s          = Math.ceil(wait_ms / 1000)
@@ -215,7 +218,8 @@ const bypass_command: Command = {
 
       console.warn(`[ - BYPASS COMMAND - ] Bypass result (attempts: ${result.attempts}):`, JSON.stringify(result))
 
-      // - INCREMENT COUNT PER ATTEMPT - \\
+      // - 每次尝试递增计数 - \\
+      // - increment count per attempt - \\
       db.increment_bypass_count().catch(err => console.error(`[ - BYPASS - ] Failed to increment bypass count:`, err))
 
       if (!result.success || !result.result) {
@@ -242,7 +246,8 @@ const bypass_command: Command = {
           console.error(`[ - BYPASS COMMAND - ] Failed to store log:`, db_err)
         }
 
-        // - LOG FAILED BYPASS EVENT - \\
+        // - 记录绕过失败事件 - \\
+        // - log failed bypass event - \\
         db.insert_bypass_log({
           guild_id,
           user_id    : interaction.user.id,
@@ -279,10 +284,12 @@ const bypass_command: Command = {
         return
       }
 
-      // - RECORD PER-GUILD BYPASS STAT - \\
+      // - 记录每个服务器的绕过统计 - \\
+      // - record per-guild bypass stat - \\
       db.record_bypass_guild_stat(guild_id).catch(err => console.error(`[ - BYPASS - ] Failed to record guild stat:`, err))
 
-      // - LOG BYPASS EVENT - \\
+      // - 记录绕过事件 - \\
+      // - log bypass event - \\
       db.insert_bypass_log({
         guild_id,
         user_id    : interaction.user.id,
@@ -293,7 +300,8 @@ const bypass_command: Command = {
         success    : true,
       }).catch(err => console.error(`[ - BYPASS - ] Failed to insert log:`, err))
 
-      // - STORE RESULT IN DATABASE - \\
+      // - 将结果存入数据库 - \\
+      // - store result in database - \\
       const cache_key = `bypass_result_${interaction.id}`
       
       try {
@@ -361,13 +369,15 @@ const bypass_command: Command = {
       
       console.warn(`[ - BYPASS COMMAND - ] Success message sent!`)
 
-      // - DM USER ONLY WHEN USED IN GUILD (SLASH COMMAND IS GUILD-ONLY BUT GUARD ANYWAY) - \\
+      // - 仅在服务器内使用时向用户发送 DM（斜杠命令仅限服务器） - \\
+      // - dm user only when used in guild (slash command is guild-only but guard anyway) - \\
       if (interaction.guildId) {
         try {
           await interaction.user.send(success_message)
           console.warn(`[ - BYPASS COMMAND - ] DM sent to ${interaction.user.tag}`)
         } catch {
-          // - USER HAS NOT AUTHORIZED OR HAS DMs DISABLED, SKIP SILENTLY - \\
+          // - 用户未授权或已关闭 DM，静默跳过 - \\
+          // - user has not authorized or has DMs disabled, skip silently - \\
         }
       }
 

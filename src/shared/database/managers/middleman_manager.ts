@@ -48,8 +48,8 @@ export interface MiddlemanTicket {
 }
 
 /**
- * @description Create a new middleman ticket in database
- * @param {MiddlemanTicket} ticket - Ticket data
+ * @description create a new middleman ticket in database
+ * @param {MiddlemanTicket} ticket - ticket data
  * @returns {Promise<boolean>} - Success status
  */
 export async function create_middleman_ticket(ticket: MiddlemanTicket): Promise<boolean> {
@@ -66,9 +66,9 @@ export async function create_middleman_ticket(ticket: MiddlemanTicket): Promise<
 }
 
 /**
- * @description Update middleman ticket in database
- * @param {string} thread_id - Thread ID
- * @param {Partial<MiddlemanTicket>} updates - Updates to apply
+ * @description update middleman ticket in database
+ * @param {string} thread_id - thread ID
+ * @param {Partial<MiddlemanTicket>} updates - updates to apply
  * @returns {Promise<boolean>} - Success status
  */
 export async function update_middleman_ticket(thread_id: string, updates: Partial<MiddlemanTicket>): Promise<boolean> {
@@ -90,8 +90,8 @@ export async function update_middleman_ticket(thread_id: string, updates: Partia
 }
 
 /**
- * @description Get middleman ticket by thread ID
- * @param {string} thread_id - Thread ID
+ * @description get middleman ticket by thread ID
+ * @param {string} thread_id - thread ID
  * @returns {Promise<MiddlemanTicket | null>} - Ticket or null
  */
 export async function get_middleman_ticket(thread_id: string): Promise<MiddlemanTicket | null> {
@@ -100,7 +100,7 @@ export async function get_middleman_ticket(thread_id: string): Promise<Middleman
 }
 
 /**
- * @description Get all active middleman tickets
+ * @description get all active middleman tickets
  * @returns {Promise<MiddlemanTicket[]>} - Array of active tickets
  */
 export async function get_active_middleman_tickets(): Promise<MiddlemanTicket[]> {
@@ -109,8 +109,8 @@ export async function get_active_middleman_tickets(): Promise<MiddlemanTicket[]>
 }
 
 /**
- * @description Get user's active middleman ticket
- * @param {string} user_id - User ID
+ * @description get user's active middleman ticket
+ * @param {string} user_id - user ID
  * @returns {Promise<MiddlemanTicket | null>} - Active ticket or null
  */
 export async function get_user_active_ticket(user_id: string): Promise<MiddlemanTicket | null> {
@@ -130,8 +130,8 @@ export async function get_user_active_ticket(user_id: string): Promise<Middleman
 }
 
 /**
- * @description Count user's active middleman tickets
- * @param {string} user_id - User ID
+ * @description count user's active middleman tickets
+ * @param {string} user_id - user ID
  * @returns {Promise<number>} - Number of active tickets
  */
 export async function count_user_active_tickets(user_id: string): Promise<number> {
@@ -151,9 +151,9 @@ export async function count_user_active_tickets(user_id: string): Promise<number
 }
 
 /**
- * @description Complete a middleman ticket
- * @param {string} thread_id - Thread ID
- * @param {string} completed_by - User who completed the ticket
+ * @description complete a middleman ticket
+ * @param {string} thread_id - thread ID
+ * @param {string} completed_by - user who completed the ticket
  * @returns {Promise<boolean>} - Success status
  */
 export async function complete_middleman_ticket(thread_id: string, completed_by: string): Promise<boolean> {
@@ -181,9 +181,9 @@ export async function complete_middleman_ticket(thread_id: string, completed_by:
 }
 
 /**
- * @description Cancel a middleman ticket
- * @param {string} thread_id - Thread ID
- * @param {string} reason - Cancellation reason
+ * @description cancel a middleman ticket
+ * @param {string} thread_id - thread ID
+ * @param {string} reason - cancellation reason
  * @returns {Promise<boolean>} - Success status
  */
 export async function cancel_middleman_ticket(thread_id: string, reason?: string): Promise<boolean> {
@@ -210,7 +210,7 @@ export async function cancel_middleman_ticket(thread_id: string, reason?: string
 }
 
 /**
- * @description Load all active middleman tickets into memory on startup
+ * @description load all active middleman tickets into memory on startup
  * @returns {Promise<MiddlemanTicket[]>} - Array of active tickets
  */
 export async function load_active_tickets(): Promise<MiddlemanTicket[]> {
@@ -222,7 +222,7 @@ export async function load_active_tickets(): Promise<MiddlemanTicket[]> {
 }
 
 /**
- * @description Get all middleman transactions
+ * @description get all middleman transactions
  * @returns {Promise<MiddlemanTransaction[]>} - Array of transactions
  */
 export async function get_all_transactions(): Promise<MiddlemanTransaction[]> {
@@ -231,8 +231,8 @@ export async function get_all_transactions(): Promise<MiddlemanTransaction[]> {
 }
 
 /**
- * @description Get transactions by user (either requester or partner)
- * @param {string} user_id - User ID
+ * @description get transactions by user (either requester or partner)
+ * @param {string} user_id - user ID
  * @returns {Promise<MiddlemanTransaction[]>} - Array of transactions
  */
 export async function get_user_transactions(user_id: string): Promise<MiddlemanTransaction[]> {
@@ -245,8 +245,8 @@ export async function get_user_transactions(user_id: string): Promise<MiddlemanT
 }
 
 /**
- * @description Get transaction by ticket ID
- * @param {string} ticket_id - Ticket ID
+ * @description get transaction by ticket ID
+ * @param {string} ticket_id - ticket ID
  * @returns {Promise<MiddlemanTransaction | null>} - Transaction or null
  */
 export async function get_transaction_by_ticket(ticket_id: string): Promise<MiddlemanTransaction | null> {
@@ -255,7 +255,7 @@ export async function get_transaction_by_ticket(ticket_id: string): Promise<Midd
 }
 
 /**
- * @description Get transaction statistics
+ * @description get transaction statistics
  * @returns {Promise<{total: number, total_this_month: number}>} - Statistics
  */
 export async function get_transaction_stats(): Promise<{ total: number; total_this_month: number }> {

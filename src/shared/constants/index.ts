@@ -7,7 +7,8 @@
  * See the LICENSE file for more information.
  */
 
-// - BARREL EXPORT FOR SHARED CONSTANTS - \\
+// - 共享常量的统一导出 - \\
+// - barrel export for shared constants - \\
 export * from "./channels"
 export * from "./custom_ids"
 export * from "./roles"

@@ -51,7 +51,8 @@ export async function check_expired_loa(client: Client): Promise<void> {
         const member = await guild.members.fetch(loa.user_id).catch(() => null)
         if (!member) return
 
-        // - ROLE REMOVE + NICKNAME RESTORE IN PARALLEL - \\
+        // - 并行移除角色 + 恢复昵称 - \\
+        // - role remove + nickname restore in parallel - \\
         const role_ops: Promise<any>[] = [member.roles.remove("1274580813912211477").catch(() => {})]
         if (loa.original_nickname) {
           role_ops.push(member.setNickname(loa.original_nickname).catch(() => {}))

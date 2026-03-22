@@ -14,8 +14,8 @@ import { open_middleman_ticket }  from "../../controller"
 import { log_error }              from "@shared/utils/error_logger"
 
 /**
- * @description Handles transaction details modal — creates middleman ticket
- * @param {ModalSubmitInteraction} interaction - The modal submit interaction
+ * @description handles transaction details modal — creates middleman ticket
+ * @param {ModalSubmitInteraction} interaction - the modal submit interaction
  * @returns {Promise<boolean>} - Returns true if handled
  */
 export async function handle_middleman_ticket_details_modal(interaction: ModalSubmitInteraction): Promise<boolean> {

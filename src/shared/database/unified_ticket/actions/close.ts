@@ -68,6 +68,7 @@ export async function close_ticket(options: CloseTicketOptions): Promise<void> {
     }
   }
 
+  // - WEB_URL 应指向 Next.js 应用（Vercel），而非机器人服务器 - \\
   // - WEB_URL should point to Next.js web app (Vercel), not bot server - \\
   const web_url = process.env.WEB_URL || "https://maxime.vercel.app"
   const full_url = web_url.startsWith("http") ? web_url : `https://${web_url}`
@@ -87,10 +88,12 @@ export async function close_ticket(options: CloseTicketOptions): Promise<void> {
   console.log(`[ - TRANSCRIPT GENERATION - ] Thread ID: ${thread.id}`)
   console.log(`[ - TRANSCRIPT GENERATION - ] Owner ID: ${owner_id}`)
 
-  // - PARALLEL OPERATIONS - \\
+  // - 并行操作 - \\
+  // - parallel operations - \\
   const parallel_tasks = []
 
-  // - TRANSCRIPT GENERATION - \\
+  // - 生成聊天记录 - \\
+  // - transcript generation - \\
   const transcript_promise = transcript.generate_transcript(
     thread,
     client,
@@ -119,7 +122,8 @@ export async function close_ticket(options: CloseTicketOptions): Promise<void> {
 
   parallel_tasks.push(transcript_promise)
 
-  // - DELETE OPEN LOG - \\
+  // - 删除开单日志 - \\
+  // - delete open log - \\
   const open_log_channel = client.channels.cache.get(config.log_channel_id) as TextChannel
   if (open_log_channel && open_log_id) {
     parallel_tasks.push(
@@ -127,16 +131,19 @@ export async function close_ticket(options: CloseTicketOptions): Promise<void> {
     )
   }
 
-  // - WAIT FOR TRANSCRIPT BEFORE SENDING LOGS - \\
+  // - 等待历史记录之后发送日志 - \\
+  // - wait for transcript before sending logs - \\
   await Promise.allSettled(parallel_tasks)
 
   console.log(`[ - TICKET CLOSE LOG - ] Attempting to send for ticket: ${ticket_id}`)
   console.log(`[ - TICKET CLOSE LOG - ] Channel ID: ${config.closed_log_channel_id}`)
 
-  // - PARALLEL NOTIFICATION TASKS - \\
+  // - 并行通知任务 - \\
+  // - parallel notification tasks - \\
   const notification_tasks = []
 
-  // - CLOSE LOG - \\
+  // - 关闭日志 - \\
+  // - close log - \\
   notification_tasks.push(
     client.channels.fetch(config.closed_log_channel_id)
       .then(async (channel) => {
@@ -222,7 +229,8 @@ export async function close_ticket(options: CloseTicketOptions): Promise<void> {
       })
   )
 
-  // - SEND DM TO OWNER - \\
+  // - 发送 DM 给工单所有者 - \\
+  // - send dm to owner - \\
   if (owner_id) {
     notification_tasks.push(
       client.users.fetch(owner_id)
@@ -293,7 +301,8 @@ export async function close_ticket(options: CloseTicketOptions): Promise<void> {
     )
   }
 
-  // - SEND CLOSE MESSAGE IN THREAD - \\
+  // - 在工单频道发送关闭消息 - \\
+  // - send close message in thread - \\
   const closed_by_text = closed_by === "System" ? "System" : `<@${closed_by.id}>`
   const close_thread_message = component.build_message({
     components: [
@@ -317,7 +326,8 @@ export async function close_ticket(options: CloseTicketOptions): Promise<void> {
     api.send_components_v2(thread.id, token, close_thread_message).catch(() => { })
   )
 
-  // - WAIT FOR ALL NOTIFICATIONS - \\
+  // - 等待所有通知完成 - \\
+  // - wait for all notifications - \\
   await Promise.allSettled(notification_tasks)
 
   await thread.setLocked(true)

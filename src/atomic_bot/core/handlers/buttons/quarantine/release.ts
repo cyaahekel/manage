@@ -14,7 +14,7 @@ import { release_quarantine }             from "../../controllers/quarantine_con
 import { component }                      from "@shared/utils"
 
 /**
- * @description Handle early release from quarantine button
+ * @description handle early release from quarantine button
  * @param interaction - Button interaction
  */
 export async function handle_quarantine_release(interaction: ButtonInteraction): Promise<void> {

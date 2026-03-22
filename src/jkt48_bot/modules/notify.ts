@@ -203,7 +203,7 @@ export const command: Command = {
 
   /**
    * - NOTIFY AUTOCOMPLETE - \\
-   * @param {AutocompleteInteraction} interaction - Autocomplete interaction
+   * @param {AutocompleteInteraction} interaction - autocomplete interaction
    * @returns {Promise<void>}
    */
   async autocomplete(interaction: AutocompleteInteraction) {
@@ -234,11 +234,13 @@ export const command: Command = {
         user_id    : interaction.user.id,
       }).catch(() => {})
       
-      // - ALWAYS RESPOND TO PREVENT "FAILED TO LOAD OPTION" ERROR - \\
+      // - 始终响应以防止“选项加载失败”错误 - \\
+      // - always respond to prevent "failed to load option" error - \\
       try {
         await interaction.respond([])
       } catch {
-        // - ALREADY RESPONDED OR TIMED OUT - \\
+        // - 已响应或已超时 - \\
+        // - already responded or timed out - \\
       }
     }
   },

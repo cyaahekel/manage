@@ -132,9 +132,10 @@ const __default_skin_list = [
 ]
 
 /**
- * - CHECK SHARE SETTINGS ROLE - \\
- * @param {GuildMember | null} member - Guild member
- * @returns {boolean} True when allowed
+ * - 检查分享设置角色 - \\
+ * - check share settings role - \\
+ * @param {GuildMember | null} member - guild member
+ * @returns {boolean} true when allowed
  */
 export function can_use_share_settings(member: GuildMember | null): boolean {
   if (!member) return false
@@ -142,9 +143,10 @@ export function can_use_share_settings(member: GuildMember | null): boolean {
 }
 
 /**
- * - CREATE PENDING ENTRY - \\
- * @param {pending_settings_entry} entry - Pending entry
- * @returns {string} Token
+ * - 创建待处理条目 - \\
+ * - create pending entry - \\
+ * @param {pending_settings_entry} entry - pending entry
+ * @returns {string} token
  */
 export function create_pending_entry(entry: pending_settings_entry): string {
   const token = random.random_string(16)
@@ -153,17 +155,19 @@ export function create_pending_entry(entry: pending_settings_entry): string {
 }
 
 /**
- * - GET PENDING ENTRY - \\
- * @param {string} token - Token
- * @returns {pending_settings_entry | null} Entry
+ * - 获取待处理条目 - \\
+ * - get pending entry - \\
+ * @param {string} token - token
+ * @returns {pending_settings_entry | null} entry
  */
 export function get_pending_entry(token: string): pending_settings_entry | null {
   return pending_cache.get(token) || null
 }
 
 /**
- * - REMOVE PENDING ENTRY - \\
- * @param {string} token - Token
+ * - 删除待处理条目 - \\
+ * - remove pending entry - \\
+ * @param {string} token - token
  * @returns {void}
  */
 export function remove_pending_entry(token: string): void {
@@ -171,10 +175,11 @@ export function remove_pending_entry(token: string): void {
 }
 
 /**
- * - UPDATE PENDING PAYLOAD - \\
- * @param {string} token - Token
- * @param {Partial<share_settings_input>} payload - Payload update
- * @returns {pending_settings_entry | null} Entry
+ * - 更新待处理数据 - \\
+ * - update pending payload - \\
+ * @param {string} token - token
+ * @param {Partial<share_settings_input>} payload - payload update
+ * @returns {pending_settings_entry | null} entry
  */
 export function update_pending_payload(token: string, payload: Partial<share_settings_input>): pending_settings_entry | null {
   const entry = pending_cache.get(token)
@@ -193,9 +198,10 @@ export function update_pending_payload(token: string, payload: Partial<share_set
 }
 
 /**
- * - LIST ROD OPTIONS - \\
- * @param {Client} client - Discord client
- * @returns {Promise<string[]>} Rod list
+ * - 列出鱼竿选项 - \\
+ * - list rod options - \\
+ * @param {Client} client - discord client
+ * @returns {Promise<string[]>} rod list
  */
 export async function list_rod_options(client: Client): Promise<string[]> {
   try {
@@ -209,9 +215,10 @@ export async function list_rod_options(client: Client): Promise<string[]> {
 }
 
 /**
- * - LIST SKIN OPTIONS - \\
- * @param {Client} client - Discord client
- * @returns {Promise<string[]>} Skin list
+ * - 列出皮肤选项 - \\
+ * - list skin options - \\
+ * @param {Client} client - discord client
+ * @returns {Promise<string[]>} skin list
  */
 export async function list_skin_options(client: Client): Promise<string[]> {
   try {
@@ -225,10 +232,11 @@ export async function list_skin_options(client: Client): Promise<string[]> {
 }
 
 /**
- * - ADD ROD OPTION - \\
- * @param {Client} client - Discord client
- * @param {string} rod_name - Rod name
- * @returns {Promise<boolean>} Result
+ * - 添加鱼竿选项 - \\
+ * - add rod option - \\
+ * @param {Client} client - discord client
+ * @param {string} rod_name - rod name
+ * @returns {Promise<boolean>} result
  */
 export async function add_rod_option(client: Client, rod_name: string): Promise<boolean> {
   try {
@@ -245,10 +253,11 @@ export async function add_rod_option(client: Client, rod_name: string): Promise<
 }
 
 /**
- * - ADD SKIN OPTION - \\
- * @param {Client} client - Discord client
- * @param {string} skin_name - Skin name
- * @returns {Promise<boolean>} Result
+ * - 添加皮肤选项 - \\
+ * - add skin option - \\
+ * @param {Client} client - discord client
+ * @param {string} skin_name - skin name
+ * @returns {Promise<boolean>} result
  */
 export async function add_skin_option(client: Client, skin_name: string): Promise<boolean> {
   try {
@@ -265,19 +274,21 @@ export async function add_skin_option(client: Client, skin_name: string): Promis
 }
 
 /**
- * - GET SETTINGS CHANNEL ID - \\
- * @returns {string} Channel ID
+ * - 获取设置频道 ID - \\
+ * - get settings channel id - \\
+ * @returns {string} channel ID
  */
 export function get_settings_channel_id(): string {
   return __settings_channel_id
 }
 
 /**
- * - SEND SETTINGS MESSAGE - \\
- * @param {Client} client - Discord client
- * @param {rod_settings_record} record - Settings record
- * @param {message_payload} payload - Message payload
- * @returns {Promise<{ channel_id: string; message_id: string } | null>} Result
+ * - 发送设置消息 - \\
+ * - send settings message - \\
+ * @param {Client} client - discord client
+ * @param {rod_settings_record} record - settings record
+ * @param {message_payload} payload - message payload
+ * @returns {Promise<{ channel_id: string; message_id: string } | null>} result
  */
 export async function send_settings_message(
   client: Client,
@@ -342,26 +353,29 @@ export async function send_settings_message(
 }
 
 /**
- * - GET FORUM CHANNEL ID - \\
- * @returns {string} Channel ID
+ * - 获取论坛频道 ID - \\
+ * - get forum channel id - \\
+ * @returns {string} channel ID
  */
 export function get_forum_channel_id(): string {
   return __forum_channel_id
 }
 
 /**
- * - NORMALIZE TEXT - \\
- * @param {string} value - Input text
- * @returns {string} Normalized text
+ * - 标准化文本 - \\
+ * - normalize text - \\
+ * @param {string} value - input text
+ * @returns {string} normalized text
  */
 function normalize_text(value: string): string {
   return value.toLowerCase().trim()
 }
 
 /**
- * - BUILD STAR SUMMARY - \\
- * @param {rod_settings_record} record - Settings record
- * @returns {string} Star summary
+ * - 构建星级摘要 - \\
+ * - build star summary - \\
+ * @param {rod_settings_record} record - settings record
+ * @returns {string} star summary
  */
 function build_star_summary(record: rod_settings_record): string {
   const count = record.star_count || 0
@@ -369,9 +383,10 @@ function build_star_summary(record: rod_settings_record): string {
 }
 
 /**
- * - BUILD FORUM THREAD NAME - \\
- * @param {rod_settings_record} record - Settings record
- * @returns {string} Thread name
+ * - 构建论坛帖子名称 - \\
+ * - build forum thread name - \\
+ * @param {rod_settings_record} record - settings record
+ * @returns {string} thread name
  */
 function build_forum_thread_name(record: rod_settings_record): string {
   const skin_text = record.rod_skin ? record.rod_skin : "No Skin"
@@ -379,10 +394,11 @@ function build_forum_thread_name(record: rod_settings_record): string {
 }
 
 /**
- * - BUILD SETTINGS MESSAGE LINK - \\
- * @param {Client} client - Discord client
- * @param {rod_settings_record} record - Settings record
- * @returns {Promise<string | null>} Link
+ * - 构建设置消息链接 - \\
+ * - build settings message link - \\
+ * @param {Client} client - discord client
+ * @param {rod_settings_record} record - settings record
+ * @returns {Promise<string | null>} link
  */
 async function build_settings_message_link(client: Client, record: rod_settings_record): Promise<string | null> {
   if (record.channel_id && record.message_id) {
@@ -410,9 +426,10 @@ async function build_settings_message_link(client: Client, record: rod_settings_
 }
 
 /**
- * - BUILD TAG NAMES - \\
- * @param {rod_settings_record} record - Settings record
- * @returns {string[]} Tag names
+ * - 构建标签名称 - \\
+ * - build tag names - \\
+ * @param {rod_settings_record} record - settings record
+ * @returns {string[]} tag names
  */
 function build_tag_names(record: rod_settings_record): string[] {
   const skin_text = record.rod_skin ? record.rod_skin : "No Skin"
@@ -420,9 +437,10 @@ function build_tag_names(record: rod_settings_record): string[] {
 }
 
 /**
- * - CHECK MOST POPULAR - \\
- * @param {rod_settings_record} record - Settings record
- * @returns {boolean} True when popular
+ * - 检查是否最受欢迎 - \\
+ * - check most popular - \\
+ * @param {rod_settings_record} record - settings record
+ * @returns {boolean} true when popular
  */
 function is_most_popular(record: rod_settings_record): boolean {
   const average = record.star_count > 0 ? record.star_total / record.star_count : 0
@@ -430,10 +448,11 @@ function is_most_popular(record: rod_settings_record): boolean {
 }
 
 /**
- * - ENSURE FORUM TAGS - \\
- * @param {Client} client - Discord client
- * @param {ForumChannel} forum - Forum channel
- * @returns {Promise<Map<string, string>>} Tag map
+ * - 确保论坛标签存在 - \\
+ * - ensure forum tags - \\
+ * @param {Client} client - discord client
+ * @param {ForumChannel} forum - forum channel
+ * @returns {Promise<Map<string, string>>} tag map
  */
 async function ensure_forum_tags(client: Client, forum: ForumChannel, required: string[]): Promise<Map<string, string>> {
   const existing = forum.availableTags || []
@@ -471,10 +490,11 @@ async function ensure_forum_tags(client: Client, forum: ForumChannel, required: 
 }
 
 /**
- * - BUILD APPLIED TAGS - \\
- * @param {rod_settings_record} record - Settings record
- * @param {Map<string, string>} tag_map - Tag map
- * @returns {string[]} Applied tag ids
+ * - 构建已应用标签 - \\
+ * - build applied tags - \\
+ * @param {rod_settings_record} record - settings record
+ * @param {Map<string, string>} tag_map - tag map
+ * @returns {string[]} applied tag ids
  */
 function build_applied_tags(record: rod_settings_record, tag_map: Map<string, string>): string[] {
   const tag_ids: string[] = []
@@ -490,10 +510,11 @@ function build_applied_tags(record: rod_settings_record, tag_map: Map<string, st
 }
 
 /**
- * - BUILD FORUM STICKY MESSAGE - \\
- * @param {rod_settings_record} record - Settings record
- * @param {string} settings_link - Settings link
- * @returns {message_payload} Message payload
+ * - 构建论坛置顶消息 - \\
+ * - build forum sticky message - \\
+ * @param {rod_settings_record} record - settings record
+ * @param {string} settings_link - settings link
+ * @returns {message_payload} message payload
  */
 function build_forum_sticky_message(record: rod_settings_record, settings_link: string): message_payload {
   return component.build_message({
@@ -519,10 +540,11 @@ function build_forum_sticky_message(record: rod_settings_record, settings_link: 
 }
 
 /**
- * - BUILD FORUM THREAD STICKY MESSAGE - \\
- * @param {rod_settings_record} record - Settings record
- * @param {string} settings_link - Settings link
- * @returns {message_payload} Message payload
+ * - 构建论坛帖子置顶消息 - \\
+ * - build forum thread sticky message - \\
+ * @param {rod_settings_record} record - settings record
+ * @param {string} settings_link - settings link
+ * @returns {message_payload} message payload
  */
 function build_forum_thread_sticky_message(record: rod_settings_record, settings_link: string): message_payload {
   return component.build_message({
@@ -540,11 +562,12 @@ function build_forum_thread_sticky_message(record: rod_settings_record, settings
 }
 
 /**
- * - UPDATE FORUM THREAD STICKY - \\
- * @param {Client} client - Discord client
- * @param {string} thread_id - Thread ID
- * @param {rod_settings_record} record - Settings record
- * @returns {Promise<void>} Void
+ * - 更新论坛帖子置顶 - \\
+ * - update forum thread sticky - \\
+ * @param {Client} client - discord client
+ * @param {string} thread_id - thread ID
+ * @param {rod_settings_record} record - settings record
+ * @returns {Promise<void>} void
  */
 export async function update_forum_thread_sticky(client: Client, thread_id: string, record: rod_settings_record): Promise<void> {
   if (sticky_lock.has(thread_id)) return
@@ -590,10 +613,11 @@ export async function update_forum_thread_sticky(client: Client, thread_id: stri
 }
 
 /**
- * - UPDATE FORUM STICKY MESSAGE - \\
- * @param {Client} client - Discord client
- * @param {rod_settings_record} record - Settings record
- * @returns {Promise<void>} Void
+ * - 更新论坛置顶消息 - \\
+ * - update forum sticky message - \\
+ * @param {Client} client - discord client
+ * @param {rod_settings_record} record - settings record
+ * @returns {Promise<void>} void
  */
 export async function update_forum_sticky_message(client: Client, record: rod_settings_record): Promise<void> {
   const settings_link = await build_settings_message_link(client, record)
@@ -652,9 +676,10 @@ export async function update_forum_sticky_message(client: Client, record: rod_se
 }
 
 /**
- * - CLEANUP FORUM STICKY THREAD - \\
- * @param {Client} client - Discord client
- * @returns {Promise<void>} Void
+ * - 清理论坛置顶帖子 - \\
+ * - cleanup forum sticky thread - \\
+ * @param {Client} client - discord client
+ * @returns {Promise<void>} void
  */
 export async function cleanup_forum_sticky_thread(client: Client): Promise<void> {
   try {
@@ -673,11 +698,12 @@ export async function cleanup_forum_sticky_thread(client: Client): Promise<void>
 }
 
 /**
- * - PIN FORUM MESSAGE - \\
- * @param {Client} client - Discord client
- * @param {string} thread_id - Thread ID
- * @param {string} message_id - Message ID
- * @returns {Promise<void>} Void
+ * - 置顶论坛消息 - \\
+ * - pin forum message - \\
+ * @param {Client} client - discord client
+ * @param {string} thread_id - thread ID
+ * @param {string} message_id - message ID
+ * @returns {Promise<void>} void
  */
 export async function pin_forum_message(client: Client, thread_id: string, message_id: string): Promise<void> {
   try {
@@ -699,9 +725,10 @@ export async function pin_forum_message(client: Client, thread_id: string, messa
 }
 
 /**
- * - BACKFILL FORUM EXTRAS - \\
- * @param {Client} client - Discord client
- * @returns {Promise<void>} Void
+ * - 补充论坛额外内容 - \\
+ * - backfill forum extras - \\
+ * @param {Client} client - discord client
+ * @returns {Promise<void>} void
  */
 export async function backfill_forum_extras(client: Client): Promise<void> {
   try {
@@ -720,14 +747,15 @@ export async function backfill_forum_extras(client: Client): Promise<void> {
 }
 
 /**
- * - BUILD SHARE SETTINGS PICKER MESSAGE - \\
- * @param {object} options - Picker options
- * @param {string} options.token - Pending token
- * @param {string[]} options.rod_options - Rod options
- * @param {string[]} options.skin_options - Skin options
- * @param {string | null} options.selected_rod - Selected rod
- * @param {string | null} options.selected_skin - Selected skin
- * @returns {message_payload} Message payload
+ * - 构建分享设置选择器消息 - \\
+ * - build share settings picker message - \\
+ * @param {object} options - picker options
+ * @param {string} options.token - pending token
+ * @param {string[]} options.rod_options - rod options
+ * @param {string[]} options.skin_options - skin options
+ * @param {string | null} options.selected_rod - selected rod
+ * @param {string | null} options.selected_skin - selected skin
+ * @returns {message_payload} message payload
  */
 export function build_share_settings_picker_message(options: {
   token         : string
@@ -787,10 +815,11 @@ export function build_share_settings_picker_message(options: {
 }
 
 /**
- * - ENSURE PUBLISHER THREAD - \\
- * @param {Client} client - Discord client
- * @param {rod_settings_record} record - Settings record
- * @returns {Promise<{ thread_id?: string; thread_link?: string }>} Thread data
+ * - 确保发布者帖子存在 - \\
+ * - ensure publisher thread - \\
+ * @param {Client} client - discord client
+ * @param {rod_settings_record} record - settings record
+ * @returns {Promise<{ thread_id?: string; thread_link?: string }>} thread data
  */
 export async function ensure_publisher_thread(
   client: Client,
@@ -864,10 +893,11 @@ export async function ensure_publisher_thread(
 }
 
 /**
- * - ENSURE FORUM POST - \\
- * @param {Client} client - Discord client
- * @param {rod_settings_record} record - Settings record
- * @returns {Promise<{ forum_thread_id?: string; forum_message_id?: string; forum_channel_id?: string }>} Forum data
+ * - 确保论坛帖子存在 - \\
+ * - ensure forum post - \\
+ * @param {Client} client - discord client
+ * @param {rod_settings_record} record - settings record
+ * @returns {Promise<{ forum_thread_id?: string; forum_message_id?: string; forum_channel_id?: string }>} forum data
  */
 export async function ensure_forum_post(
   client: Client,
@@ -935,10 +965,11 @@ export async function ensure_forum_post(
 }
 
 /**
- * - UPDATE FORUM MESSAGE - \\
- * @param {Client} client - Discord client
- * @param {rod_settings_record} record - Settings record
- * @returns {Promise<boolean>} Result
+ * - 更新论坛消息 - \\
+ * - update forum message - \\
+ * @param {Client} client - discord client
+ * @param {rod_settings_record} record - settings record
+ * @returns {Promise<boolean>} result
  */
 export async function update_forum_message(client: Client, record: rod_settings_record): Promise<boolean> {
   if (!record.forum_thread_id || !record.forum_message_id) return false
@@ -983,10 +1014,11 @@ export async function update_forum_message(client: Client, record: rod_settings_
 }
 
 /**
- * - ENSURE THREAD ACTIVE - \\
- * @param {Client} client - Discord client
- * @param {string} thread_id - Thread ID
- * @returns {Promise<void>} Void
+ * - 确保帖子处于活跃状态 - \\
+ * - ensure thread active - \\
+ * @param {Client} client - discord client
+ * @param {string} thread_id - thread ID
+ * @returns {Promise<void>} void
  */
 export async function ensure_thread_active(client: Client, thread_id: string): Promise<void> {
   const channel = await client.channels.fetch(thread_id).catch(() => null)
@@ -999,9 +1031,10 @@ export async function ensure_thread_active(client: Client, thread_id: string): P
 }
 
 /**
- * - BUILD SETTINGS TITLE - \\
- * @param {rod_settings_record} record - Settings record
- * @returns {string} Title
+ * - 构建设置标题 - \\
+ * - build settings title - \\
+ * @param {rod_settings_record} record - settings record
+ * @returns {string} title
  */
 export function build_settings_title(record: rod_settings_record): string {
   const skin = record.rod_skin ? record.rod_skin : "No Skin"
@@ -1009,18 +1042,20 @@ export function build_settings_title(record: rod_settings_record): string {
 }
 
 /**
- * - BUILD SETTINGS LABEL - \\
- * @param {rod_settings_record} record - Settings record
- * @returns {string} Label
+ * - 构建设置标签 - \\
+ * - build settings label - \\
+ * @param {rod_settings_record} record - settings record
+ * @returns {string} label
  */
 export function build_settings_label(record: rod_settings_record): string {
   return `${build_settings_title(record)} (${record.settings_id})`
 }
 
 /**
- * - BUILD LEADERBOARD MESSAGE - \\
- * @param {rod_settings_record[]} records - Settings records
- * @returns {message_payload} Message payload
+ * - 构建排行榜消息 - \\
+ * - build leaderboard message - \\
+ * @param {rod_settings_record[]} records - settings records
+ * @returns {message_payload} message payload
  */
 export function build_leaderboard_message(records: rod_settings_record[]): message_payload {
   if (records.length === 0) {
@@ -1070,10 +1105,11 @@ export function build_leaderboard_message(records: rod_settings_record[]): messa
 }
 
 /**
- * - BUILD SETTINGS COMPONENT - \\
- * @param {rod_settings_record} record - Settings record
- * @param {string} token - Search token
- * @returns {container_component} Container component
+ * - 构建设置组件 - \\
+ * - build settings component - \\
+ * @param {rod_settings_record} record - settings record
+ * @param {string} token - search token
+ * @returns {container_component} container component
  */
 function build_settings_component(record: rod_settings_record, token?: string): container_component {
   const star_summary   = build_star_summary(record)
@@ -1119,9 +1155,10 @@ function build_settings_component(record: rod_settings_record, token?: string): 
 }
 
 /**
- * - BUILD FORUM MESSAGE - \\
- * @param {rod_settings_record} record - Settings record
- * @returns {message_payload} Message payload
+ * - 构建论坛消息 - \\
+ * - build forum message - \\
+ * @param {rod_settings_record} record - settings record
+ * @returns {message_payload} message payload
  */
 export function build_forum_message(record: rod_settings_record): message_payload {
   return component.build_message({
@@ -1137,13 +1174,14 @@ export function build_forum_message(record: rod_settings_record): message_payloa
 }
 
 /**
- * - BUILD SETTINGS MESSAGE - \\
- * @param {rod_settings_record} record - Settings record
- * @param {object} options - Message options
- * @param {string} options.footer_token - Search token
- * @param {number} options.index - Index
- * @param {number} options.total - Total count
- * @returns {message_payload} Message payload
+ * - 构建设置消息 - \\
+ * - build settings message - \\
+ * @param {rod_settings_record} record - settings record
+ * @param {object} options - message options
+ * @param {string} options.footer_token - search token
+ * @param {number} options.index - index
+ * @param {number} options.total - total count
+ * @returns {message_payload} message payload
  */
 export function build_settings_message(
   record: rod_settings_record,
@@ -1194,13 +1232,14 @@ export function build_settings_message(
 }
 
 /**
- * - BUILD SEARCH MESSAGE - \\
- * @param {rod_settings_record} record - Settings record
- * @param {object} options - Search options
- * @param {string} options.token - Search token
- * @param {rod_settings_record[]} options.records - Records
- * @param {number} options.index - Index
- * @returns {message_payload} Message payload
+ * - 构建搜索消息 - \\
+ * - build search message - \\
+ * @param {rod_settings_record} record - settings record
+ * @param {object} options - search options
+ * @param {string} options.token - search token
+ * @param {rod_settings_record[]} options.records - records
+ * @param {number} options.index - index
+ * @returns {message_payload} message payload
  */
 export function build_search_message(options: {
   token   : string
@@ -1258,10 +1297,11 @@ export function build_search_message(options: {
 }
 
 /**
- * - CREATE SETTINGS RECORD - \\
- * @param {Client} client - Discord client
- * @param {share_settings_input} input - Settings input
- * @returns {Promise<rod_settings_record | null>} Record
+ * - 创建设置记录 - \\
+ * - create settings record - \\
+ * @param {Client} client - discord client
+ * @param {share_settings_input} input - settings input
+ * @returns {Promise<rod_settings_record | null>} record
  */
 export async function create_settings_record(client: Client, input: share_settings_input): Promise<rod_settings_record | null> {
   try {
@@ -1297,11 +1337,12 @@ export async function create_settings_record(client: Client, input: share_settin
 }
 
 /**
- * - UPDATE SETTINGS RECORD - \\
- * @param {Client} client - Discord client
- * @param {string} settings_id - Settings ID
- * @param {Partial<rod_settings_record>} update - Update payload
- * @returns {Promise<rod_settings_record | null>} Updated record
+ * - 更新设置记录 - \\
+ * - update settings record - \\
+ * @param {Client} client - discord client
+ * @param {string} settings_id - settings ID
+ * @param {Partial<rod_settings_record>} update - update payload
+ * @returns {Promise<rod_settings_record | null>} updated record
  */
 export async function update_settings_record(
   client: Client,
@@ -1329,10 +1370,11 @@ export async function update_settings_record(
 }
 
 /**
- * - GET SETTINGS RECORD - \\
- * @param {Client} client - Discord client
- * @param {string} settings_id - Settings ID
- * @returns {Promise<rod_settings_record | null>} Record
+ * - 获取设置记录 - \\
+ * - get settings record - \\
+ * @param {Client} client - discord client
+ * @param {string} settings_id - settings ID
+ * @returns {Promise<rod_settings_record | null>} record
  */
 export async function get_settings_record(client: Client, settings_id: string): Promise<rod_settings_record | null> {
   try {
@@ -1346,9 +1388,10 @@ export async function get_settings_record(client: Client, settings_id: string): 
 }
 
 /**
- * - LIST SETTINGS RECORDS - \\
- * @param {Client} client - Discord client
- * @returns {Promise<rod_settings_record[]>} Records
+ * - 列出设置记录 - \\
+ * - list settings records - \\
+ * @param {Client} client - discord client
+ * @returns {Promise<rod_settings_record[]>} records
  */
 export async function list_settings_records(client: Client): Promise<rod_settings_record[]> {
   try {
@@ -1360,10 +1403,11 @@ export async function list_settings_records(client: Client): Promise<rod_setting
 }
 
 /**
- * - GET SETTINGS BY FORUM THREAD - \\
- * @param {Client} client - Discord client
- * @param {string} thread_id - Thread ID
- * @returns {Promise<rod_settings_record | null>} Record
+ * - 通过论坛帖子获取设置 - \\
+ * - get settings by forum thread - \\
+ * @param {Client} client - discord client
+ * @param {string} thread_id - thread ID
+ * @returns {Promise<rod_settings_record | null>} record
  */
 export async function get_settings_by_forum_thread_id(client: Client, thread_id: string): Promise<rod_settings_record | null> {
   try {
@@ -1377,10 +1421,11 @@ export async function get_settings_by_forum_thread_id(client: Client, thread_id:
 }
 
 /**
- * - LIST SETTINGS BY PUBLISHER - \\
- * @param {Client} client - Discord client
- * @param {string} publisher_id - Publisher ID
- * @returns {Promise<rod_settings_record[]>} Records
+ * - 按发布者列出设置 - \\
+ * - list settings by publisher - \\
+ * @param {Client} client - discord client
+ * @param {string} publisher_id - publisher ID
+ * @returns {Promise<rod_settings_record[]>} records
  */
 export async function list_settings_by_publisher(client: Client, publisher_id: string): Promise<rod_settings_record[]> {
   try {
@@ -1394,10 +1439,11 @@ export async function list_settings_by_publisher(client: Client, publisher_id: s
 }
 
 /**
- * - DELETE SETTINGS RECORD - \\
- * @param {Client} client - Discord client
- * @param {string} settings_id - Settings ID
- * @returns {Promise<rod_settings_record | null>} Deleted record
+ * - 删除设置记录 - \\
+ * - delete settings record - \\
+ * @param {Client} client - discord client
+ * @param {string} settings_id - settings ID
+ * @returns {Promise<rod_settings_record | null>} deleted record
  */
 export async function delete_settings_record(client: Client, settings_id: string): Promise<rod_settings_record | null> {
   try {
@@ -1415,10 +1461,11 @@ export async function delete_settings_record(client: Client, settings_id: string
 }
 
 /**
- * - CREATE SEARCH TOKEN - \\
- * @param {rod_settings_record[]} records - Records
- * @param {object} query - Query
- * @returns {string} Token
+ * - 创建搜索令牌 - \\
+ * - create search token - \\
+ * @param {rod_settings_record[]} records - records
+ * @param {object} query - query
+ * @returns {string} token
  */
 export function create_search_token(records: rod_settings_record[], query: { rod_name?: string; rod_skin?: string; filter_by?: string }, token?: string): string {
   const generated = token || random.random_string(12)
@@ -1432,19 +1479,21 @@ export function create_search_token(records: rod_settings_record[], query: { rod
 }
 
 /**
- * - GET SEARCH ENTRY - \\
- * @param {string} token - Search token
- * @returns {search_cache_entry | null} Entry
+ * - 获取搜索条目 - \\
+ * - get search entry - \\
+ * @param {string} token - search token
+ * @returns {search_cache_entry | null} entry
  */
 export function get_search_entry(token: string): search_cache_entry | null {
   return search_cache.get(token) || null
 }
 
 /**
- * - BUILD RECORD LIST FROM SEARCH - \\
- * @param {Client} client - Discord client
- * @param {search_cache_entry} entry - Cache entry
- * @returns {Promise<rod_settings_record[]>} Records
+ * - 从搜索结果构建记录列表 - \\
+ * - build record list from search - \\
+ * @param {Client} client - discord client
+ * @param {search_cache_entry} entry - cache entry
+ * @returns {Promise<rod_settings_record[]>} records
  */
 export async function build_records_from_search(client: Client, entry: search_cache_entry): Promise<rod_settings_record[]> {
   const records = await list_settings_records(client)
@@ -1456,13 +1505,14 @@ export async function build_records_from_search(client: Client, entry: search_ca
 }
 
 /**
- * - SEARCH SETTINGS RECORDS - \\
- * @param {Client} client - Discord client
- * @param {object} options - Search options
- * @param {string} options.rod_name - Rod name
- * @param {string} options.rod_skin - Rod skin
- * @param {string} options.filter_by - Filter type
- * @returns {Promise<rod_settings_record[]>} Records
+ * - 搜索设置记录 - \\
+ * - search settings records - \\
+ * @param {Client} client - discord client
+ * @param {object} options - search options
+ * @param {string} options.rod_name - rod name
+ * @param {string} options.rod_skin - rod skin
+ * @param {string} options.filter_by - filter type
+ * @returns {Promise<rod_settings_record[]>} records
  */
 export async function search_settings_records(client: Client, options: { rod_name?: string; rod_skin?: string; filter_by?: string }): Promise<rod_settings_record[]> {
   const records = await list_settings_records(client)
@@ -1499,11 +1549,12 @@ export async function search_settings_records(client: Client, options: { rod_nam
 }
 
 /**
- * - APPLY STAR VOTE - \\
- * @param {Client} client - Discord client
- * @param {string} settings_id - Settings ID
- * @param {string} user_id - User ID
- * @returns {Promise<{ success: boolean; message?: string; record?: rod_settings_record }>} Result
+ * - 应用星级投票 - \\
+ * - apply star vote - \\
+ * @param {Client} client - discord client
+ * @param {string} settings_id - settings ID
+ * @param {string} user_id - user ID
+ * @returns {Promise<{ success: boolean; message?: string; record?: rod_settings_record }>} result
  */
 export async function apply_star_vote(
   client: Client,
@@ -1533,10 +1584,11 @@ export async function apply_star_vote(
 }
 
 /**
- * - INCREMENT USE COUNT - \\
- * @param {Client} client - Discord client
- * @param {string} settings_id - Settings ID
- * @returns {Promise<void>} Void
+ * - 增加使用次数 - \\
+ * - increment use count - \\
+ * @param {Client} client - discord client
+ * @param {string} settings_id - settings ID
+ * @returns {Promise<void>} void
  */
 export async function increment_use_count(client: Client, settings_id: string): Promise<void> {
   const record = await get_settings_record(client, settings_id)

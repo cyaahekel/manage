@@ -7,7 +7,8 @@
  * See the LICENSE file for more information.
  */
 
-// - TICKET TYPE ENUM - \\
+// - 工单类型枚举 - \\
+// - ticket type enum - \\
 export enum TicketType {
   purchase  = "purchase",
   priority  = "priority",

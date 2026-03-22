@@ -7,8 +7,8 @@
  * See the LICENSE file for more information.
  */
 
-// - 音乐模块核心控制器：平台检测、Spotify、Apple Music、队列管理 - \\
-// - music module core controller: platform detection, Spotify, Apple Music, queue management - \\
+// - 音乐控制中心：啥平台都能播，队列管理也一把梭 - \\
+// - music core: handle all platforms and queues - \\
 import { ChatInputCommandInteraction, Client, ButtonInteraction, TextChannel, GuildMember, VoiceBasedChannel, Message } from "discord.js"
 import { Player }                                                                                               from "shoukaku"
 import axios                                                                                                   from "axios"
@@ -38,8 +38,8 @@ const __max_queue_size      = 100
 type platform_type = "spotify_track" | "spotify_album" | "spotify_playlist" | "apple_music" | "youtube" | "youtube_playlist" | "query"
 
 /**
- * @description Detects the source platform from the user-provided string.
- * @param {string} input - URL or search query
+ * @description detects the source platform from the user-provided string.
+ * @param {string} input - url or search query
  * @returns {platform_type}
  */
 export function detect_platform(input: string): platform_type {
@@ -54,8 +54,8 @@ export function detect_platform(input: string): platform_type {
 
 // ─── SPOTIFY API ──────────────────────────────────────────────────────────────
 /**
- * @description Gets a Spotify access token using Client Credentials flow. Caches token until expiry.
- * @returns {Promise<string>} Access token
+ * @description gets a spotify access token using client credentials flow. caches token until expiry.
+ * @returns {Promise<string>} access token
  */
 async function get_spotify_token(): Promise<string> {
   if (__spotify_token && Date.now() < __spotify_token_exp) return __spotify_token
@@ -82,8 +82,8 @@ async function get_spotify_token(): Promise<string> {
 }
 
 /**
- * @description Fetches metadata for a single Spotify track.
- * @param {string} url - Spotify track URL
+ * @description fetches metadata for a single spotify track.
+ * @param {string} url - spotify track url
  * @returns {Promise<{ title: string; author: string } | null>}
  */
 async function fetch_spotify_track_info(url: string): Promise<{ title: string; author: string } | null> {
@@ -101,8 +101,8 @@ async function fetch_spotify_track_info(url: string): Promise<{ title: string; a
 }
 
 /**
- * @description Fetches all track metadata from a Spotify album (paginated, up to __max_queue_size).
- * @param {string} url - Spotify album URL
+ * @description fetches all track metadata from a Spotify album (paginated, up to __max_queue_size).
+ * @param {string} url - spotify album URL
  * @returns {Promise<Array<{ title: string; author: string }>>}
  */
 async function fetch_spotify_album(url: string): Promise<Array<{ title: string; author: string }>> {
@@ -130,8 +130,8 @@ async function fetch_spotify_album(url: string): Promise<Array<{ title: string; 
 }
 
 /**
- * @description Fetches all track metadata from a Spotify playlist (paginated, up to __max_queue_size).
- * @param {string} url - Spotify playlist URL
+ * @description fetches all track metadata from a Spotify playlist (paginated, up to __max_queue_size).
+ * @param {string} url - spotify playlist URL
  * @returns {Promise<Array<{ title: string; author: string }>>}
  */
 async function fetch_spotify_playlist(url: string): Promise<Array<{ title: string; author: string }>> {
@@ -161,8 +161,8 @@ async function fetch_spotify_playlist(url: string): Promise<Array<{ title: strin
 
 // ─── APPLE MUSIC SCRAPER ──────────────────────────────────────────────────────
 /**
- * @description Scrapes og:title and og:description from an Apple Music page to get track metadata.
- * @param {string} url - Apple Music URL
+ * @description scrapes og:title and og:description from an Apple Music page to get track metadata.
+ * @param {string} url - apple Music URL
  * @returns {Promise<{ title: string; author: string } | null>}
  */
 async function fetch_apple_music_info(url: string): Promise<{ title: string; author: string } | null> {
@@ -193,8 +193,8 @@ async function fetch_apple_music_info(url: string): Promise<{ title: string; aut
 
 // ─── LAVALINK RESOLVER ────────────────────────────────────────────────────────
 /**
- * @description Resolves a Lavalink identifier (URL or ytsearch:query) and returns the first track.
- * @param {string} identifier - Lavalink search identifier
+ * @description resolves a Lavalink identifier (URL or ytsearch:query) and returns the first track.
+ * @param {string} identifier - lavalink search identifier
  * @returns {Promise<lavalink_track | null>}
  */
 async function resolve_track(identifier: string): Promise<lavalink_track | null> {
@@ -222,8 +222,8 @@ async function resolve_track(identifier: string): Promise<lavalink_track | null>
 }
 
 /**
- * @description Resolves all tracks from a YouTube playlist.
- * @param {string} url - YouTube playlist URL
+ * @description resolves all tracks from a YouTube playlist.
+ * @param {string} url - youTube playlist URL
  * @returns {Promise<lavalink_track[]>}
  */
 async function resolve_playlist(url: string): Promise<lavalink_track[]> {
@@ -239,10 +239,10 @@ async function resolve_playlist(url: string): Promise<lavalink_track[]> {
 
 // ─── QUEUE MANAGEMENT ─────────────────────────────────────────────────────────
 /**
- * @description Schedules the bot to leave the voice channel after idle timeout.
- * @param {string}  guild_id - Guild ID
- * @param {Player}  player   - Shoukaku player instance
- * @param {Client}  client   - Discord client for sending messages
+ * @description schedules the bot to leave the voice channel after idle timeout.
+ * @param {string}  guild_id - guild id
+ * @param {Player}  player   - shoukaku player instance
+ * @param {Client}  client   - discord client for sending messages
  */
 function schedule_auto_leave(guild_id: string, player: Player, client: Client): void {
   const queue = guild_queues.get(guild_id)
@@ -275,10 +275,10 @@ function schedule_auto_leave(guild_id: string, player: Player, client: Client): 
 }
 
 /**
- * @description Plays the next track in the guild queue.
+ * @description plays the next track in the guild queue.
  *              Called internally when a track ends.
- * @param {string} guild_id - Guild ID
- * @param {Player} player   - Shoukaku player
+ * @param {string} guild_id - guild ID
+ * @param {Player} player   - shoukaku player
  */
 async function play_next(guild_id: string, player: Player): Promise<void> {
   const queue = guild_queues.get(guild_id)
@@ -289,10 +289,10 @@ async function play_next(guild_id: string, player: Player): Promise<void> {
 }
 
 /**
- * @description Sets up Shoukaku player event handlers for a guild.
- * @param {Player}  player   - Shoukaku player
- * @param {string}  guild_id - Guild ID
- * @param {Client}  client   - Discord client
+ * @description sets up Shoukaku player event handlers for a guild.
+ * @param {Player}  player   - shoukaku player
+ * @param {string}  guild_id - guild id
+ * @param {Client}  client   - discord client
  */
 function setup_player_events(player: Player, guild_id: string, client: Client): void {
   // - track start: send now playing message - \\
@@ -361,9 +361,9 @@ function setup_player_events(player: Player, guild_id: string, client: Client): 
 
 // ─── MESSAGE BUILDERS ─────────────────────────────────────────────────────────
 /**
- * @description Builds the "Now Playing" Component V2 message.
- * @param {track_data} track        - Currently playing track
- * @param {number}     queue_length - Total tracks in queue
+ * @description builds the "Now Playing" Component V2 message.
+ * @param {track_data} track        - currently playing track
+ * @param {number}     queue_length - total tracks in queue
  * @returns Component V2 message payload
  */
 export function build_now_playing_message(track: track_data, queue_length: number) {
@@ -398,9 +398,9 @@ export function build_now_playing_message(track: track_data, queue_length: numbe
 }
 
 /**
- * @description Builds the "Added to Queue" Component V2 message.
- * @param {track_data} track    - Track that was added
- * @param {number}     position - Position in queue (1-indexed)
+ * @description builds the "Added to Queue" Component V2 message.
+ * @param {track_data} track    - track that was added
+ * @param {number}     position - position in queue (1-indexed)
  * @returns Component V2 message payload
  */
 export function build_added_to_queue_message(track: track_data, position: number) {
@@ -425,8 +425,8 @@ export function build_added_to_queue_message(track: track_data, position: number
 
 // ─── UTILITY ──────────────────────────────────────────────────────────────────
 /**
- * @description Formats milliseconds into a human-readable duration string.
- * @param {number} ms - Duration in milliseconds
+ * @description formats milliseconds into a human-readable duration string.
+ * @param {number} ms - duration in milliseconds
  * @returns {string} e.g. "3:45" or "1:03:20"
  */
 export function format_duration(ms: number): string {
@@ -443,8 +443,8 @@ export function format_duration(ms: number): string {
 
 // ─── PUBLIC HANDLERS ──────────────────────────────────────────────────────────
 /**
- * @description Main /play handler. Detects platform, resolves track(s), joins VC, queues and plays.
- * @param {object} options - Interaction, guild, voice channel, query, client, requester ID
+ * @description main /play handler. Detects platform, resolves track(s), joins VC, queues and plays.
+ * @param {object} options - interaction, guild, voice channel, query, client, requester ID
  * @returns {Promise<void>}
  */
 export async function handle_play(options: {
@@ -648,7 +648,7 @@ export async function handle_play(options: {
 }
 
 /**
- * @description Prefix (a!play) equivalent of handle_play. Uses Message.reply for responses.
+ * @description prefix (a!play) equivalent of handle_play. Uses Message.reply for responses.
  * @param {object} options - message, voice channel, query, client
  * @returns {Promise<void>}
  */
@@ -861,7 +861,7 @@ export async function handle_play_prefix(options: {
 }
 
 /**
- * @description Joins VC (or reuses existing player) and adds track to the guild queue.
+ * @description joins VC (or reuses existing player) and adds track to the guild queue.
  *              Triggers play_next if the queue was previously empty.
  * @param {object} opts - guild_id, resolved track, voice channel, text channel, client
  */
@@ -917,9 +917,9 @@ async function enqueue_and_play(opts: {
 
 // ─── SKIP ─────────────────────────────────────────────────────────────────────
 /**
- * @description Skips one or more tracks in the guild queue.
- * @param {string} guild_id - Guild ID
- * @param {number} amount   - Number of tracks to skip (default 1)
+ * @description skips one or more tracks in the guild queue.
+ * @param {string} guild_id - guild ID
+ * @param {number} amount   - number of tracks to skip (default 1)
  * @returns {Promise<{ success: boolean; skipped: string; up_next: string | null }>}
  */
 export async function handle_skip(guild_id: string, amount = 1): Promise<{ success: boolean; skipped: string; up_next: string | null }> {
@@ -950,8 +950,8 @@ export async function handle_skip(guild_id: string, amount = 1): Promise<{ succe
 
 // ─── STOP ─────────────────────────────────────────────────────────────────────
 /**
- * @description Stops playback, clears the queue, and leaves the voice channel.
- * @param {string} guild_id - Guild ID
+ * @description stops playback, clears the queue, and leaves the voice channel.
+ * @param {string} guild_id - guild ID
  * @returns {Promise<boolean>} true if was playing, false otherwise
  */
 export async function handle_stop(guild_id: string): Promise<boolean> {
@@ -976,8 +976,8 @@ export async function handle_stop(guild_id: string): Promise<boolean> {
 
 // ─── PAUSE / RESUME ────────────────────────────────────────────────────────────
 /**
- * @description Toggles pause/resume state of the current track.
- * @param {string} guild_id - Guild ID
+ * @description toggles pause/resume state of the current track.
+ * @param {string} guild_id - guild ID
  * @returns {Promise<{ success: boolean; is_paused: boolean }>}
  */
 export async function handle_pause_resume(guild_id: string): Promise<{ success: boolean; is_paused: boolean }> {
@@ -998,9 +998,9 @@ export async function handle_pause_resume(guild_id: string): Promise<{ success: 
 
 // ─── QUEUE DISPLAY ────────────────────────────────────────────────────────────
 /**
- * @description Builds a queue listing Component V2 message for the given guild.
- * @param {string} guild_id - Guild ID
- * @param {number} page     - Page number (1-indexed)
+ * @description builds a queue listing Component V2 message for the given guild.
+ * @param {string} guild_id - guild ID
+ * @param {number} page     - page number (1-indexed)
  * @returns Component V2 message payload or null if no queue
  */
 export function build_queue_message(guild_id: string, page: number) {
@@ -1056,8 +1056,8 @@ export function build_queue_message(guild_id: string, page: number) {
 }
 
 /**
- * @description Returns the current guild queue (read-only accessor).
- * @param {string} guild_id - Guild ID
+ * @description returns the current guild queue (read-only accessor).
+ * @param {string} guild_id - guild ID
  * @returns {guild_queue | undefined}
  */
 export function get_queue(guild_id: string): guild_queue | undefined {

@@ -11,7 +11,8 @@ import { Client } from "discord.js"
 import { db, logger } from "@shared/utils"
 import * as time from "@shared/utils/timestamp"
 
-// - IN-MEMORY ACTIVE SESSION STORE: "guild_id:user_id" -> session - \\
+// - 内存中的活跃会话存储："guild_id:user_id" -> 会话 - \\
+// - in-memory active session store: "guild_id:user_id" -> session - \\
 interface active_session {
   guild_id   : string
   channel_id : string
@@ -42,7 +43,8 @@ export function on_voice_join(user_id: string, guild_id: string, channel_id: str
   const key = session_key(guild_id, user_id)
 
   if (active_sessions.has(key)) {
-    // - CHANNEL SWITCH: UPDATE CHANNEL BUT KEEP SESSION RUNNING - \\
+    // - 频道切换：更新频道但保持会话进行 - \\
+    // - channel switch: update channel but keep session running - \\
     active_sessions.get(key)!.channel_id = channel_id
     return
   }
@@ -73,7 +75,9 @@ export async function on_voice_leave(user_id: string, guild_id: string): Promise
   const left_at          = time.now()
   const duration_seconds = Math.max(0, left_at - session.joined_at)
 
-  if (duration_seconds < 10) return  // - IGNORE BLIPS UNDER 10 SECONDS - \\
+  // - 忽略不足 10 秒的短暂连接 - \\
+  // - ignore blips under 10 seconds - \\
+  if (duration_seconds < 10) return
 
   try {
     const pool = db.get_pool()

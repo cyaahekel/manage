@@ -12,7 +12,8 @@ import { Command }                                          from "@shared/types/
 import { component }                                        from "@shared/utils"
 
 /**
- * - INVITE BOT COMMAND - \\
+ * - 邀请机器人命令 - \\
+ * - invite bot command - \\
  */
 const invite_bot_command: Command = {
   data: new SlashCommandBuilder()

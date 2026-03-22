@@ -27,7 +27,7 @@ const __refresh_max_wait_ms    = 55000   // - max polling window for processing 
 const __url_cache_ttl_minutes  = 30
 
 /**
- * @description Builds a stable cache key from a URL.
+ * @description builds a stable cache key from a URL.
  * @param url - The URL to hash
  * @returns Cache key string
  */
@@ -36,7 +36,7 @@ function __url_cache_key(url: string): string {
 }
 
 /**
- * @description Checks bypass_cache table for a previously bypassed result for this URL.
+ * @description checks bypass_cache table for a previously bypassed result for this URL.
  * @param url - The URL to look up
  * @returns Cached result string or null
  */
@@ -53,7 +53,7 @@ async function __get_url_cache(url: string): Promise<string | null> {
 }
 
 /**
- * @description Stores a bypass result in cache keyed by URL.
+ * @description stores a bypass result in cache keyed by URL.
  * @param url    - The original URL
  * @param result - The bypassed result to cache
  */
@@ -85,7 +85,7 @@ function __record_request(): void {
 }
 
 /**
- * @description Returns current API request rate stats for the last 10 seconds.
+ * @description returns current API request rate stats for the last 10 seconds.
  * @returns Object with count in window and timestamps array copy
  */
 export function get_request_stats(): { requests_last_10s: number; timestamps: number[] } {
@@ -111,7 +111,7 @@ function __set_global_backoff(seconds: number): void {
 }
 
 /** 
- * @description Returns remaining global backoff in ms (0 if not active). 
+ * @description returns remaining global backoff in ms (0 if not active). 
  * @returns Remaining global backoff in ms
  */
 function __get_backoff_remaining_ms(): number {
@@ -186,7 +186,7 @@ interface SupportedService {
 }
 
 /**
- * @description Bypasses a link once.
+ * @description bypasses a link once.
  * @param url     - The URL to bypass
  * @param attempt - Current attempt number (internal, starts at 1)
  * @returns Promise with bypass result
@@ -342,7 +342,7 @@ async function bypass_link_once(url: string, attempt: number): Promise<BypassRes
 }
 
 /**
- * @description Bypasses a link and retries if necessary.
+ * @description bypasses a link and retries if necessary.
  * @param url      - The URL to bypass
  * @param on_retry - Optional callback fired before each retry with attempt number and estimated total wait ms
  * @returns Promise with bypass result
@@ -378,7 +378,7 @@ export async function bypass_link(
 }
 
 /**
- * @description Internal function to run the bypass link logic.
+ * @description internal function to run the bypass link logic.
  * @param url      - The URL to bypass
  * @param on_retry - Optional callback fired before each retry with attempt number and estimated total wait ms
  * @returns Promise with bypass result
@@ -437,7 +437,7 @@ async function _run_bypass_link(
 }
 
 /**
- * @description Retrieves a list of supported services for bypassing.
+ * @description retrieves a list of supported services for bypassing.
  * @returns Promise with list of supported services
  */
 export async function get_supported_services(): Promise<SupportedService[]> {

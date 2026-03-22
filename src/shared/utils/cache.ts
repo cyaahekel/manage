@@ -7,7 +7,8 @@
  * See the LICENSE file for more information.
  */
 
-// - CACHE UTILITY WITH STATISTICS AND PERFORMANCE TRACKING - \\
+// - 带统计和性能跟踪的缓存工具 - \\
+// - cache utility with statistics and performance tracking - \\
 
 const is_production = process.env.NODE_ENV === "production"
 
@@ -45,10 +46,10 @@ export class Cache<T> {
 
   /**
    * Creates a new cache instance
-   * @param {number | null} default_ttl_ms - Default time-to-live in milliseconds
-   * @param {number | null} max_size - Maximum cache size
-   * @param {number | null} cleanup_interval_ms - Cleanup interval in milliseconds
-   * @param {string} namespace - Cache namespace for organization
+   * @param {number | null} default_ttl_ms - default time-to-live in milliseconds
+   * @param {number | null} max_size - maximum cache size
+   * @param {number | null} cleanup_interval_ms - cleanup interval in milliseconds
+   * @param {string} namespace - cache namespace for organization
    */
   constructor(default_ttl_ms: number | null = null, max_size: number | null = null, cleanup_interval_ms: number | null = null, namespace: string = 'default') {
     this.default_ttl = default_ttl_ms
@@ -63,9 +64,9 @@ export class Cache<T> {
 
   /**
    * Stores a value in cache with optional TTL
-   * @param {string} key - Cache key
-   * @param {T} value - Value to cache
-   * @param {number | null} ttl_ms - Time-to-live in milliseconds
+   * @param {string} key - cache key
+   * @param {T} value - value to cache
+   * @param {number | null} ttl_ms - time-to-live in milliseconds
    * @returns {void}
    */
   set(key: string, value: T, ttl_ms: number | null = this.default_ttl): void {
@@ -79,8 +80,8 @@ export class Cache<T> {
 
   /**
    * Retrieves a value from cache
-   * @param {string} key - Cache key
-   * @returns {T | undefined} Cached value or undefined if not found/expired
+   * @param {string} key - cache key
+   * @returns {T | undefined} cached value or undefined if not found/expired
    */
   get(key: string): T | undefined {
     const item = this.store.get(key)
@@ -101,8 +102,8 @@ export class Cache<T> {
 
   /**
    * Checks if a key exists in cache
-   * @param {string} key - Cache key
-   * @returns {boolean} True if key exists and is not expired
+   * @param {string} key - cache key
+   * @returns {boolean} true if key exists and is not expired
    */
   has(key: string): boolean {
     return this.get(key) !== undefined
@@ -110,8 +111,8 @@ export class Cache<T> {
 
   /**
    * Deletes a key from cache
-   * @param {string} key - Cache key
-   * @returns {boolean} True if key was deleted
+   * @param {string} key - cache key
+   * @returns {boolean} true if key was deleted
    */
   delete(key: string): boolean {
     return this.store.delete(key)
@@ -128,7 +129,7 @@ export class Cache<T> {
 
   /**
    * Returns the number of non-expired cache entries
-   * @returns {number} Number of entries
+   * @returns {number} number of entries
    */
   size(): number {
     this.cleanup()
@@ -137,7 +138,7 @@ export class Cache<T> {
 
   /**
    * Returns all cache keys
-   * @returns {string[]} Array of keys
+   * @returns {string[]} array of keys
    */
   keys(): string[] {
     this.cleanup()
@@ -146,7 +147,7 @@ export class Cache<T> {
 
   /**
    * Returns all cache values
-   * @returns {T[]} Array of values
+   * @returns {T[]} array of values
    */
   values(): T[] {
     this.cleanup()
@@ -155,7 +156,7 @@ export class Cache<T> {
 
   /**
    * Returns all cache entries as key-value pairs
-   * @returns {[string, T][]} Array of [key, value] tuples
+   * @returns {[string, T][]} array of [key, value] tuples
    */
   entries(): [string, T][] {
     this.cleanup()
@@ -164,10 +165,10 @@ export class Cache<T> {
 
   /**
    * Gets a value or sets it using factory if not found
-   * @param {string} key - Cache key
-   * @param {() => T} factory - Function to create value if not cached
-   * @param {number} ttl_ms - Optional TTL override
-   * @returns {T} Cached or newly created value
+   * @param {string} key - cache key
+   * @param {() => T} factory - function to create value if not cached
+   * @param {number} ttl_ms - optional TTL override
+   * @returns {T} cached or newly created value
    */
   get_or_set(key: string, factory: () => T, ttl_ms?: number): T {
     const existing = this.get(key)
@@ -179,10 +180,10 @@ export class Cache<T> {
 
   /**
    * Async version of get_or_set
-   * @param {string} key - Cache key
-   * @param {() => Promise<T>} factory - Async function to create value
-   * @param {number} ttl_ms - Optional TTL override
-   * @returns {Promise<T>} Cached or newly created value
+   * @param {string} key - cache key
+   * @param {() => Promise<T>} factory - async function to create value
+   * @param {number} ttl_ms - optional TTL override
+   * @returns {Promise<T>} cached or newly created value
    */
   async get_or_set_async(key: string, factory: () => Promise<T>, ttl_ms?: number): Promise<T> {
     const existing = this.get(key)
@@ -221,8 +222,8 @@ export class Cache<T> {
 
   /**
    * Gets remaining TTL for a key
-   * @param {string} key - Cache key
-   * @returns {number | null} Remaining milliseconds or null
+   * @param {string} key - cache key
+   * @returns {number | null} remaining milliseconds or null
    */
   ttl(key: string): number | null {
     const item = this.store.get(key)
@@ -233,9 +234,9 @@ export class Cache<T> {
 
   /**
    * Extends the TTL of an existing key
-   * @param {string} key - Cache key
-   * @param {number} ttl_ms - New TTL in milliseconds
-   * @returns {boolean} True if key was extended
+   * @param {string} key - cache key
+   * @param {number} ttl_ms - new TTL in milliseconds
+   * @returns {boolean} true if key was extended
    */
   extend(key: string, ttl_ms: number): boolean {
     const item = this.store.get(key)
@@ -283,7 +284,7 @@ export class Cache<T> {
 
   /**
    * - GET CACHE STATISTICS - \\
-   * @returns {cache_stats} Cache statistics
+   * @returns {cache_stats} cache statistics
    */
   get_stats(): cache_stats {
     const total = this.stats.hits + this.stats.misses
@@ -319,8 +320,8 @@ export class Cache<T> {
 
   /**
    * - GET MULTIPLE VALUES - \\
-   * @param {string[]} keys - Cache keys
-   * @returns {Map<string, T>} Map of found values
+   * @param {string[]} keys - cache keys
+   * @returns {Map<string, T>} map of found values
    */
   get_many(keys: string[]): Map<string, T> {
     const result = new Map<string, T>()
@@ -335,8 +336,8 @@ export class Cache<T> {
 
   /**
    * - SET MULTIPLE VALUES - \\
-   * @param {Map<string, T>} entries - Map of key-value pairs
-   * @param {number} ttl_ms - Optional TTL override
+   * @param {Map<string, T>} entries - map of key-value pairs
+   * @param {number} ttl_ms - optional TTL override
    * @returns {void}
    */
   set_many(entries: Map<string, T>, ttl_ms?: number): void {
@@ -347,14 +348,15 @@ export class Cache<T> {
 
   /**
    * - GET CACHE NAMESPACE - \\
-   * @returns {string} Cache namespace
+   * @returns {string} cache namespace
    */
   get_namespace(): string {
     return this.namespace
   }
 }
 
-// - SPECIALIZED CACHE INSTANCES - \\
+// - 专用缓存实例 - \\
+// - specialized cache instances - \\
 // - Organized by feature for better performance monitoring - \\
 
 const global_cache = new Cache<any>(null, 5000, 5 * 60 * 1000, 'global')
@@ -364,9 +366,9 @@ export const db_cache = new Cache<any>(3 * 60 * 1000, 3000, 5 * 60 * 1000, 'data
 
 /**
  * Sets a value in the global cache
- * @param {string} key - Cache key
- * @param {T} value - Value to cache
- * @param {number} ttl_ms - Optional TTL in milliseconds
+ * @param {string} key - cache key
+ * @param {T} value - value to cache
+ * @param {number} ttl_ms - optional TTL in milliseconds
  * @returns {void}
  */
 export function set<T>(key: string, value: T, ttl_ms?: number): void {
@@ -375,8 +377,8 @@ export function set<T>(key: string, value: T, ttl_ms?: number): void {
 
 /**
  * Gets a value from the global cache
- * @param {string} key - Cache key
- * @returns {T | undefined} Cached value or undefined
+ * @param {string} key - cache key
+ * @returns {T | undefined} cached value or undefined
  */
 export function get<T>(key: string): T | undefined {
   return global_cache.get(key)
@@ -384,8 +386,8 @@ export function get<T>(key: string): T | undefined {
 
 /**
  * Checks if a key exists in the global cache
- * @param {string} key - Cache key
- * @returns {boolean} True if key exists
+ * @param {string} key - cache key
+ * @returns {boolean} true if key exists
  */
 export function has(key: string): boolean {
   return global_cache.has(key)
@@ -393,8 +395,8 @@ export function has(key: string): boolean {
 
 /**
  * Removes a key from the global cache
- * @param {string} key - Cache key
- * @returns {boolean} True if key was removed
+ * @param {string} key - cache key
+ * @returns {boolean} true if key was removed
  */
 export function remove(key: string): boolean {
   return global_cache.delete(key)
@@ -410,10 +412,10 @@ export function clear(): void {
 
 /**
  * Gets a value from global cache or sets it using factory
- * @param {string} key - Cache key
- * @param {() => T} factory - Function to create value if not cached
- * @param {number} ttl_ms - Optional TTL in milliseconds
- * @returns {T} Cached or newly created value
+ * @param {string} key - cache key
+ * @param {() => T} factory - function to create value if not cached
+ * @param {number} ttl_ms - optional TTL in milliseconds
+ * @returns {T} cached or newly created value
  */
 export function get_or_set<T>(key: string, factory: () => T, ttl_ms?: number): T {
   return global_cache.get_or_set(key, factory, ttl_ms)
@@ -421,17 +423,18 @@ export function get_or_set<T>(key: string, factory: () => T, ttl_ms?: number): T
 
 /**
  * Async version of get_or_set for global cache
- * @param {string} key - Cache key
- * @param {() => Promise<T>} factory - Async function to create value
- * @param {number} ttl_ms - Optional TTL in milliseconds
- * @returns {Promise<T>} Cached or newly created value
+ * @param {string} key - cache key
+ * @param {() => Promise<T>} factory - async function to create value
+ * @param {number} ttl_ms - optional TTL in milliseconds
+ * @returns {Promise<T>} cached or newly created value
  */
 export async function get_or_set_async<T>(key: string, factory: () => Promise<T>, ttl_ms?: number): Promise<T> {
   return global_cache.get_or_set_async(key, factory, ttl_ms)
 }
 
 /**
- * - LOG ALL CACHE STATISTICS - \\
+ * - 输出所有缓存统计 - \\
+ * - log all cache statistics - \\
  * @returns {void}
  */
 export function log_all_cache_stats(): void {
@@ -446,8 +449,9 @@ export function log_all_cache_stats(): void {
 }
 
 /**
- * - GET ALL CACHE STATISTICS - \\
- * @returns {Record<string, cache_stats>} All cache statistics
+ * - 获取所有缓存统计 - \\
+ * - get all cache statistics - \\
+ * @returns {Record<string, cache_stats>} all cache statistics
  */
 export function get_all_cache_stats(): Record<string, cache_stats> {
   return {

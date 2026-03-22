@@ -15,10 +15,11 @@ const is_production = process.env.NODE_ENV === "production"
 const collection_key_index: Map<string, Set<string>> = new Map()
 
 /**
- * - GENERATE CACHE KEY FOR DATABASE QUERIES - \\
- * @param {string} collection - Collection name
- * @param {object} filter - Query filter
- * @returns {string} Cache key
+ * - 生成数据库查询缓存键 - \\
+ * - generate cache key for database queries - \\
+ * @param {string} collection - collection name
+ * @param {object} filter - query filter
+ * @returns {string} cache key
  */
 function generate_cache_key(collection: string, filter: object): string {
     const filter_str = JSON.stringify(filter, Object.keys(filter).sort())
@@ -26,9 +27,10 @@ function generate_cache_key(collection: string, filter: object): string {
 }
 
 /**
- * - REGISTER CACHE KEY FOR COLLECTION - \\
- * @param {string} collection - Collection name
- * @param {string} cache_key - Cache key to register
+ * - 为集合注册缓存键 - \\
+ * - register cache key for collection - \\
+ * @param {string} collection - collection name
+ * @param {string} cache_key - cache key to register
  * @returns {void}
  */
 function register_collection_key(collection: string, cache_key: string): void {
@@ -42,8 +44,9 @@ function register_collection_key(collection: string, cache_key: string): void {
 }
 
 /**
- * - INVALIDATE CACHE FOR COLLECTION - \\
- * @param {string} collection - Collection name
+ * - 使集合缓存失效 - \\
+ * - invalidate cache for collection - \\
+ * @param {string} collection - collection name
  * @returns {void}
  */
 export function invalidate_collection_cache(collection: string): void {
@@ -65,11 +68,12 @@ export function invalidate_collection_cache(collection: string): void {
 }
 
 /**
- * - CACHED FIND ONE WITH READ-THROUGH PATTERN - \\
- * @param {string} collection - Collection name
- * @param {object} filter - Query filter
- * @param {number} ttl_ms - Optional TTL override
- * @returns {Promise<T | null>} Query result
+ * - 带读穿模式的缓存单条查询 - \\
+ * - cached find one with read-through pattern - \\
+ * @param {string} collection - collection name
+ * @param {object} filter - query filter
+ * @param {number} ttl_ms - optional TTL override
+ * @returns {Promise<T | null>} query result
  */
 export async function cached_find_one<T extends object>(
     collection: string,
@@ -91,11 +95,12 @@ export async function cached_find_one<T extends object>(
 }
 
 /**
- * - CACHED FIND MANY WITH READ-THROUGH PATTERN - \\
- * @param {string} collection - Collection name
- * @param {object} filter - Query filter
- * @param {number} ttl_ms - Optional TTL override
- * @returns {Promise<T[]>} Query results
+ * - 带读穿模式的缓存多条查询 - \\
+ * - cached find many with read-through pattern - \\
+ * @param {string} collection - collection name
+ * @param {object} filter - query filter
+ * @param {number} ttl_ms - optional TTL override
+ * @returns {Promise<T[]>} query results
  */
 export async function cached_find_many<T extends object>(
     collection: string,
@@ -117,12 +122,13 @@ export async function cached_find_many<T extends object>(
 }
 
 /**
- * - UPDATE ONE WITH CACHE INVALIDATION - \\
- * @param {string} collection - Collection name
- * @param {object} filter - Query filter
- * @param {Partial<T>} update - Update data
- * @param {boolean} upsert - Upsert flag
- * @returns {Promise<boolean>} Success status
+ * - 带缓存失效的更新单条 - \\
+ * - update one with cache invalidation - \\
+ * @param {string} collection - collection name
+ * @param {object} filter - query filter
+ * @param {Partial<T>} update - update data
+ * @param {boolean} upsert - upsert flag
+ * @returns {Promise<boolean>} success status
  */
 export async function cached_update_one<T extends object>(
     collection: string,
@@ -140,10 +146,11 @@ export async function cached_update_one<T extends object>(
 }
 
 /**
- * - INSERT ONE WITH CACHE INVALIDATION - \\
- * @param {string} collection - Collection name
- * @param {T} doc - Document to insert
- * @returns {Promise<string>} Inserted ID
+ * - 带缓存失效的插入单条 - \\
+ * - insert one with cache invalidation - \\
+ * @param {string} collection - collection name
+ * @param {T} doc - document to insert
+ * @returns {Promise<string>} inserted ID
  */
 export async function cached_insert_one<T extends object>(
     collection: string,
@@ -157,10 +164,11 @@ export async function cached_insert_one<T extends object>(
 }
 
 /**
- * - DELETE ONE WITH CACHE INVALIDATION - \\
- * @param {string} collection - Collection name
- * @param {object} filter - Query filter
- * @returns {Promise<boolean>} Success status
+ * - 带缓存失效的删除单条 - \\
+ * - delete one with cache invalidation - \\
+ * @param {string} collection - collection name
+ * @param {object} filter - query filter
+ * @returns {Promise<boolean>} success status
  */
 export async function cached_delete_one(
     collection: string,
@@ -176,10 +184,11 @@ export async function cached_delete_one(
 }
 
 /**
- * - DELETE MANY WITH CACHE INVALIDATION - \\
- * @param {string} collection - Collection name
- * @param {object} filter - Query filter
- * @returns {Promise<number>} Number deleted
+ * - 带缓存失效的批量删除 - \\
+ * - delete many with cache invalidation - \\
+ * @param {string} collection - collection name
+ * @param {object} filter - query filter
+ * @returns {Promise<number>} number deleted
  */
 export async function cached_delete_many(
     collection: string,
@@ -195,11 +204,12 @@ export async function cached_delete_many(
 }
 
 /**
- * - INCREMENT WITH CACHE INVALIDATION - \\
- * @param {string} collection - Collection name
- * @param {object} filter - Query filter
- * @param {string} field - Field to increment
- * @param {number} amount - Amount to increment
+ * - 带缓存失效的字段递增 - \\
+ * - increment with cache invalidation - \\
+ * @param {string} collection - collection name
+ * @param {object} filter - query filter
+ * @param {string} field - field to increment
+ * @param {number} amount - amount to increment
  * @returns {Promise<void>}
  */
 export async function cached_increment(
@@ -214,10 +224,11 @@ export async function cached_increment(
 }
 
 /**
- * - PREFETCH RELATED DATA - \\
- * @param {string} collection - Collection name
- * @param {object[]} filters - Array of filters to prefetch
- * @param {number} ttl_ms - Optional TTL override
+ * - 预取相关数据 - \\
+ * - prefetch related data - \\
+ * @param {string} collection - collection name
+ * @param {object[]} filters - array of filters to prefetch
+ * @param {number} ttl_ms - optional TTL override
  * @returns {Promise<void>}
  */
 export async function prefetch_data<T extends object>(
@@ -230,9 +241,10 @@ export async function prefetch_data<T extends object>(
 }
 
 /**
- * - WARM CACHE FOR COLLECTION - \\
- * @param {string} collection - Collection name
- * @param {number} ttl_ms - Optional TTL override
+ * - 预热集合缓存 - \\
+ * - warm cache for collection - \\
+ * @param {string} collection - collection name
+ * @param {number} ttl_ms - optional TTL override
  * @returns {Promise<void>}
  */
 export async function warm_collection_cache<T extends object>(

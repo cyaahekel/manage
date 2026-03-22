@@ -7,7 +7,8 @@
  * See the LICENSE file for more information.
  */
 
-// - TICKET DB MODELS - \\
+// - 工单数据库模型 - \\
+// - ticket db models - \\
 export interface purchase_ticket_data {
   thread_id       : string
   owner_id        : string

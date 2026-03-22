@@ -19,7 +19,7 @@ const av_command: SubCommand = {
   description: "Display avatar of a user",
 
   /**
-   * @description Show server/global avatar with toggle buttons (if both exist)
+   * @description show server/global avatar with toggle buttons (if both exist)
    * @param message - The Discord message
    * @param args    - Parsed arguments (unused, relies on mentions)
    * @param client  - Discord client instance
@@ -48,7 +48,8 @@ const av_command: SubCommand = {
         } catch {}
       }
 
-      // - DEFAULT: show server avatar when available - \\
+      // - 当服务器头像可用时优先显示 - \\
+      // - default: show server avatar when available - \\
       const display_url = server_avatar ?? global_avatar
 
       const containers: component.container_component[] = [

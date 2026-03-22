@@ -14,7 +14,7 @@ import { Command }             from "@shared/types/command"
 import { component, api }      from "@shared/utils"
 
 /**
- * @description Setup command for creating middleman/rekber service panel
+ * @description setup command for creating middleman/rekber service panel
  */
 const middleman_panel: Command = {
   data: new SlashCommandBuilder()

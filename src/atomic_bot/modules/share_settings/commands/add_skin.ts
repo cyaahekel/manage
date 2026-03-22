@@ -20,8 +20,9 @@ import { log_error }       from "@shared/utils/error_logger"
 import * as share_settings from "../controller"
 
 /**
- * - EXECUTE ADD SKIN COMMAND - \\
- * @param {ChatInputCommandInteraction} interaction - Command interaction
+ * - 执行添加皮茅命令 - \\
+ * - execute add skin command - \\
+ * @param {ChatInputCommandInteraction} interaction - command interaction
  * @returns {Promise<void>}
  */
 async function execute_add_skin(interaction: ChatInputCommandInteraction): Promise<void> {

@@ -16,7 +16,8 @@ import * as voice_interaction                                  from "@shared/dat
 import { component, modal }                                    from "@shared/utils"
 
 /**
- * - VALIDATE AND FETCH VOICE CHANNEL - \\
+ * - 验证并获取语音频道 - \\
+ * - validate and fetch voice channel - \\
  * @param guild - Guild instance
  * @param channel_id - Channel ID to validate
  * @returns VoiceChannel or null if not valid
@@ -182,7 +183,8 @@ export async function handle_tempvoice_privacy(interaction: ButtonInteraction): 
 
   await interaction.deferReply({ flags: 64 })
 
-  // - VALIDATE CHANNEL STILL EXISTS - \\
+  // - 验证语音频道是否仍存在 - \\
+  // - validate channel still exists - \\
   const validated = await validate_voice_channel(member.guild, orig_chan_id)
   if (!validated) {
     await interaction.editReply(create_error_reply("Channel no longer exists."))
@@ -555,7 +557,8 @@ export async function handle_tempvoice_claim(interaction: ButtonInteraction): Pr
 
   await interaction.deferReply({ flags: 64 })
 
-  // - VALIDATE CHANNEL STILL EXISTS - \\
+  // - 验证语音频道是否仍存在 - \\
+  // - validate channel still exists - \\
   const validated = await validate_voice_channel(member.guild, orig_chan_id)
   if (!validated) {
     await interaction.editReply(create_error_reply("Channel no longer exists."))
@@ -627,7 +630,8 @@ export async function handle_tempvoice_delete(interaction: ButtonInteraction): P
 
   await interaction.deferReply({ flags: 64 })
 
-  // - VALIDATE CHANNEL STILL EXISTS - \\
+  // - 验证语音频道是否仍存在 - \\
+  // - validate channel still exists - \\
   const validated = await validate_voice_channel(member.guild, orig_chan_id)
   if (!validated) {
     await interaction.editReply(create_error_reply("Channel already deleted."))
@@ -653,10 +657,12 @@ export async function handle_tempvoice_delete(interaction: ButtonInteraction): P
 export async function handle_tempvoice_leaderboard(interaction: ButtonInteraction): Promise<void> {
   const guild_id = interaction.guildId!
 
-  // - FETCH A WIDER SET TO RECONCILE STALE ENTRIES - \\
+  // - 获取更大范围的数据以对齐过期条目 - \\
+  // - fetch a wider set to reconcile stale entries - \\
   let leaderboard = await voice_tracker.get_channel_leaderboard(guild_id, 50)
 
-  // - MARK STALE ACTIVE CHANNELS AS DELETED (BOT RESTART DRIFT) - \\
+  // - 标记过期活跃频道为已删除（机器人重启漂移） - \\
+  // - mark stale active channels as deleted (bot restart drift) - \\
   const stale_ids = leaderboard
     .filter(r => !r.deleted_at && !interaction.guild!.channels.cache.has(r.channel_id))
     .map(r => r.channel_id)

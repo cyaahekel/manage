@@ -16,8 +16,8 @@ import { api } from "@shared/utils"
 import { get_ticket_config } from "@shared/database/unified_ticket"
 
 /**
- * @description Handles close reason modal submission for middleman ticket
- * @param {ModalSubmitInteraction} interaction - The modal submit interaction
+ * @description handles close reason modal submission for middleman ticket
+ * @param {ModalSubmitInteraction} interaction - the modal submit interaction
  * @returns {Promise<boolean>} - Returns true if handled
  */
 export async function handle_middleman_close_reason_modal(interaction: ModalSubmitInteraction): Promise<boolean> {
@@ -33,10 +33,12 @@ export async function handle_middleman_close_reason_modal(interaction: ModalSubm
     return true
   }
 
-  // - MARK TICKET AS CANCELLED IN DATABASE - \\
+  // - 标记工单为已取消 - \\
+  // - mark ticket as cancelled in database - \\
   await cancel_middleman_ticket(thread.id, close_reason)
 
-  // - DELETE LOG MESSAGE IF EXISTS - \\
+  // - 删除已有日志消息 - \\
+  // - delete log message if exists - \\
   const ticket = await get_middleman_ticket(thread.id)
   if (ticket?.log_message_id) {
     const config = get_ticket_config("middleman")

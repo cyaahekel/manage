@@ -17,7 +17,8 @@ import { Command } from "@shared/types/command"
 import { component, guild_settings } from "@shared/utils"
 
 /**
- * - BYPASS CHANNEL SET COMMAND - \\
+ * - 设置绕过频道命令 - \\
+ * - bypass channel set command - \\
  */
 const bypass_channel_set_command: Command = {
   data: new SlashCommandBuilder()

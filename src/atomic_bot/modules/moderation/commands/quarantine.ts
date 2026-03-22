@@ -19,7 +19,7 @@ import { Command }            from "@shared/types/command"
 import { quarantine_member }  from "../../quarantine/controller"
 
 /**
- * @description Quarantine member command - restricts member from viewing all channels
+ * @description quarantine member command - restricts member from viewing all channels
  */
 export const command: Command = {
   data: new SlashCommandBuilder()
