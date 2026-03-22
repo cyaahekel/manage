@@ -38,44 +38,51 @@
 ## Architecture
 
 ```mermaid
-flowchart TD
-    Entry["src/index.ts\nMulti-bot launcher"]
+flowchart TB
+    IDX["src/index.ts\nMulti-bot Launcher"]
 
-    Entry --> A["atomic_bot.ts"]
-    Entry --> J["jkt48_bot.ts"]
-    Entry --> B["bypass_bot.ts"]
+    IDX --> A_ENTRY["startup/atomic_bot.ts"]
+    IDX --> J_ENTRY["startup/jkt48_bot.ts"]
+    IDX --> B_ENTRY["startup/bypass_bot.ts"]
 
-    subgraph ATOMIC["Atomic Bot"]
-        A --> AC["core/handlers\ncommand · button · modal · select"]
-        AC --> AM["modules/\nmoderation · tickets · payments\nmusic · reminder · tempvoice · ..."]
+    subgraph ATOMIC["Atomic Bot — Server Management"]
+        A_ENTRY --> A_CORE["core/handlers\ncommand · button · modal · select · event"]
+        A_CORE  --> A_MOD["modules/\nmoderation · tickets · payment · music\nreminder · tempvoice · afk · loa\nquarantine · reputation · staff · middleman · ..."]
+        A_CORE  --> A_INFRA["infrastructure/\napi · cache · webhooks"]
     end
 
-    subgraph JKT48["JKT48 Bot"]
-        J --> JC["core/controllers\nIDN · Showroom · scheduler"]
-        JC --> JM["modules/\nnotify · history_live · ..."]
+    subgraph JKT48_BOT["JKT48 Bot — Live Notifications"]
+        J_ENTRY --> J_SCHED["scheduler — every 60 s\nidn_live_monitor"]
+        J_SCHED --> J_CTRL["controllers\nidn_live · jkt48_live"]
+        J_CTRL  --> J_API["infrastructure/api\nidn_live · showroom_live"]
+        J_CTRL  --> J_MOD["modules\nnotify · history_live · check_on_live"]
     end
 
-    subgraph BYPASS["Bypass Bot"]
-        B --> BC["core/events · limits · select_menus"]
-        BC --> BM["modules/\nbypass · bypass_channel_set · ..."]
+    subgraph BYPASS_BOT["Bypass Bot — Link Bypass"]
+        B_ENTRY --> B_EV["core/events\nmessageCreate"]
+        B_EV    --> B_LIM["core/limits\nrate_limit · dm_cooldown"]
+        B_LIM   --> B_SVC["bypass_service"]
+        B_ENTRY --> B_MOD["modules\nbypass · bypass_channel_set · bypass_support"]
     end
 
-    ATOMIC & JKT48 & BYPASS --> SHARED
+    ATOMIC     --> SHARED
+    JKT48_BOT  --> SHARED
+    BYPASS_BOT --> SHARED
 
-    subgraph SHARED["src/shared/"]
-        DB["database/\nmanagers · services · unified_ticket"]
-        UTILS["utils/\ncomponent · api · modal · logger"]
-        CONST["constants + enums + models"]
-        DB --- UTILS --- CONST
+    subgraph SHARED["src/shared/ — Cross-bot Layer"]
+        direction LR
+        SH_DB["database/\nmanagers · services · unified_ticket\ntrackers · settings"]
+        SH_UTIL["utils/\ncomponent · api · modal\nlogger · discord_api · error_logger"]
+        SH_CONST["constants · enums\nmodels · types · config"]
     end
 
-    SHARED --> PG[("PostgreSQL")]
-    SHARED --> DAPI["Discord REST API"]
+    SH_DB   --> PG[("PostgreSQL")]
+    SH_UTIL --> DISC(["Discord REST API"])
 
-    subgraph WEB["web/ — Next.js Dashboard"]
-        WEBAPP["app/ routes"]
-        WEBAPI["app/api/ — REST endpoints"]
-        WEBAPP --- WEBAPI
+    subgraph WEB["web/ — Next.js 15 Dashboard"]
+        direction LR
+        W_APP["app/ routes\ndashboard · staff · transcript"]
+        W_API["app/api/ REST endpoints"]
     end
 
     WEB --> PG
@@ -87,52 +94,192 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    Discord["Discord Gateway\nWebSocket event"] --> Handler["interactionCreate\nlistener"]
+    GW(["Discord Gateway\nWebSocket"])
 
-    Handler --> CMD{"Interaction\ntype?"}
+    GW --> IC["interactionCreate"]
+    GW --> VSU["voiceStateUpdate"]
+    GW --> MSG["messageCreate"]
+    GW --> RDY["ready"]
 
-    CMD -- "ChatInputCommand" --> SlashCmd["modules/<feature>/commands/*.ts\nexecute()"]
-    CMD -- "ButtonInteraction" --> Btn["core/handlers/buttons/\nor modules/.../interactions/buttons/"]
-    CMD -- "ModalSubmit" --> Mdl["core/handlers/modals/\nor modules/.../interactions/modals/"]
-    CMD -- "SelectMenu" --> Sel["modules/.../interactions/select_menus/"]
-    CMD -- "Autocomplete" --> Auto["command.autocomplete()"]
+    IC --> ITYPE{"Interaction\ntype"}
 
-    SlashCmd & Btn & Mdl & Sel --> CV2["component.build_message()\nComponent V2 reply\nflags: 32768"]
-    CV2 --> Discord
+    ITYPE -->|"ChatInputCommand"| SLASH["modules/cmd/*.ts\nexecute()"]
+    ITYPE -->|"ButtonInteraction"| BTN["core/handlers/buttons/\nor modules/.../buttons/"]
+    ITYPE -->|"ModalSubmit"| MDL["core/handlers/modals/\nor modules/.../modals/"]
+    ITYPE -->|"SelectMenu"| SEL["modules/.../select_menus/"]
+    ITYPE -->|"Autocomplete"| AUTO["command.autocomplete()"]
+
+    VSU --> TV["tempvoice\nhandle_voice_state_update"]
+    VSU --> SV["staff_voice_controller\non_voice_join · on_voice_leave"]
+
+    MSG --> AB["bypass_bot\nauto_bypass handler"]
+
+    RDY --> STARTUP["load slash commands\nreconcile tempvoice guild\nrestart reminder timers"]
+
+    SLASH & BTN & MDL & SEL --> CV2["component.build_message\nComponent V2 · flags: 32768"]
+    CV2 --> REPLY(["interaction.reply\neditReply · followUp"])
 ```
 
 ---
 
-## TempVoice Flow
+## Ticket System Lifecycle
 
 ```mermaid
 flowchart TD
-    Join["User joins\n➕・create-voice"] --> VSU["VoiceStateUpdate\nevent"]
-    VSU --> Match{"channelId ==\ngeneratorId?"}
-    Match -- "no" --> Other["handle thread\nadd / remove"]
-    Match -- "yes" --> Existing{"User already\nhas channel?"}
+    CLICK["User clicks\nTicket Panel button"]
+    CLICK --> DEFER["interaction.deferReply ephemeral"]
+    DEFER --> CHK{"Existing open\nticket?"}
 
-    Existing -- "yes" --> Move1["member.voice.setChannel\nexisting channel"]
-    Existing -- "no" --> Create["guild.channels.create\nnew VoiceChannel\n+ permission overwrites"]
+    CHK -->|"Yes — thread still active"| ALREADY["Reply: already open\n+ Jump to Ticket button"]
+    CHK -->|"No"| FETCH_CH["fetch ticket_parent_id channel"]
 
-    Create --> RegMap["Register in-memory maps\n__temp_channels / __channel_owners\n__trusted_users / __blocked_users"]
-    RegMap --> MoveNow["member.voice.setChannel\nnew channel\n← user is here IMMEDIATELY"]
+    FETCH_CH --> TH_CREATE["threads.create\nPrivateThread"]
+    TH_CREATE -->|"Success"| TH_OK["Thread created"]
+    TH_CREATE -->|"Error 160006\nthread limit"| ARCHIVE["archive_oldest_threads 50\nthen retry create"]
+    ARCHIVE   -->|"Retry OK"| TH_OK
+    ARCHIVE   -->|"Retry fails"| ERR_LIMIT["Reply: thread limit reached"]
 
-    MoveNow --> BG["Background IIFE\nnon-blocking"]
+    TH_OK --> ADD_USER["thread.members.add user"]
+    ADD_USER --> SAVE["set_user_open_ticket\nsave_ticket to state + DB"]
+    SAVE --> POST_PANEL["Post ticket info panel inside thread\ntype · issue · action buttons"]
+    POST_PANEL --> OPEN_ST["OPEN"]
 
-    subgraph BG_TASKS["Background tasks (fire-and-forget)"]
-        T1["voice_tracker.track_channel_created\nDB insert"]
-        T2["restore_channel_settings\napply saved name · limit · privacy\nper-user permission overwrites"]
-        T3["create_thread\nprivate thread + interface panel"]
-        T1 --> T2 --> T3
+    OPEN_ST -->|"Staff clicks Claim"| MUTEX{"Per-thread mutex\n__claiming_threads"}
+    MUTEX   -->|"Already claiming"| BUSY["Reply: claim in progress"]
+    MUTEX   -->|"Lock acquired"| CLAIM["claim.ts\ndeferReply · verify staff role\nassign · update state · log"]
+    CLAIM   --> CLAIMED_ST["CLAIMED"]
+
+    CLAIMED_ST -->|"Add Member"| ADD_MEM["add_member.ts\nthread.members.add target"]
+    CLAIMED_ST -->|"Close"| CLOSE_ACT["close.ts\nParallel:\n• generate transcript → DB\n• post close summary\n• notify owner via DM\nthread.setLocked + setArchived\nremove_user_open_ticket · delete_ticket_db"]
+    CLOSE_ACT --> CLOSED_ST["CLOSED"]
+
+    CLOSED_ST -->|"Staff reopens"| REOPEN["reopen.ts\nthread.setArchived false\nthread.setLocked false\nload_ticket · post reopen notice"]
+    REOPEN --> OPEN_ST
+```
+
+---
+
+## TempVoice Channel Lifecycle
+
+```mermaid
+flowchart TD
+    JOIN["User joins\ngenerator channel"]
+    JOIN --> VSU_H["handle_voice_state_update"]
+
+    VSU_H --> IS_GEN{"channelId ==\ngeneratorChannelId?"}
+
+    IS_GEN -->|"No — joined temp channel"| T_ADD["Add member to\nchannel thread"]
+    IS_GEN -->|"No — left temp channel"| T_REM["Remove member from\nchannel thread"]
+    IS_GEN -->|"Yes"| HAS_CH{"User already\nhas a channel?"}
+
+    HAS_CH -->|"Yes"| MOVE_EX["member.voice.setChannel\nexisting channel"]
+    HAS_CH -->|"No"| CREATE["guild.channels.create\nVoiceChannel + permission overwrites\nowner: ManageChannels · MoveMembers\n       MuteMembers · DeafenMembers"]
+
+    CREATE --> REG["Register in-memory maps\n__temp_channels  __channel_owners\n__trusted_users  __blocked_users\n__waiting_rooms = false"]
+
+    REG --> MOVE_NOW["member.voice.setChannel\nUSER MOVED IMMEDIATELY"]
+
+    MOVE_NOW --> BGIIFE(["Background IIFE\nfire-and-forget"])
+
+    subgraph BG["Background Tasks — non-blocking"]
+        direction TB
+        BG1["voice_tracker.track_channel_created\nDB insert"]
+        BG2["restore_channel_settings\nname · user limit · privacy\nper-user permission overwrites"]
+        BG3["create_thread\nprivate chat thread\n+ in-voice interface panel"]
+        BG1 --> BG2 --> BG3
     end
 
-    BG --> BG_TASKS
+    BGIIFE --> BG
 
-    Leave["User leaves\ntemp channel"] --> Timer["setTimeout 2 s\nrace-condition guard"]
-    Timer --> Empty{"member\ncount == 0?"}
-    Empty -- "no" --> Keep["Keep channel alive"]
-    Empty -- "yes" --> Del["delete_temp_channel\narchive thread\ncleanup maps & DB"]
+    LEAVE["User leaves\ntemp channel"] --> CLR_T["Clear existing\ndeletion timer"]
+    CLR_T --> DELAY["setTimeout 2 000 ms\nrace-condition guard"]
+    DELAY --> EMPTY{"Active member\ncount = 0?"}
+    EMPTY -->|"No"| KEEP["Keep channel alive"]
+    EMPTY -->|"Yes"| DEL_CH["delete_temp_channel\nArchive + lock thread\nCleanup in-memory maps\ntrack_channel_deleted DB"]
+```
+
+---
+
+## JKT48 Live Notification Loop
+
+```mermaid
+flowchart TD
+    BOOT["Bot ready\nstart_idn_live_scheduler"]
+    BOOT --> TICK["setInterval 60 000 ms"]
+
+    TICK --> F_IDN["idn_live.get_live_rooms\nIDN Mobile API + Detail API\nwith retry on 5xx / timeout"]
+    TICK --> F_SR["showroom_live.get_jkt48_showroom_lives\nShowroom API"]
+
+    F_IDN --> MERGE["Merge IDN + Showroom\nlive room lists"]
+    F_SR  --> MERGE
+
+    MERGE --> DIFF["Diff against\nidn_live_state DB"]
+
+    DIFF --> IS_NEW{"New live\ndetected?"}
+    DIFF --> IS_END{"Live ended\nor gone?"}
+    DIFF --> IS_ON{"Ongoing —\nno change?"}
+
+    IS_NEW -->|"Yes"| UPSERT["Upsert to\nidn_live_state DB"]
+    UPSERT --> GET_G["Fetch guild notification settings\njkt48_guild_notification_settings"]
+    GET_G --> SEND["For each configured channel\nSend Component V2 notification\nmember · title · thumbnail · URL"]
+    SEND --> SAVE_IDS["Save message IDs\nidn_live_notifications DB"]
+    SAVE_IDS --> TICK
+
+    IS_END -->|"Yes"| FETCH_IDS["Fetch saved\nmessage IDs from DB"]
+    FETCH_IDS --> EDIT_MSG["Edit each notification\nmark ended · add duration"]
+    EDIT_MSG --> DEL_ST["Delete live state\nfrom DB"]
+    DEL_ST --> TICK
+
+    IS_ON -->|"Yes"| TICK
+    IS_NEW -->|"No"| TICK
+    IS_END -->|"No"| TICK
+```
+
+---
+
+## Bypass Bot — Link Processing Pipeline
+
+```mermaid
+flowchart LR
+    MSG_EV["messageCreate"]
+
+    MSG_EV --> PARTIAL{"partial\nmessage?"}
+    PARTIAL -->|"Yes"| FETCH_P["message.fetch()"]
+    PARTIAL -->|"No"| CHAN_CHK
+    FETCH_P --> CHAN_CHK
+
+    CHAN_CHK{"DM or\nconfigured\nbypass channel?"}
+    CHAN_CHK -->|"Neither"| IGN["skip"]
+    CHAN_CHK -->|"bypass_enabled = false"| MAINT["Reply: Under Maintenance\n+ disabled reason"]
+    CHAN_CHK -->|"Is DM"| DM_COOL{"DM cooldown\nactive?"}
+    CHAN_CHK -->|"Is Channel"| G_RATE{"Guild rate\nlimit hit?"}
+
+    DM_COOL -->|"Yes — silent drop"| DROP["skip\navoid bot quarantine"]
+    DM_COOL -->|"No"| EXTR
+    G_RATE  -->|"Yes"| RATE_R["Reply: rate limit\n+ wait seconds"]
+    G_RATE  -->|"No"| EXTR
+
+    EXTR["extract_url_from_message\ncontent → embed.url\n→ embed.description → embed.fields"]
+    EXTR --> URL_CHK{"URL\nfound?"}
+    URL_CHK -->|"No"| IGN2["skip"]
+    URL_CHK -->|"Yes"| PROC_R["Reply: Bypassing Link\n+ DM install button"]
+
+    PROC_R --> TRACK["track_bypass_session\nDB upsert — restart recovery"]
+    TRACK  --> BP_CALL["bypass_service.bypass_link\nwith retry callback"]
+
+    BP_CALL -->|"Success"| OK_R["Edit reply:\nbypassed URL + Copy buttons"]
+    BP_CALL -->|"Failed"| FAIL_R["Edit reply:\nerror + retry suggestion"]
+
+    OK_R   --> CLRDB["clear_bypass_session\nDB delete"]
+    FAIL_R --> CLRDB
+
+    subgraph RECOVER["On Bot Restart"]
+        direction LR
+        RCV1["Query bypass_cache\nfor stuck sessions"]
+        RCV2["Fetch each stuck message\nEdit: Bot Restarted notice"]
+        RCV3["Delete session\nfrom bypass_cache"]
+        RCV1 --> RCV2 --> RCV3
+    end
 ```
 
 ---
