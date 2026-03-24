@@ -708,6 +708,32 @@ async function init_tables(): Promise<void> {
       CREATE INDEX IF NOT EXISTS idx_staff_info_sections_tab_id ON staff_information_sections(tab_id)
     `).catch(() => {})
 
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS tempvoice_transcripts (
+        id               SERIAL PRIMARY KEY,
+        transcript_id    VARCHAR(36) NOT NULL UNIQUE,
+        channel_id       VARCHAR(255) NOT NULL,
+        channel_name     VARCHAR(255) NOT NULL,
+        owner_id         VARCHAR(255) NOT NULL,
+        owner_tag        VARCHAR(255),
+        guild_id         VARCHAR(255) NOT NULL,
+        messages         JSONB NOT NULL DEFAULT '[]',
+        created_at       BIGINT NOT NULL,
+        deleted_at       BIGINT NOT NULL,
+        duration_seconds INTEGER NOT NULL DEFAULT 0,
+        total_visitors   INTEGER NOT NULL DEFAULT 1,
+        stored_at        TIMESTAMP DEFAULT NOW()
+      )
+    `).catch(() => {})
+
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS idx_tempvoice_transcripts_owner ON tempvoice_transcripts(owner_id)
+    `).catch(() => {})
+
+    await client.query(`
+      CREATE INDEX IF NOT EXISTS idx_tempvoice_transcripts_tid ON tempvoice_transcripts(transcript_id)
+    `).catch(() => {})
+
     await migrate_tables(client)
 
     console.log("[ - POSTGRESQL - ] Tables initialized")

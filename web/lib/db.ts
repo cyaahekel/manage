@@ -69,6 +69,42 @@ export async function get_transcript(transcript_id: string) {
 
 // - BYPASS GUILD SETTINGS - \\
 
+/**
+ * @description Fetch a tempvoice transcript by ID.
+ * @param transcript_id - UUID of the transcript
+ * @returns Parsed transcript data or null
+ */
+export async function get_tempvoice_transcript(transcript_id: string) {
+  const client = await pool.connect()
+  try {
+    const result = await client.query(
+      'SELECT * FROM tempvoice_transcripts WHERE transcript_id = $1',
+      [transcript_id]
+    )
+
+    if (result.rows.length === 0) return null
+
+    const row = result.rows[0]
+    return {
+      transcript_id    : row.transcript_id,
+      channel_id       : row.channel_id,
+      channel_name     : row.channel_name,
+      owner_id         : row.owner_id,
+      owner_tag        : row.owner_tag,
+      guild_id         : row.guild_id,
+      messages         : typeof row.messages === 'string' ? JSON.parse(row.messages) : row.messages,
+      created_at       : parseInt(row.created_at),
+      deleted_at       : parseInt(row.deleted_at),
+      duration_seconds : parseInt(row.duration_seconds),
+      total_visitors   : parseInt(row.total_visitors),
+    }
+  } finally {
+    client.release()
+  }
+}
+
+// - BYPASS GUILD SETTINGS - \\
+
 export interface bypass_guild_settings {
   bypass_channel         ?: string
   bypass_enabled         ?: string   // "true" | "false" | undefined

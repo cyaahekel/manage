@@ -17,10 +17,13 @@ import {
   CategoryChannel,
   OverwriteType,
   VideoQualityMode,
+  ThreadChannel,
 }                                              from "discord.js"
 import { logger, component, api, db }           from "../../utils"
 import { load_config }                          from "../../config/loader"
 import * as voice_tracker                       from "../trackers/voice_time_tracker"
+import * as tv_transcript                       from "../managers/tempvoice_transcript_manager"
+import { log_error }                            from "../../utils/error_logger"
 
 interface tempvoice_config {
   category_name        : string
@@ -124,6 +127,7 @@ const __threads             : Map<string, string>               = new Map()
 const __in_voice_interfaces : Map<string, string>               = new Map()
 const __saved_settings      : Map<string, saved_channel_settings> = new Map()
 const __deletion_timers     : Map<string, NodeJS.Timeout>       = new Map()
+const __channel_visitors    : Map<string, Set<string>>          = new Map()
 
 let __generator_channel_id  : string | null                     = __config.generator_channel_id || null
 let __category_id           : string | null                     = __config.category_id || null
@@ -192,6 +196,9 @@ function register_existing_channel(channel: VoiceChannel, owner_id: string): voi
   __trusted_users.set(channel.id, __trusted_users.get(channel.id) || new Set())
   __blocked_users.set(channel.id, __blocked_users.get(channel.id) || new Set())
   __waiting_rooms.set(channel.id, __waiting_rooms.get(channel.id) || false)
+  if (!__channel_visitors.has(channel.id)) {
+    __channel_visitors.set(channel.id, new Set([owner_id]))
+  }
 }
 
 /**
@@ -204,6 +211,21 @@ export async function reconcile_tempvoice_guild(guild: Guild): Promise<void> {
   try {
     const category = get_category_from_generator(guild)
     if (!category) return
+
+    // - 親チャンネルからアクティブスレッドを取得 - \\
+    // - fetch active threads from parent channel to restore thread map - \\
+    let active_threads: Map<string, string> = new Map()
+    if (__thread_parent_id) {
+      try {
+        const parent = await guild.channels.fetch(__thread_parent_id).catch(() => null)
+        if (parent && parent.isTextBased() && "threads" in parent) {
+          const fetched = await (parent as any).threads.fetchActive()
+          for (const [, thread] of fetched.threads) {
+            active_threads.set(thread.name, thread.id)
+          }
+        }
+      } catch { /* ignore */ }
+    }
 
     const voice_channels = guild.channels.cache.filter(c =>
       c.type === ChannelType.GuildVoice &&
@@ -233,6 +255,26 @@ export async function reconcile_tempvoice_guild(guild: Guild): Promise<void> {
       const owner_id = get_owner_id_from_overwrites(fresh_channel)
       if (owner_id) {
         register_existing_channel(fresh_channel, owner_id)
+
+        // - スレッドマップを復元 - \\
+        // - restore thread map from active threads - \\
+        const matched_thread_id = active_threads.get(fresh_channel.name)
+        if (matched_thread_id && !__threads.has(fresh_channel.id)) {
+          __threads.set(fresh_channel.id, matched_thread_id)
+          console.log(`[ - RECONCILE - ] Restored thread ${matched_thread_id} for channel ${fresh_channel.name}`)
+        }
+
+        // - 既存チャンネルの現在メンバーを訪問者として登録 - \\
+        // - backfill current voice members as visitors for pre-existing channels - \\
+        const voice_states = guild.voiceStates?.cache
+        if (voice_states) {
+          const in_channel = voice_states.filter(s => s.channelId === fresh_channel.id)
+          const visitors   = __channel_visitors.get(fresh_channel.id) ?? new Set<string>()
+          for (const [, state] of in_channel) {
+            if (state.member) visitors.add(state.member.id)
+          }
+          __channel_visitors.set(fresh_channel.id, visitors)
+        }
       }
     }
   } catch (error) {
@@ -482,6 +524,7 @@ export async function create_temp_channel(member: GuildMember): Promise<VoiceCha
     __trusted_users.set(channel.id, new Set())
     __blocked_users.set(channel.id, new Set())
     __waiting_rooms.set(channel.id, false)
+    __channel_visitors.set(channel.id, new Set([member.id]))
 
     // - 立即移动成员，无需等待后台任务 - \\
     // - move member immediately without waiting for background tasks - \\
@@ -556,20 +599,47 @@ export async function delete_temp_channel(channel: VoiceChannel | string): Promi
       voice_channel = fetched
     }
 
-    const thread_id = __threads.get(channel_id)
+    // - 收集聊天记录并 DM 通知 owner（后台，不阻塞删除） - \\
+    // - collect chat transcript and DM owner (background, non-blocking) - \\
+    const owner_id        = __channel_owners.get(channel_id)
+    const channel_name    = voice_channel?.name ?? "Unknown"
+    const thread_id       = __threads.get(channel_id)
+    const total_visitors  = __channel_visitors.get(channel_id)?.size ?? 1
+
+    // - 在删除前收集线程消息 - \\
+    // - collect thread messages before deletion - \\
+    let collected_thread: ThreadChannel | null = null
     if (thread_id && voice_channel) {
-      const thread = voice_channel.guild.channels.cache.get(thread_id)
-      if (thread && thread.isThread()) {
-        try {
-          await thread.setLocked(true)
-          await thread.setArchived(true)
-          console.log(`[ - THREAD - ] Locked and archived thread ${thread_id}`)
-        } catch (thread_error) {
-          console.error(`[ - THREAD - ] Failed to lock/archive thread:`, thread_error)
+      try {
+        let th = voice_channel.guild.channels.cache.get(thread_id)
+        if (!th) {
+          th = await voice_channel.guild.channels.fetch(thread_id).catch(() => undefined) as any
         }
-      }
-      __threads.delete(channel_id)
+        if (th && th.isThread()) {
+          collected_thread = th as ThreadChannel
+        }
+      } catch { /* ignore */ }
     }
+
+    let transcript_messages: any[] = []
+    if (collected_thread) {
+      try {
+        transcript_messages = await tv_transcript.collect_thread_messages(collected_thread)
+      } catch { /* ignore */ }
+    }
+
+    // - 关闭线程 - \\
+    // - close thread - \\
+    if (collected_thread) {
+      try {
+        await collected_thread.setLocked(true)
+        await collected_thread.setArchived(true)
+        console.log(`[ - THREAD - ] Locked and archived thread ${thread_id}`)
+      } catch (thread_error) {
+        console.error(`[ - THREAD - ] Failed to lock/archive thread:`, thread_error)
+      }
+    }
+    __threads.delete(channel_id!)
 
     await voice_tracker.track_channel_deleted(channel_id)
 
@@ -580,6 +650,75 @@ export async function delete_temp_channel(channel: VoiceChannel | string): Promi
     cleanup_channel_data(channel_id)
 
     __log.info(`Deleted temp channel: ${channel_id}`)
+
+    // - 后台保存记录并 DM owner - \\
+    // - background: save transcript and DM owner - \\
+    if (owner_id && guild && transcript_messages.length > 0) {
+      ;(async () => {
+        try {
+          const record      = await db.find_one<any>("voice_channel_time", { channel_id })
+          const created_at   = record ? Math.floor(new Date(record.created_at).getTime() / 1000) : Math.floor(Date.now() / 1000)
+          const deleted_at   = Math.floor(Date.now() / 1000)
+          const duration_sec = record?.duration_seconds ?? (deleted_at - created_at)
+
+          const tid = tv_transcript.generate_tempvoice_transcript_id()
+          await tv_transcript.save_tempvoice_transcript({
+            transcript_id    : tid,
+            channel_id       : channel_id!,
+            channel_name,
+            owner_id,
+            owner_tag        : "",
+            guild_id         : guild!.id,
+            messages         : transcript_messages,
+            created_at,
+            deleted_at,
+            duration_seconds : duration_sec,
+            total_visitors,
+          })
+
+          const web_url  = process.env.WEB_URL || "https://maxime.vercel.app"
+          const full_url = web_url.startsWith("http") ? web_url : `https://${web_url}`
+          const link     = `${full_url}/tempvoice/${tid}`
+
+          const hours   = Math.floor(duration_sec / 3600)
+          const minutes = Math.floor((duration_sec % 3600) / 60)
+          const dur_str = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`
+
+          const owner = await guild!.client.users.fetch(owner_id).catch(() => null)
+          if (owner) {
+            const dm_payload = component.build_message({
+              components: [
+                component.container({
+                  components: [
+                    component.text([
+                      "## Voice Channel Ended",
+                      `Your voice channel **${channel_name}** has been deleted.`,
+                      "",
+                      `<:limit:1449851533033214063> Duration: **${dur_str}**`,
+                      `<:invite:1449851345405218997> Visitors: **${total_visitors}**`,
+                      `<:chat:1449851153289576519> Messages: **${transcript_messages.length}**`,
+                    ]),
+                    component.divider(),
+                    component.action_row(
+                      component.link_button("View Chat History", link),
+                    ),
+                  ],
+                }),
+              ],
+            })
+
+            await owner.send(dm_payload).catch(() => {})
+            console.log(`[ - TEMPVOICE TRANSCRIPT - ] DM sent to ${owner.tag}: ${tid}`)
+          }
+        } catch (err) {
+          await log_error(guild!.client, err as Error, "tempvoice_transcript_save", {
+            channel_id,
+            owner_id,
+          }).catch(() => {})
+        }
+      })()
+    }
+
     return true
   } catch (error) {
     __log.error("Failed to delete temp channel:", error)
@@ -612,6 +751,7 @@ export function cleanup_channel_data(channel_id: string): void {
   __waiting_rooms.delete(channel_id)
   __threads.delete(channel_id)
   __in_voice_interfaces.delete(channel_id)
+  __channel_visitors.delete(channel_id)
 }
 
 /**
@@ -1171,9 +1311,16 @@ export async function handle_voice_state_update(old_state: VoiceState, new_state
     return
   }
 
-  // - 加入临时频道时将成员添加到子线程 - \\
-  // - add member to thread when joining temp channel - \\
+  // - 加入临时频道时跟踪访客 - \\
+  // - track visitor when joining temp channel - \\
   if (new_state.channelId && is_temp_channel(new_state.channelId)) {
+    const visitors = __channel_visitors.get(new_state.channelId)
+    if (visitors) {
+      visitors.add(member.id)
+    } else {
+      __channel_visitors.set(new_state.channelId, new Set([member.id]))
+    }
+
     const thread_id = __threads.get(new_state.channelId)
     if (thread_id) {
       try {
