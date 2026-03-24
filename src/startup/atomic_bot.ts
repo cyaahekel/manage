@@ -331,24 +331,6 @@ client.on("userUpdate", async (old_user, new_user) => {
 client.on("messageCreate", async (message: Message) => {
   if (message.author.bot) return
 
-  const normalized_message = message.content
-    .toLowerCase()
-    .replace(/[^a-z]/g, "")
-
-  if (normalized_message.includes("rian") || normalized_message.includes("ryan")) {
-    try {
-      await message.delete()
-    } catch (error) {
-      await log_error(client, error as Error, "message_filter_delete", {
-        keyword : "rian|ryan",
-        user    : message.author.tag,
-        guild   : message.guild?.name || "DM",
-        channel : message.channel.id,
-      }).catch(() => {})
-    }
-    return
-  }
-
   if (message.channel.isThread() && message.channel.parentId === share_settings.get_forum_channel_id()) {
     const record = await share_settings.get_settings_by_forum_thread_id(client, message.channel.id)
     if (record) {
