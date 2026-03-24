@@ -22,7 +22,7 @@ export const sub_commands = new Collection<string, SubCommand>()
  * @returns {Promise<void>}
  */
 export async function load_sub_commands(): Promise<void> {
-  const modules_path = join(__dirname, "../../modules")
+  const modules_path = join(__dirname, "../modules")
   
   try {
     const modules = readdirSync(modules_path)

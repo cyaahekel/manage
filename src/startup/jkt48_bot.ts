@@ -15,10 +15,10 @@ import { db } from "@shared/utils"
 import { readdirSync } from "fs"
 import { join } from "path"
 import { start_idn_live_scheduler } from "@jkt48/core/schedulers/idn_live_monitor"
-import { handle_check_on_live_button } from "@jkt48/core/buttons/check_on_live"
-import { handle_history_live_button } from "@jkt48/core/buttons/history_live"
-import { run_middleware } from "../middleware/runner"
-import { error_handler } from "../middleware/error_handler"
+import { handle_check_on_live_button } from "@jkt48/modules/live_info/interactions/buttons/check_on_live"
+import { handle_history_live_button } from "@jkt48/modules/live_info/interactions/buttons/history_live"
+import { run_middleware } from "@shared/middleware/runner"
+import { error_handler } from "@shared/middleware/error_handler"
 
 config()
 
@@ -99,25 +99,35 @@ async function start_persistent_typing(): Promise<void> {
  */
 async function load_jkt48_commands(): Promise<object[]> {
   const commands_data: object[] = []
-  const jkt48_path = join(__dirname, "../jkt48_bot/modules")
+  const modules_path = join(__dirname, "../jkt48_bot/modules")
 
-  const files = readdirSync(jkt48_path).filter(file => file.endsWith(".ts") || file.endsWith(".js"))
+  async function load_from_directory(dir_path: string): Promise<void> {
+    const items = readdirSync(dir_path, { withFileTypes: true })
 
-  for (const file of files) {
-    const file_path = join(jkt48_path, file)
-    const imported = await import(file_path)
-    const command = imported.default || imported.command
+    for (const item of items) {
+      const item_path = join(dir_path, item.name)
 
-    if (!command?.data) {
-      console.warn(`[ - JKT48 - ] Skipping ${file} - no valid command export`)
-      continue
+      if (item.isDirectory()) {
+        if (item.name === "interactions") continue
+        await load_from_directory(item_path)
+      } else if (item.isFile() && (item.name.endsWith(".ts") || item.name.endsWith(".js"))) {
+        const imported = await import(item_path)
+        const command  = imported.default || imported.command
+
+        if (!command?.data) {
+          console.warn(`[ - JKT48 - ] Skipping ${item.name} - no valid command export`)
+          continue
+        }
+
+        const command_name = command.data.name
+        client.commands.set(command_name, command)
+        commands_data.push(command.data.toJSON())
+        console.log(`[ - JKT48 - ] Loaded: /${command_name}`)
+      }
     }
-
-    const command_name = command.data.name
-    client.commands.set(command_name, command)
-    commands_data.push(command.data.toJSON())
-    console.log(`[ - JKT48 - ] Loaded: /${command_name}`)
   }
+
+  await load_from_directory(modules_path)
 
   console.log(`[ - JKT48 - ] Total commands: ${commands_data.length}`)
   return commands_data

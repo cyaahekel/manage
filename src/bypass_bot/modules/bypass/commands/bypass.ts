@@ -17,7 +17,7 @@ import { Command } from "@shared/types/command"
 import { bypass_link, bypass_max_retry } from "@shared/services/bypass_service"
 import * as component from "@shared/utils/components"
 import { api, cache, db, guild_settings } from "@shared/utils"
-import { check_bypass_rate_limit } from "../core/limits/bypass_rate_limit"
+import { check_bypass_rate_limit } from "@bypass/core/limits/bypass_rate_limit"
 
 /**
  * - 绕过链接命令 - \\

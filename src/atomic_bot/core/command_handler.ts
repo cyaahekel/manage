@@ -25,7 +25,7 @@ export async function load_commands(client: extended_client) {
   client.message_context_menu_commands = new Collection()
   const commands_data: object[]       = []
 
-  const commands_path = join(__dirname, "../../modules")
+  const commands_path = join(__dirname, "../modules")
   
   async function load_from_directory(dir_path: string): Promise<void> {
     const items = readdirSync(dir_path, { withFileTypes: true })

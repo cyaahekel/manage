@@ -15,11 +15,11 @@ import { db } from "@shared/utils"
 import { readdirSync } from "fs"
 import { join } from "path"
 import { handle_auto_bypass, recover_stuck_bypass_sessions } from "@bypass/core/events/auto_bypass"
-import { handle_bypass_mobile_copy } from "@bypass/core/buttons/bypass_mobile_copy"
-import { handle_bypass_request_log } from "@bypass/core/buttons/bypass_request_log"
-import { handle_bypass_support_type_select } from "@bypass/core/select_menus/bypass_support_type_select"
-import { run_middleware } from "../middleware/runner"
-import { error_handler } from "../middleware/error_handler"
+import { handle_bypass_mobile_copy } from "@bypass/modules/bypass/interactions/buttons/bypass_mobile_copy"
+import { handle_bypass_request_log } from "@bypass/modules/bypass/interactions/buttons/bypass_request_log"
+import { handle_bypass_support_type_select } from "@bypass/modules/support/interactions/select_menus/bypass_support_type_select"
+import { run_middleware } from "@shared/middleware/runner"
+import { error_handler } from "@shared/middleware/error_handler"
 
 config()
 
@@ -71,25 +71,33 @@ async function load_bypass_commands(client: Client & { commands: Collection<stri
   const commands_data: object[] = []
   const modules_path = join(__dirname, "../bypass_bot/modules")
 
-  const items = readdirSync(modules_path, { withFileTypes: true })
+  async function load_from_directory(dir_path: string): Promise<void> {
+    const items = readdirSync(dir_path, { withFileTypes: true })
 
-  for (const item of items) {
-    if (!item.isFile() || (!item.name.endsWith(".ts") && !item.name.endsWith(".js"))) continue
+    for (const item of items) {
+      const item_path = join(dir_path, item.name)
 
-    const item_path = join(modules_path, item.name)
-    const imported = await import(item_path)
-    const command = imported.default || imported.command
+      if (item.isDirectory()) {
+        if (item.name === "interactions") continue
+        await load_from_directory(item_path)
+      } else if (item.isFile() && (item.name.endsWith(".ts") || item.name.endsWith(".js"))) {
+        const imported = await import(item_path)
+        const command  = imported.default || imported.command
 
-    if (!command?.data) {
-      console.warn(`[ - BYPASS - ] Skipping ${item.name} - no valid command export`)
-      continue
+        if (!command?.data) {
+          console.warn(`[ - BYPASS - ] Skipping ${item.name} - no valid command export`)
+          continue
+        }
+
+        const command_name = command.data.name
+        console.warn(`[ - BYPASS - ] Loaded: ${command_name}`)
+        client.commands.set(command_name, command)
+        commands_data.push(command.data.toJSON())
+      }
     }
-
-    const command_name = command.data.name
-    console.warn(`[ - BYPASS - ] Loaded: ${command_name}`)
-    client.commands.set(command_name, command)
-    commands_data.push(command.data.toJSON())
   }
+
+  await load_from_directory(modules_path)
 
   return commands_data
 }

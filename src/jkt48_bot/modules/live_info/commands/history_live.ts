@@ -10,12 +10,12 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js"
 import { Command }                                          from "@shared/types/command"
 import { log_error }                                        from "@shared/utils/error_logger"
-import { build_live_message, get_live_rooms }               from "../core/controllers/jkt48_live_controller"
+import { build_history_message, get_history_records }       from "@jkt48/core/controllers/jkt48_live_controller"
 
 export const command: Command = {
   data: new SlashCommandBuilder()
-    .setName("check-on-live")
-    .setDescription("Check which JKT48 members are currently live")
+    .setName("history-live")
+    .setDescription("View JKT48 live history")
     .addStringOption((option) =>
       option
         .setName("platform")
@@ -32,19 +32,19 @@ export const command: Command = {
 
     try {
       const platform = interaction.options.getString("platform", true)
-      const rooms    = await get_live_rooms(interaction.client, platform)
-      const message  = build_live_message({
+      const records  = await get_history_records(interaction.client, platform)
+      const message  = build_history_message({
         platform  : platform,
-        rooms     : rooms,
+        records   : records,
         index     : 0,
         requester : interaction.user.username,
       })
 
       await interaction.editReply(message)
     } catch (error) {
-      await log_error(interaction.client, error as Error, "check_on_live_command", {})
+      await log_error(interaction.client, error as Error, "history_live_command", {})
       await interaction.editReply({
-        content : "An error occurred while checking live streams.",
+        content : "An error occurred while fetching live history.",
       }).catch(() => {})
     }
   },

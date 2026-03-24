@@ -16,7 +16,7 @@ import {
   remove_notification,
   get_user_subscriptions,
   get_member_suggestions,
-}                                                                                   from "../core/controllers/idn_live_controller"
+}                                                                                   from "@jkt48/core/controllers/idn_live_controller"
 
 export const command: Command = {
   data: new SlashCommandBuilder()
