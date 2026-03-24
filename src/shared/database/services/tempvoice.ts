@@ -599,16 +599,22 @@ export async function delete_temp_channel(channel: VoiceChannel | string): Promi
       voice_channel = fetched
     }
 
-    // - 收集聊天记录并 DM 通知 owner（后台，不阻塞删除） - \\
-    // - collect chat transcript and DM owner (background, non-blocking) - \\
+    // - 删除前从语音频道收集文字聊天 - \\
+    // - collect text-in-voice messages before deletion - \\
     const owner_id        = __channel_owners.get(channel_id)
     const channel_name    = voice_channel?.name ?? "Unknown"
     const thread_id       = __threads.get(channel_id)
     const total_visitors  = __channel_visitors.get(channel_id)?.size ?? 1
 
-    // - 在删除前收集线程消息 - \\
-    // - collect thread messages before deletion - \\
-    let collected_thread: ThreadChannel | null = null
+    let transcript_messages: any[] = []
+    if (voice_channel) {
+      try {
+        transcript_messages = await tv_transcript.collect_voice_chat_messages(voice_channel)
+      } catch { /* ignore */ }
+    }
+
+    // - 关闭线程 - \\
+    // - close thread - \\
     if (thread_id && voice_channel) {
       try {
         let th = voice_channel.guild.channels.cache.get(thread_id)
@@ -616,25 +622,10 @@ export async function delete_temp_channel(channel: VoiceChannel | string): Promi
           th = await voice_channel.guild.channels.fetch(thread_id).catch(() => undefined) as any
         }
         if (th && th.isThread()) {
-          collected_thread = th as ThreadChannel
+          await (th as ThreadChannel).setLocked(true)
+          await (th as ThreadChannel).setArchived(true)
+          console.log(`[ - THREAD - ] Locked and archived thread ${thread_id}`)
         }
-      } catch { /* ignore */ }
-    }
-
-    let transcript_messages: any[] = []
-    if (collected_thread) {
-      try {
-        transcript_messages = await tv_transcript.collect_thread_messages(collected_thread)
-      } catch { /* ignore */ }
-    }
-
-    // - 关闭线程 - \\
-    // - close thread - \\
-    if (collected_thread) {
-      try {
-        await collected_thread.setLocked(true)
-        await collected_thread.setArchived(true)
-        console.log(`[ - THREAD - ] Locked and archived thread ${thread_id}`)
       } catch (thread_error) {
         console.error(`[ - THREAD - ] Failed to lock/archive thread:`, thread_error)
       }

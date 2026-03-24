@@ -11,7 +11,7 @@
 // - tempvoice chat transcript manager - \\
 
 import { randomUUID }           from "crypto"
-import { ThreadChannel, Client, Collection } from "discord.js"
+import { VoiceChannel, Collection }          from "discord.js"
 import { db }                   from "@shared/utils"
 import { log_error }            from "@shared/utils/error_logger"
 import type {
@@ -23,14 +23,14 @@ import type {
 const __collection = "tempvoice_transcripts"
 
 /**
- * - 从线程收集聊天消息 - \\
- * - collect chat messages from thread - \\
- * @param thread - thread channel to collect from
+ * - 从语音频道收集文字聊天消息 - \\
+ * - collect text-in-voice messages from a voice channel - \\
+ * @param channel - voice channel to collect from
  * @param limit - max messages to fetch
  * @returns collected messages
  */
-export async function collect_thread_messages(
-  thread  : ThreadChannel,
+export async function collect_voice_chat_messages(
+  channel : VoiceChannel,
   limit   : number = 500,
 ): Promise<tempvoice_transcript_message[]> {
   const messages: tempvoice_transcript_message[] = []
@@ -40,7 +40,7 @@ export async function collect_thread_messages(
     const options: any = { limit: Math.min(100, limit - messages.length) }
     if (last_id) options.before = last_id
 
-    const fetched = await thread.messages.fetch(options)
+    const fetched = await channel.messages.fetch(options)
 
     if (!(fetched instanceof Collection) || fetched.size === 0) break
 
