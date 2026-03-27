@@ -17,7 +17,7 @@ import { log_error }                    from "@shared/utils/error_logger"
 const config            = load_config<{ devlog_channel_id: string; priority_role_id: string }>("devlog")
 const devlog_channel_id = config.devlog_channel_id
 const priority_role_id  = config.priority_role_id
-const devlog_thumb_url  = "https://github.com/bimoraa/Euphoria/blob/main/aaaaa.png?raw=true"
+const devlog_thumb_url  = "https://raw.githubusercontent.com/cyaahekel/manage/refs/heads/main/assets/images/atomic_logo.png"
 
 interface devlog_options {
   client    : Client
@@ -98,7 +98,7 @@ export async function publish_devlog(options: devlog_options) {
           components: [
             component.section({
               content: [
-                "## Atomicals Script Update Logs",
+                "## Noxius Community Update Script",
                 role_mentions,
                 `- **Place: **${script}`,
                 `- **Version: **v${version}`,
